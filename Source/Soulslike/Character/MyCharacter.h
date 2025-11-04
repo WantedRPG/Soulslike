@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "AbilitySystemInterface.h"
+#include "InputActionValue.h"
 #include "MyCharacter.generated.h"
 
 class UMyCharacterControlData;
+class USpringArmComponent;
+class UCameraComponent;
 
 UCLASS()
 class SOULSLIKE_API AMyCharacter : public ACharacter
@@ -16,13 +18,22 @@ class SOULSLIKE_API AMyCharacter : public ACharacter
 
 public:
 	AMyCharacter();
+
+	FORCEINLINE USpringArmComponent* GetCameraBoom()   const { return CameraBoom; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetCharacterControlData(const class UMyCharacterControlData* CharacterControlData);
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMyCharacterControlData> CharacterControlDataAsset;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USpringArmComponent> CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCameraComponent> FollowCamera;
 };
