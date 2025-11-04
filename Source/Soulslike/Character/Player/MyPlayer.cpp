@@ -11,8 +11,6 @@
 
 AMyPlayer::AMyPlayer()
 {
-	// TODO. PlayerState하고 PlayerController 작업
-
 	// 빙의 시, PlayerState의 ASC와 중복 방지하기 위함.
 	ASC = nullptr;
 }
