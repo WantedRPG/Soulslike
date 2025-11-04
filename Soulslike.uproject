@@ -8,10 +8,6 @@
 			"Name": "Soulslike",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"CoreUObject",
-				"Engine"
-			]
 		}
 	],
 	"Plugins": [
