@@ -34,6 +34,9 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
 
+	void SprintStart(const FInputActionValue& Value);
+	void SprintStop(const FInputActionValue& Value);
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> ASC;
@@ -54,4 +57,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> JumpAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> SprintAction;
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> RollAction;*/
+	
 };

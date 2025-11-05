@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MyPlayerState.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -75,6 +76,9 @@ void AMyPlayer::SetupGASInputComponent()
 		{
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 0/*input id*/);
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 0/*input id*/);
+
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 1);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 1);
 		}
 	}
 }
