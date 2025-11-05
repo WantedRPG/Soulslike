@@ -4,6 +4,7 @@
 #include "Character/GameplayAbility/MyGASprint.h"
 #include "GameFramework/Character.h"          
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MyGARoll.h"
 
 UMyGASprint::UMyGASprint()
 {
@@ -43,6 +44,7 @@ void UMyGASprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const F
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
+
 
 void UMyGASprint::OnCompleteCallback()
 {
