@@ -6,7 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Character/MyCharacterControlData.h"
+#include "Character/PrimaryDataAsset/MyCharacterControlData.h"
 
 AMyCharacter::AMyCharacter()
 {

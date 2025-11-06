@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/MyCharacter.h"
 #include "AbilitySystemInterface.h"
+#include "Character/PrimaryDataAsset/MyPDAComboAttack.h"
 #include "MyPlayer.generated.h"
 
 class UGameplayAbility;
@@ -21,6 +22,10 @@ class SOULSLIKE_API AMyPlayer : public AMyCharacter, public IAbilitySystemInterf
 public:
 	AMyPlayer();
 
+public:
+	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
+	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
+
 protected:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -33,9 +38,6 @@ protected:
 protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
-
-	void SprintStart(const FInputActionValue& Value);
-	void SprintStop(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
@@ -69,4 +71,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> RollAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ComboAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> FlameAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ElectricityAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> AcidAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> BreakdownAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ImpactAction;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
+	UAnimMontage* ComboAttackMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
+	TObjectPtr<class UMyPDAComboAttack> ComboAttackData;
 };

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/MyCharacterControlData.h"
+#include "Character/PrimaryDataAsset/MyCharacterControlData.h"
 
 UMyCharacterControlData::UMyCharacterControlData()
 {

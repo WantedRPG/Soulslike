@@ -93,8 +93,11 @@ void AMyPlayer::SetupGASInputComponent()
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 1);
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 1);
 
-			// 한 번 발동되면, 키를 떼도 취소 불가.
 			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 2);
+
+			// Attack
+			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
+			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 3);
 		}
 	}
 }
