@@ -32,6 +32,19 @@ void AMyPlayer::PossessedBy(AController* NewController)
 		ASC = MyPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(MyPS/*owner*/, this/*빙의 대상*/);
 
+		// ASC에 GE 적용
+		for (const auto& SE : StatEffect) 
+		{
+			FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+			EffectContextHandle.AddSourceObject(this);
+			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(SE.Key/*GE*/, SE.Value/*Level*/, EffectContextHandle);
+			
+			if (EffectSpecHandle.IsValid())
+			{
+				ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+			}
+		}
+
 		// GameplayAbiltySpec 등록
 		for (const auto& StartAbility : StartAbilities)
 		{

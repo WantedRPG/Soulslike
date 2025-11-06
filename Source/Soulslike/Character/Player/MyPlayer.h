@@ -47,6 +47,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TMap<TSubclassOf<class UGameplayEffect>, int32> StatEffect;
+
+	// UPROPERTY(EditAnywhere, Category = GAS)
+	// float Level;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> MoveAction;
