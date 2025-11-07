@@ -1,0 +1,4 @@
+﻿EffectID,GameplayEffectClass,ItemTag,Value,Duration
+Effect_Potion_Tier1_Health,,Item.Effect.Health,50,3
+Effect_Potion_Tier1_Stamina,,Item.Effect.Stamina,40,0
+Effect_Attack_Tier1_Damage,,Item.Effect.Damage,40,0

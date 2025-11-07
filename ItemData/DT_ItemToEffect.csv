@@ -1,0 +1,6 @@
+﻿TableNum,ItemID,ActionType,EffectID
+1,Item_001,Primary,Effect_Potion_Tier1_Health
+2,Item_002,Primary,Effect_Potion_Tier1_Stamina
+3,Item_003,Primary,Effect_Attack_Tier1_Damage
+4,Item_001,Primary,Effect_Potion_Tier1_Stamina
+5,Item_001,Primary,Effect_Attack_Tier1_Damage
