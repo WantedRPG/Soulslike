@@ -29,7 +29,4 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> RollMontage;
-
-private:
-	FRotator SavedActorRotation;
 };
