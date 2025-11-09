@@ -87,17 +87,21 @@ void AMyPlayer::SetupGASInputComponent()
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 		{
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 0/*input id*/);
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 0/*input id*/);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 1);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 1);
 
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 1);
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 1);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 2);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 2);
 
-			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 2);
+			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
+
+			// Equip Toggle
+			EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 4);
+			EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 5);
 
 			// Attack
-			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
-			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 3);
+			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 6);
+			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 6);
 		}
 	}
 }

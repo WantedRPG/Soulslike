@@ -38,7 +38,6 @@ protected:
 protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
-	void EquipWeapon(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
@@ -73,7 +72,10 @@ protected:
 	TObjectPtr<UInputAction> RollAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Weapon", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> EquipWeaponAction;
+	TObjectPtr<UInputAction> GrabWeaponAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Weapon", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> DropWeaponAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ComboAttackAction;

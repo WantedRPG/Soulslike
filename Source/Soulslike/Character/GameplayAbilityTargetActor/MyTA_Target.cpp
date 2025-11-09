@@ -2,11 +2,11 @@
 
 
 #include "Character/GameplayAbilityTargetActor/MyTA_Target.h"
-#include "GameFramework/Character.h"
-#include "Components/CapsuleComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 #include "DrawDebugHelpers.h"
 #include "AttributeSet/SLAttributeSet.h"
 
