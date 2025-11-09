@@ -37,14 +37,23 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+public:
+	UFUNCTION(BlueprintCallable)
+	void ShowItemGetUI();
+	UFUNCTION(BlueprintCallable)
+	void HiddenItemGetUI();
+	UFUNCTION(BlueprintCallable)
+	void AddItem(FName InItemID, int32 InStackCount);
+protected:
+	void InitInventoryWidget();
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USLInventoryWidget> InventoryWidgetClassAsset;
 	UPROPERTY()
 	TObjectPtr<class USLInventoryWidget> InventoryWidgetInstance;
-
+	//아이템 칸
+	int32 MaxItemSlotCount = 100;
 	//TArrayFInventorySlotData
 	//아이템 실제 데이터
-
+	TMap<int32, FInventorySlotData> ItemsBySlotIndex;
 };

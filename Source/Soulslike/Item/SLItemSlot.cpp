@@ -17,15 +17,14 @@ USLItemSlot::USLItemSlot(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 }
 //Todo : 보유개수 때문에 USLItemData를 쓰는건 아닌거 같다
-void USLItemSlot::SetItemData(USLItemData* NewItemData)
+void USLItemSlot::SetItemData(USLItemData* NewItemData,int32 InStackCount)
 {
 	check(NewItemData);
-
+	
 	ItemID = NewItemData->ItemID;
 	SetItemIconAsync(NewItemData->ItemIcon);
-	
-	//Todo : 보유개수는 어디에 저장해야하지?
-	//Txt_StackCount->SetText()
+	Txt_StackCount->SetVisibility(ESlateVisibility::Visible);
+	Txt_StackCount->SetText(FText::FromString(FString::FromInt(InStackCount)));
 }
 
 void USLItemSlot::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)

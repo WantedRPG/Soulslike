@@ -18,12 +18,22 @@ public:
 protected:
     virtual void NativeConstruct() override;
     //virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-protected:
+public:
 	void AddItemSlots(int32 Count);
+	bool AddItemSlot(class USLItemData* InItemData, int32 InStackCount);
+	void ShowGetItemUI();
+	void HiddenGetItemUI();
+	class USLItemSlot* FindAvailableSlotIndex() const;
 protected:
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* Grid_Item;
-
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* Border_GetItem;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI Setup")
 	TSubclassOf<class USLItemSlot> ItemSlotWidgetClass;
+	int32 MaxRow = 8;
+	
 };
+
+

@@ -3,6 +3,8 @@
 
 #include "Inventory/SLInventoryComponent.h"
 #include "SLInventoryWidget.h"
+#include <Item/SLItemManagerSubsystem.h>
+#include <Item/SLItemData.h>
 
 // Sets default values for this component's properties
 USLInventoryComponent::USLInventoryComponent()
@@ -27,6 +29,7 @@ void USLInventoryComponent::BeginPlay()
 		if (InventoryWidgetInstance)
 		{
 			InventoryWidgetInstance->AddToViewport();
+			InventoryWidgetInstance->AddItemSlots(MaxItemSlotCount);
 		}
 	}
 }
@@ -39,4 +42,39 @@ void USLInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	// ...
 }
+
+void USLInventoryComponent::ShowItemGetUI()
+{
+	check(InventoryWidgetInstance);
+
+	InventoryWidgetInstance->ShowGetItemUI();
+}
+
+void USLInventoryComponent::HiddenItemGetUI()
+{
+	check(InventoryWidgetInstance);
+	InventoryWidgetInstance->HiddenGetItemUI();
+}
+
+void USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
+{
+	check(InventoryWidgetInstance);
+	USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+
+	if (USLItemData* ItemData = ItemManager->GetItemData(InItemID))
+	{
+		InventoryWidgetInstance->AddItemSlot(ItemData, InStackCount);
+	}
+
+	
+}
+
+void USLInventoryComponent::InitInventoryWidget()
+{
+	check(InventoryWidgetInstance);
+
+	InventoryWidgetInstance->AddItemSlots(MaxItemSlotCount);
+}
+
+
 

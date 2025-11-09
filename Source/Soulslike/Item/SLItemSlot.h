@@ -19,7 +19,8 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	void SetItemData(class USLItemData* NewItemData);
+	void SetItemData(class USLItemData* NewItemData, int32 InStackCount);
+	FORCEINLINE FName GetItemID() { return ItemID; }
 protected:
 	void SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon);
 	void OnIconLoaded(TSoftObjectPtr<UTexture2D> LoadedIcon);
