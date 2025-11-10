@@ -8,7 +8,7 @@ USLMonsterAttributeSet::USLMonsterAttributeSet()
 	InitMaxHealth(100.f);
 	InitHealth(100.f);
 	InitAttackPower(10.f);
-	InitMoveSpeed(450.f);
+	InitMoveSpeed(250.f);
 	InitPoiseResist(0.0f);
 
 	InitFireResist(0.0f);
