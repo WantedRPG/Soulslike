@@ -74,7 +74,7 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		return;
 	}
 
-	// TODO. Actor를 상속받는 BP_Weapon 만들기
+	// TODO. 무기 충돌 시 손에 매치하는 작업 
 	// 무기
 	AActor* Sword = nullptr;
 
@@ -108,7 +108,7 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 	}
 
 	// 무기 장착 셋팅
-	if (UStaticMeshComponent* WeaponSMC = Sword->FindComponentByClass<UStaticMeshComponent>())
+	if (USkeletalMeshComponent* WeaponSMC = Sword->FindComponentByClass<USkeletalMeshComponent>())
 	{
 		WeaponSMC->SetSimulatePhysics(false);
 		WeaponSMC->SetEnableGravity(false);

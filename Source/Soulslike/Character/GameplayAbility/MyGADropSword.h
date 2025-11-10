@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "MyGADropSword.generated.h"
 
+class UAbilityTask_WaitGameplayEvent;
+
 UCLASS()
 class SOULSLIKE_API UMyGADropSword : public UGameplayAbility
 {
