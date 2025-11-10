@@ -93,12 +93,6 @@ protected:
 	TObjectPtr<UInputAction> ImpactAction;*/
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment | Weapon", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USkeletalMeshComponent> SwordMesh;
-
-	bool bHasSwordEquipped = false;
-
-protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
 	UAnimMontage* ComboAttackMontage;
 
