@@ -97,7 +97,10 @@ void AMyPlayer::SetupGASInputComponent()
 
 			// Equip Toggle
 			EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 4);
+			// EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 4);
+
 			EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 5);
+			// EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 5);
 
 			// Attack
 			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 6);

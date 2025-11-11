@@ -13,6 +13,9 @@
 #include "Character/AbilityTask/MyATWeaponHit.h"           
 #include "Character/GameplayAbilityTargetActor/MyTA_Sword.h"      
 
+#include "AbilitySystemComponent.h"   
+#include "GameplayAbilitySpec.h" 
+
 UMyGAGrabSword::UMyGAGrabSword()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -59,6 +62,7 @@ void UMyGAGrabSword::OnNotifyEventReceived(FGameplayEventData EventData)
 		return;
 	}
 
+	// 충돌 AT
 	if (UMyATWeaponHit* WeaponTraceTask = UMyATWeaponHit::CreateTask(this, TargetActorClass))
 	{
 		WeaponTraceTask->OnComplete.AddDynamic(this, &UMyGAGrabSword::OnTraceResultCallback);
@@ -74,7 +78,6 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		return;
 	}
 
-	// TODO. 무기 충돌 시 손에 매치하는 작업 
 	// 무기
 	AActor* Sword = nullptr;
 
@@ -100,7 +103,6 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		return;
 	}
 
-	// 무기 장착
 	USkeletalMeshComponent* CharMesh = Character->GetMesh();
 	if ((!CharMesh) || (!CharMesh->DoesSocketExist(HandSocketName)))
 	{
@@ -117,12 +119,18 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 
 	Sword->SetOwner(Character);
 	Sword->SetInstigator(Character);
-
+	// 무기 장착
 	Sword->AttachToComponent(CharMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
 }
 
 void UMyGAGrabSword::OnMontageCompleted()
 {
+	if (WaitEventTask)
+	{
+		WaitEventTask->EndTask();
+		WaitEventTask = nullptr;
+	}
+
 	const bool bReplicatedEndAbility = true;
 	const bool bWasCancelled = false;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
@@ -140,5 +148,3 @@ void UMyGAGrabSword::OnMontageInterruptedOrCancelled()
 	const bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
-
-
