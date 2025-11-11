@@ -26,6 +26,8 @@ public:
 	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
 
+	FORCEINLINE UAnimMontage* GetSkillActionMontage() const { return SkillAttackMontage; }
+
 protected:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -80,17 +82,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ComboAttackAction;
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> AcidAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> FlameAttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ElectricityAttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> AcidAttackAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ImpactAction;*/
+	TObjectPtr<UInputAction> ImpactAction;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
@@ -98,4 +100,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
 	TObjectPtr<class UMyPDAComboAttack> ComboAttackData;
+
+	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
+	UAnimMontage* SkillAttackMontage;
 };

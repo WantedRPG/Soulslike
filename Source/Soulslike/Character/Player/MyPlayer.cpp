@@ -103,8 +103,25 @@ void AMyPlayer::SetupGASInputComponent()
 			// EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 5);
 
 			// Attack
+			// ComboAttack
 			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 6);
 			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 6);
+
+			// Acid
+			EnhancedInputComponent->BindAction(AcidAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 7);
+			EnhancedInputComponent->BindAction(AcidAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 7);
+
+			// Flame
+			EnhancedInputComponent->BindAction(FlameAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 8);
+			EnhancedInputComponent->BindAction(FlameAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 8);
+
+			// Electricity
+			EnhancedInputComponent->BindAction(ElectricityAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 9);
+			EnhancedInputComponent->BindAction(ElectricityAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 9);
+
+			// Impact
+			EnhancedInputComponent->BindAction(ImpactAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 10);
+			EnhancedInputComponent->BindAction(ImpactAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 10);
 		}
 	}
 }
