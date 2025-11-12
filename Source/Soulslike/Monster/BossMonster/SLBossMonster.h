@@ -6,6 +6,7 @@
 #include "Monster/Common/SLMonsterbase.h"
 #include "Abilities/GameplayAbility.h"
 #include "Data/SLMontageData.h"
+#include "Data/SLMonsterSpecialAttack.h"
 #include "SLBossMonster.generated.h"
 
 /**
@@ -28,6 +29,10 @@ protected:
     // 몽타주 데이터에셋
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TObjectPtr<USLMontageData> MontageDataPDA;
+
+    // 특수공격 게임어빌리티 데이터에셋
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TObjectPtr<USLMonsterSpecialAttack> SpecialAttackPDA;
 
     // BPGA_Move 블루프린트 클래스를 보관할 변수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

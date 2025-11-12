@@ -37,7 +37,7 @@ void ASLBossMonster::BeginPlay()
     Super::BeginPlay();
 
     // 보스용 데이터에셋 누락 시 스킵(로그)
-    if (!MontageDataPDA)
+    if (!MontageDataPDA || !SpecialAttackPDA)
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: MontageDataPDA is not assigned"), *GetName());
         return;
@@ -71,4 +71,15 @@ void ASLBossMonster::BeginPlay()
         UE_LOG(LogTemp, Warning, TEXT("%s: NormalAttackAbilityClass is null"), *GetName());
     }
     
+    if (ASC && SpecialAttackPDA)
+    {
+        for (const auto& AbilityClass : SpecialAttackPDA->SpecialAttacks)
+        {
+            if (AbilityClass)
+            {
+                ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
+            }
+        }
+    }
+
 }
