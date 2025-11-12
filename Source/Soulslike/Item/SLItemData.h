@@ -33,6 +33,8 @@ public:
 	int32 MaxStack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> ItemIcon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer ItemTags;
 	//아이템 효과
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EItemActionType, FItemActionDetail> ItemActionMap;

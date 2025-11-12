@@ -17,67 +17,52 @@ USLInventoryWidget::USLInventoryWidget(const FObjectInitializer& ObjectInitializ
 void USLInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	Grid_Item->ClearChildren();
-    
 }
 
-USLItemSlot* USLInventoryWidget::FindAvailableSlotIndex() const
+void USLInventoryWidget::NativeDestruct()
 {
-    
-    for (int32 Index = 0; Index < Grid_Item->GetChildrenCount(); ++Index)
+    Super::NativeDestruct();
+}
+
+void USLInventoryWidget::AddItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount)
+{
+    USLItemSlot* NewSlotWidget = CreateWidget<USLItemSlot>(this, ItemSlotWidgetClass);
+    if (NewSlotWidget)
     {
-        if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(Index)))
-        {
-            if (ItemSlot->GetItemID().IsNone())
+        //UniformGridPanel에 자식으로 추가
+        //AddChildToUniformGrid 한 후 슬롯 데이터가 적용됨
+        UUniformGridSlot* NewSlot = Grid_Item->AddChildToUniformGrid(NewSlotWidget);
+        if (NewSlot)
+        {   
+            NewSlot->SetRow(InSlotIndex / MaxRow);
+            NewSlot->SetColumn(InSlotIndex % MaxRow);
+
+            //아이템 정보를 ItemManager에서 가져와서 슬롯데이터 초기화
+            USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+            if (USLItemData* ItemData = ItemManager->GetItemData(InItemID))
             {
-                return ItemSlot;
+                NewSlotWidget->SetItemData(ItemData, InStackCount);
             }
         }
     }
-
-    return nullptr;
 }
 
-void USLInventoryWidget::AddItemSlots(int32 Count)
+void USLInventoryWidget::UpdateItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount)
 {
-    for (int32 Start = 0; Start < Count; ++Start)
+    if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(InSlotIndex)))
     {
-        USLItemSlot* NewSlotWidget = CreateWidget<USLItemSlot>(this, ItemSlotWidgetClass);
-        if (NewSlotWidget)
+        if (ItemSlot->GetItemID() != InItemID)
         {
-            //NewSlotWidget->SetItemData()
-            
-            //UniformGridPanel에 자식으로 추가
-            UUniformGridSlot* NewSlot = Grid_Item->AddChildToUniformGrid(NewSlotWidget);
-            if (NewSlot)
+            USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+            if (USLItemData* ItemData = ItemManager->GetItemData(InItemID))
             {
-                // 3. 슬롯의 위치 (행/열) 설정
-                // 예: 5개씩 한 줄로 배치
-                NewSlot->SetRow(Start / MaxRow);
-                NewSlot->SetColumn(Start % MaxRow);
-
-                //NewSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-                //NewSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-                //GridSlot->SetPadding(FMargin(5.0f));
+                ItemSlot->SetItemData(ItemData, InStackCount);
             }
         }
+        ItemSlot->UpdateStackCount(InStackCount);  
     }
-    //Grid_Item->GetChild
 }
-bool USLInventoryWidget::AddItemSlot(USLItemData* InItemData, int32 InStackCount)
-{
-    if (USLItemSlot* ItemSlot = FindAvailableSlotIndex())
-    {
-        ItemSlot->SetItemData(InItemData, InStackCount);
-        return true;
-    }
-        
-  
-    return false;
-    //빈공간에 넣어야하는데 탐색을 어떻게 해야하나?
-    //중간이 빈공간이라면?
-}
+
 void USLInventoryWidget::ShowGetItemUI()
 {
     Border_GetItem->SetVisibility(ESlateVisibility::Visible);
@@ -86,4 +71,30 @@ void USLInventoryWidget::ShowGetItemUI()
 void USLInventoryWidget::HiddenGetItemUI()
 {
     Border_GetItem->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void USLInventoryWidget::CleanInventory()
+{
+    Grid_Item->ClearChildren();
+}
+
+void USLInventoryWidget::SetItemStackCount(int32 InSlotIndex, int32 InStackCount)
+{
+    if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(InSlotIndex)))
+    {
+        ItemSlot->UpdateStackCount(InStackCount);
+    }
+}
+
+void USLInventoryWidget::SetEmptySlot(int32 InSlotIndex)
+{
+    if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(InSlotIndex)))
+    {
+        ItemSlot->SetEmpty();
+    }
+}
+
+void USLInventoryWidget::SetRemoveSlot(int32 InSlotIndex)
+{
+
 }

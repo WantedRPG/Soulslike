@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ActionID;
 
-	FItemToActionTableRow() : ItemID(), ActionType(EItemActionType::None), ActionID() {}
+	FItemToActionTableRow() : TableNum(),ItemID(), ActionType(EItemActionType::None), ActionID() {}
 };
 
 USTRUCT(BlueprintType)
@@ -117,4 +117,16 @@ public:
 	//아이템 효과 - 여러 효과 적용 가능
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
 	TArray<TSoftClassPtr<UGameplayEffect>> EffectsToApply;
+};
+
+USTRUCT(BlueprintType)
+struct FItemTagTableRow : public FTableRowBase
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ItemID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag ItemTag;
+	FItemTagTableRow() {};
 };

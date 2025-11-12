@@ -18,12 +18,18 @@ public:
 protected:
     virtual void NativeConstruct() override;
     //virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeDestruct() override;
 public:
-	void AddItemSlots(int32 Count);
-	bool AddItemSlot(class USLItemData* InItemData, int32 InStackCount);
+
+	void AddItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount);
+	void UpdateItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount);
 	void ShowGetItemUI();
 	void HiddenGetItemUI();
-	class USLItemSlot* FindAvailableSlotIndex() const;
+	void CleanInventory();
+	void SetItemStackCount(int32 InSlotIndex,int32 InStackCount);
+	void SetEmptySlot(int32 InSlotIndex);
+	void SetRemoveSlot(int32 InSlotIndex);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* Grid_Item;

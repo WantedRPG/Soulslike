@@ -16,7 +16,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentStack;
 
-	FInventorySlotData() : ItemID(NAME_None), CurrentStack(0) {}
+	FInventorySlotData() : ItemID(NAME_None), CurrentStack(0){}
 	FInventorySlotData(FName InItemID,int32 InStack) : ItemID(InItemID), CurrentStack(InStack) {}
 };
 
@@ -43,17 +43,33 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HiddenItemGetUI();
 	UFUNCTION(BlueprintCallable)
-	void AddItem(FName InItemID, int32 InStackCount);
-protected:
+	bool AddItem(FName InItemID, int32 InStackCount);
+	//인벤토리 widget 켜기/끄기
+	UFUNCTION(BlueprintCallable)
+	void ToggleInventory();
+	
+private:
+	void ShowInventory();
+	void HiddenInventory();
+	void UpdateInventory();
 	void InitInventoryWidget();
+
+
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class USLInventoryWidget> InventoryWidgetClassAsset;
+	TSubclassOf<class USLInventoryWidget> InventoryWidgetClass;
 	UPROPERTY()
 	TObjectPtr<class USLInventoryWidget> InventoryWidgetInstance;
 	//아이템 칸
 	int32 MaxItemSlotCount = 100;
+	//아이템 칸
+	int32 CurrentItemCount = 0;
 	//TArrayFInventorySlotData
 	//아이템 실제 데이터
-	TMap<int32, FInventorySlotData> ItemsBySlotIndex;
+	UPROPERTY()
+	TArray<FInventorySlotData> Items;
+	//아이템 매니저
+	UPROPERTY()
+	TObjectPtr<class USLItemManagerSubsystem> ItemManager;
+
 };

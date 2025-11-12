@@ -20,10 +20,12 @@ protected:
 
 public:
 	void SetItemData(class USLItemData* NewItemData, int32 InStackCount);
+	void SetEmpty();
+	void UpdateStackCount(int32 InStackCount);
 	FORCEINLINE FName GetItemID() { return ItemID; }
 protected:
 	void SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon);
-	void OnIconLoaded(TSoftObjectPtr<UTexture2D> LoadedIcon);
+	void OnIconLoaded(FSoftObjectPath SoftIconPath);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

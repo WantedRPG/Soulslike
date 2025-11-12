@@ -10,7 +10,7 @@
 
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
-
+#include "Styling/SlateBrush.h"
 
 USLItemSlot::USLItemSlot(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -22,33 +22,39 @@ void USLItemSlot::SetItemData(USLItemData* NewItemData,int32 InStackCount)
 	check(NewItemData);
 	
 	ItemID = NewItemData->ItemID;
+	//Todo : 이미지 누락
+	FGameplayTag StackableTag = FGameplayTag::RequestGameplayTag(FName("Item.Property.Stackable"));
+	//같은 종류 아이템 누적 가능여부 tag로 구별 
+	if (NewItemData->ItemTags.HasTag(StackableTag))
+	{
+		Txt_StackCount->SetVisibility(ESlateVisibility::Visible);
+		Txt_StackCount->SetText(FText::AsNumber(InStackCount));
+	}
+
 	SetItemIconAsync(NewItemData->ItemIcon);
-	Txt_StackCount->SetVisibility(ESlateVisibility::Visible);
-	Txt_StackCount->SetText(FText::FromString(FString::FromInt(InStackCount)));
+}
+
+void USLItemSlot::SetEmpty()
+{
+	Image_ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+	Txt_StackCount->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void USLItemSlot::UpdateStackCount(int32 InStackCount)
+{
+	Txt_StackCount->SetText(FText::AsNumber(InStackCount));
 }
 
 void USLItemSlot::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)
 {
+	//Todo : 이미지 로드 관련해서 조사하기, 위젯 닫을때 메모리해제 안되는거같음 -> 이미지 겹침 문제
 	UTexture2D* LoadedTexture = SoftIcon.Get();
 	//메모리에 로드되어 있는지 확인
-	if (LoadedTexture)
+	//Slot이 가리는거같음
+	if (LoadedTexture && Image_ItemIcon)
 	{
-		if (Image_ItemIcon)
-		{
-			Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
-			Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
-		}
-		return;
-	}
-	
-	if (SoftIcon.IsNull())
-	{
-		//아이콘이 비어있는 경우
-		if (Image_ItemIcon)
-		{
-			Image_ItemIcon->SetBrushFromTexture(nullptr);
-			Image_ItemIcon->SetVisibility(ESlateVisibility::Hidden);
-		}
+		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
+		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
 	}
 	else 
 	{
@@ -56,15 +62,15 @@ void USLItemSlot::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)
 		FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
 		StreamableManager.RequestAsyncLoad(
 			SoftIcon.ToSoftObjectPath(),
-			FStreamableDelegate::CreateUObject(this, &USLItemSlot::OnIconLoaded, SoftIcon)
+			FStreamableDelegate::CreateUObject(this, &USLItemSlot::OnIconLoaded, SoftIcon.ToSoftObjectPath())
 		);
 	}
 }
 
-void USLItemSlot::OnIconLoaded(TSoftObjectPtr<UTexture2D> LoadedIcon)
+void USLItemSlot::OnIconLoaded(FSoftObjectPath SoftIconPath)
 {
 	// 로드가 완료된 후 텍스처 적용
-	UTexture2D* LoadedTexture = LoadedIcon.Get();
+	UTexture2D* LoadedTexture = Cast<UTexture2D>(SoftIconPath.ResolveObject());
 
 	if (LoadedTexture && Image_ItemIcon)
 	{
