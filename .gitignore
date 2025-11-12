@@ -73,3 +73,6 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+Content/Monster/BossMonster/DaimyoHermitaur/Animation/AS_DaimyoHermitaur.uasset
+Content/Monster/BossMonster/Tigrex/Animation/AS_Tigrex.uasset
