@@ -8,6 +8,18 @@
 #include "Character/PrimaryDataAsset/MyPDAComboAttack.h"
 #include "MyPlayer.generated.h"
 
+USTRUCT(BlueprintType)
+struct FGEStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UGameplayEffect> Effect;
+
+	UPROPERTY(EditAnywhere)
+	float Level;
+};
+
 class UGameplayAbility;
 class UInputAction;
 
@@ -52,10 +64,7 @@ protected:
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TMap<TSubclassOf<class UGameplayEffect>, int32> StatEffect;
-
-	// UPROPERTY(EditAnywhere, Category = GAS)
-	// float Level;
+	TArray<FGEStruct> StatEffect;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Move", meta = (AllowPrivateAccess = "true"))
@@ -86,7 +95,7 @@ protected:
 	TObjectPtr<UInputAction> AcidAttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> FlameAttackAction;
+	TObjectPtr<UInputAction> FireAttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ElectricityAttackAction;

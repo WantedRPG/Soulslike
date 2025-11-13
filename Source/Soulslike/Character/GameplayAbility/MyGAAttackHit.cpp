@@ -19,6 +19,7 @@ void UMyGAAttackHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	// 노티파이로부터 공격 레벨 획득
 	CurrentLevel = TriggerEventData->EventMagnitude;
+	AttackTag = TriggerEventData->EventTag;
 
 	UMyATAttackHit* AttackTraceTask = UMyATAttackHit::CreateTask(this, AMyTA_Target::StaticClass());
 	AttackTraceTask->OnComplete.AddDynamic(this, &UMyGAAttackHit::OnTraceResultCallback);
@@ -33,17 +34,23 @@ void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		UE_LOG(LogTemp, Log, TEXT("Target %s Detected"), *(HitResult.GetActor()->GetName()));
 
-		// 공격 주체 정보 셋팅
+		// 몬스터 정보 셋팅
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 		const USLAttributeSet* SourceAttribute = SourceASC->GetSet<USLAttributeSet>();
 
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel/*레벨*/);
-		if (EffectSpecHandle.IsValid())
+		// 공격력만 셋팅된 GE이므로 데미지만 적용됨. 
+		TSubclassOf<UGameplayEffect> AttackEffect = EffectByAttackTag.FindRef(AttackTag);
+		if (AttackEffect)
 		{
-			// TODO. 피격 대상에게 GE 적용 (예, 데미지 적용)
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+			FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(AttackEffect, CurrentLevel);
+
+			if (Spec.IsValid())
+			{
+				Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_Attack_Power, SourceAttribute->GetAttackPower());
+				ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec);
+			}
 		}
+
 	}
 
 	// 종료
