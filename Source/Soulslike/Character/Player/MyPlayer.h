@@ -64,7 +64,10 @@ protected:
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TArray<FGEStruct> StatEffect;
+	TSubclassOf<class UGameplayEffect> StatEffect;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	float Level;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Move", meta = (AllowPrivateAccess = "true"))

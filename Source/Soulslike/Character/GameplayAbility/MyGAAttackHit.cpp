@@ -46,8 +46,12 @@ void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 
 			if (Spec.IsValid())
 			{
-				Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_Attack_Power, SourceAttribute->GetAttackPower());
-				ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec);
+				// TODO. 여기서 몬스터한테 레벨값(스킬별 공격력) 반영하기. 
+				// (1) GE 작업해야 함. AttackRate를 적용하는 방식.
+				// (2) 다만 현재 로직은 AttributeSet의 AttackPower 자체를 바꾸는 게 아님.... Set하고 나서 Get로 전달해주는 방향으로 수정
+				Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
+				// GE로 전달
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec, TargetDataHandle);
 			}
 		}
 

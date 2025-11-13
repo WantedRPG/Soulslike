@@ -24,6 +24,7 @@ void UMyAnimNotify_AttackHit::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 		AActor* OwnerActor = MeshComp->GetOwner();
 		if (OwnerActor)
 		{
+			// GE의 Level 전달
 			FGameplayEventData PayloadData;
 			PayloadData.EventMagnitude = ComboAttackLevel;
 			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, TriggerGameplayTag, PayloadData);
