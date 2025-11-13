@@ -5,17 +5,20 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Abilities/GameplayAbility.h"
-#include "SLMonsterSpecialAttack.generated.h"
+#include "SLMonsterAttack.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
-class SOULSLIKE_API USLMonsterSpecialAttack : public UPrimaryDataAsset
+class SOULSLIKE_API USLMonsterAttack : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-	
+
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> NormalAttacks;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayAbility>> SpecialAttacks;
 };
