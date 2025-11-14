@@ -14,6 +14,8 @@ AMyPlayer::AMyPlayer()
 {
 	// 빙의 시, PlayerState의 ASC와 중복 방지하기 위함.
 	ASC = nullptr;
+
+	Level = 1;
 }
 
 UAbilitySystemComponent* AMyPlayer::GetAbilitySystemComponent() const
@@ -33,16 +35,18 @@ void AMyPlayer::PossessedBy(AController* NewController)
 		ASC->InitAbilityActorInfo(MyPS/*owner*/, this/*빙의 대상*/);
 
 		// ASC에 GE 적용
-		for (const auto& SE : StatEffect) 
+		/*for (const auto& GE : StatEffect)
 		{
-			FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-			EffectContextHandle.AddSourceObject(this);
-			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(SE.Key/*GE*/, SE.Value/*Level*/, EffectContextHandle);
-			
-			if (EffectSpecHandle.IsValid())
-			{
-				ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
-			}
+
+		}*/
+		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+		EffectContextHandle.AddSourceObject(this);
+		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
+
+		if (EffectSpecHandle.IsValid())
+		{
+			// 본인에게 Setting하는 GE
+			ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
 		}
 
 		// GameplayAbiltySpec 등록
@@ -112,8 +116,8 @@ void AMyPlayer::SetupGASInputComponent()
 			EnhancedInputComponent->BindAction(AcidAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 7);
 
 			// Flame
-			EnhancedInputComponent->BindAction(FlameAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 8);
-			EnhancedInputComponent->BindAction(FlameAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 8);
+			EnhancedInputComponent->BindAction(FireAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 8);
+			EnhancedInputComponent->BindAction(FireAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 8);
 
 			// Electricity
 			EnhancedInputComponent->BindAction(ElectricityAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 9);
