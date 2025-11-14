@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UGameplayEffect> DamageGEClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGameplayEffect> InitGEClass;
+
 public:	
 	virtual void BeginPlay() override;
 

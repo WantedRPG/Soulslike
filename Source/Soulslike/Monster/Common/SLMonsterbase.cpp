@@ -35,6 +35,28 @@ void ASLMonsterbase::BeginPlay()
         {
             UE_LOG(LogTemp, Log, TEXT("%s AttributeSet 초기화 완료"), *GetName());
         }
+
+        // InitGEClass 배정 여부 확인
+        if (!InitGEClass)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("InitGEClass is NOT assigned on %s"), *GetName());
+            return;
+        }
+
+        // GE Context 만들기
+        FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
+        ContextHandle.AddSourceObject(this);
+
+        // Spec 생성
+        FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(InitGEClass, 1.f, ContextHandle);
+        if (!SpecHandle.IsValid())
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to make GE Spec for %s"), *GetName());
+            return;
+        }
+
+        // 초기 스탯 GE한 번 발동!
+        ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
 
 }
