@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,11 +6,12 @@
 #include "Monster/Common/SLMonsterbase.h"
 #include "Abilities/GameplayAbility.h"
 #include "Data/SLMontageData.h"
+#include "Data/SLMonsterAttack.h"
 #include "SLBossMonster.generated.h"
 
 /**
- * °¢°¢ÀÇ º¸½º ¸ó½ºÅÍ ºí·çÇÁ¸°Æ®Å¬·¡½º°¡ °øÅëÀ¸·Î »ó¼ÓÇÏ´Â Å¬·¡½º
- * °ÔÀÓÇÃ·¹ÀÌ¾îºô¸®Æ¼¸¦ ºÎ¿©ÇÏ´Â ±â´ÉÀ» ÇÔ
+ * ê°ê°ì˜ ë³´ìŠ¤ ëª¬ìŠ¤í„° ë¸”ë£¨í”„ë¦°íŠ¸í´ë˜ìŠ¤ê°€ ê³µí†µìœ¼ë¡œ ìƒì†í•˜ëŠ” í´ë˜ìŠ¤
+ * ê²Œì„í”Œë ˆì´ì–´ë¹Œë¦¬í‹°ë¥¼ ë¶€ì—¬í•˜ëŠ” ê¸°ëŠ¥ì„ í•¨
  */
 
 UCLASS()
@@ -25,15 +26,19 @@ public:
     virtual void BeginPlay() override;
 
 protected:
-    // ¸ùÅ¸ÁÖ µ¥ÀÌÅÍ¿¡¼Â
+    // ëª½íƒ€ì£¼ ë°ì´í„°ì—ì…‹
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TObjectPtr<USLMontageData> MontageDataPDA;
 
-    // BPGA_Move ºí·çÇÁ¸°Æ® Å¬·¡½º¸¦ º¸°üÇÒ º¯¼ö
+    // ê³µê²© ê²Œì„ì–´ë¹Œë¦¬í‹° ë°ì´í„°ì—ì…‹
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TObjectPtr<USLMonsterAttack> AttackPDA;
+
+    // BPGA_Move ë¸”ë£¨í”„ë¦°íŠ¸ í´ë˜ìŠ¤ë¥¼ ë³´ê´€í•  ë³€ìˆ˜
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<class UGameplayAbility> MoveAbilityClass;
 
-    // BPGA_NormalAttack ºí·çÇÁ¸°Æ® Å¬·¡½º¸¦ º¸°üÇÒ º¯¼ö
+    // BPGA_Turn ë¸”ë£¨í”„ë¦°íŠ¸ í´ë˜ìŠ¤ë¥¼ ë³´ê´€í•  ë³€ìˆ˜
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<class UGameplayAbility> NormalAttackAbilityClass;
+    TSubclassOf<class UGameplayAbility> TurnAbilityClass;
 };

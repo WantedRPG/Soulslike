@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SLBossMonster.h"
@@ -7,37 +7,18 @@
 
 ASLBossMonster::ASLBossMonster()
 {
-    // º¸½º°¡ ½ºÆù/¹èÄ¡µÇ¸é ÀÚµ¿À¸·Î º¸½º AI°¡ ÀåÂøµÇµµ·Ï
+    // ë³´ìŠ¤ê°€ ìŠ¤í°/ë°°ì¹˜ë˜ë©´ ìë™ìœ¼ë¡œ ë³´ìŠ¤ AIê°€ ì¥ì°©ë˜ë„ë¡
     AIControllerClass = ASLBossMonsterAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-    // BPGA_Move ºí·çÇÁ¸°Æ® Ability ·Îµå
-    static ConstructorHelpers::FObjectFinder<UBlueprint> MoveGARef(
-        TEXT("/Game/Monster/BossMonster/GA/BPGA_Move.BPGA_Move")
-    );
-
-    if (MoveGARef.Succeeded())
-    {
-        MoveAbilityClass = (UClass*)MoveGARef.Object->GeneratedClass;
-    }
-
-    // BPGA_NormalAttack ºí·çÇÁ¸°Æ® Ability ·Îµå
-    static ConstructorHelpers::FObjectFinder<UBlueprint> NormalAttackGARef(
-        TEXT("/Game/Monster/BossMonster/GA/BPGA_NormalAttack.BPGA_NormalAttack")
-    );
-
-    if (NormalAttackGARef.Succeeded())
-    {
-        NormalAttackAbilityClass = (UClass*)NormalAttackGARef.Object->GeneratedClass;
-    }
 }
 
 void ASLBossMonster::BeginPlay()
 {
     Super::BeginPlay();
 
-    // º¸½º¿ë µ¥ÀÌÅÍ¿¡¼Â ´©¶ô ½Ã ½ºÅµ(·Î±×)
-    if (!MontageDataPDA)
+    // ë³´ìŠ¤ìš© ë°ì´í„°ì—ì…‹ ëˆ„ë½ ì‹œ ìŠ¤í‚µ(ë¡œê·¸)
+    if (!MontageDataPDA || !AttackPDA)
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: MontageDataPDA is not assigned"), *GetName());
         return;
@@ -49,6 +30,7 @@ void ASLBossMonster::BeginPlay()
         return;
     }
 
+    // Give Move Ga 
     if (MoveAbilityClass)
     {
         FGameplayAbilitySpec Spec(MoveAbilityClass, 1, 0, MontageDataPDA);
@@ -59,16 +41,40 @@ void ASLBossMonster::BeginPlay()
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: MoveAbilityClass is null"), *GetName());
     }
-
-    if (NormalAttackAbilityClass)
+    // Give Turn GA
+    if (TurnAbilityClass)
     {
-        FGameplayAbilitySpec Spec(NormalAttackAbilityClass, 1, 0, MontageDataPDA);
+        FGameplayAbilitySpec Spec(TurnAbilityClass, 1, 0, MontageDataPDA);
         ASC->GiveAbility(Spec);
-        UE_LOG(LogTemp, Log, TEXT("%s: GA_NormalAttack granted"), *GetName());
+        UE_LOG(LogTemp, Log, TEXT("%s: GA_Turn granted"), *GetName());
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("%s: NormalAttackAbilityClass is null"), *GetName());
+        UE_LOG(LogTemp, Warning, TEXT("%s: TurnAbilityClass is null"), *GetName());
     }
-    
+
+    // Give Normal Attack GA
+    if (ASC && AttackPDA)
+    {
+        for (const auto& AbilityClass : AttackPDA->NormalAttacks)
+        {
+            if (AbilityClass)
+            {
+                ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
+            }
+        }
+    }
+
+    // Give Special Attack GA
+    if (ASC && AttackPDA)
+    {
+        for (const auto& AbilityClass : AttackPDA->SpecialAttacks)
+        {
+            if (AbilityClass)
+            {
+                ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
+            }
+        }
+    }
+
 }

@@ -33,4 +33,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TObjectPtr<UAnimMontage> GrogyMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<TObjectPtr<UAnimMontage>> TurnMontages;
 };

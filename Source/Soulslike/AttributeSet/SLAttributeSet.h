@@ -24,110 +24,119 @@ class SOULSLIKE_API USLAttributeSet : public UAttributeSet
 public:
 	USLAttributeSet();
 
+#pragma region Default
+	// 체력
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Health", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Health);			// 체력
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, Health);
 
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Health", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxHealth);		// 최대 체력
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxHealth);
 
+	// 이동 속도
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | MovementSpeed", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MovementSpeed;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, MovementSpeed);	// 이동 속도
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, MovementSpeed);
 
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | MovementSpeed", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxMovementSpeed;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxMovementSpeed); // 최대 이동 속도
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxMovementSpeed);
 
-	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Stamina", Meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData Stamina;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Stamina);			// 현재 스태미나
-
-#pragma region Resist
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | PoiseResist", Meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData Resist_Poise;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Poise);		 // 경직 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | Acid")
-	FGameplayAttributeData Resist_Acid;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Acid);		 // 산성 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | Fire")
-	FGameplayAttributeData Resist_Fire;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Fire);		 // 화염 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | Electricity")
-	FGameplayAttributeData Resist_Electricity;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Electricity); // 전격 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | Impact")
-	FGameplayAttributeData Resist_Impact;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Impact);	  // 충격 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Resist | Breakdown")
-	FGameplayAttributeData Resist_Breakdown;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Resist_Breakdown);   // 붕괴 저항 수치
-#pragma endregion
-
-// TODO. 누적치가 임계값을 넘이면 상태 이상 이벤트 발생. 이는 GE의 Level 변경으로 활용할 예정.
-#pragma region StatusResist
-	UPROPERTY(BlueprintReadOnly, Category = "StatusResist | Acid")
-	FGameplayAttributeData StatusResist_Corrode;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, StatusResist_Corrode);  //	부식 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "StatusResist | Fire")
-	FGameplayAttributeData StatusResist_Overheat;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, StatusResist_Overheat); // 과열 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "StatusResist | Electricity")
-	FGameplayAttributeData StatusResist_Shock;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, StatusResist_Shock);    // 감전 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "StatusResist | Impact")
-	FGameplayAttributeData StatusResist_Collapse;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, StatusResist_Collapse); // 충격 저항 수치
-
-	UPROPERTY(BlueprintReadOnly, Category = "StatusResist | Breakdown")
-	FGameplayAttributeData StatusResist_Death;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, StatusResist_Death);   // 붕괴 저항 수치
-#pragma endregion
-
-// 상태 이상 상황인지 판단할, 누적치
-#pragma region Bulidup
-	UPROPERTY(BlueprintReadOnly, Category = "Bulidup | Acid")
-	FGameplayAttributeData Buildup_Corrode;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Buildup_Corrode);		 // 산성 누적치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Bulidup | Fire")
-	FGameplayAttributeData Bulidup_Overheat;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Bulidup_Overheat);		 // 화염 누적치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Bulidup | Electricity")
-	FGameplayAttributeData Buildup_Shock;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Buildup_Shock);		// 전격 누적치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Bulidup | Impact")
-	FGameplayAttributeData Buildup_Collapse;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Buildup_Collapse);	    // 충격 누적치
-
-	UPROPERTY(BlueprintReadOnly, Category = "Bulidup | Breakdown")
-	FGameplayAttributeData Buildup_Death;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Buildup_Death);		// 붕괴 누적치
-#pragma endregion
-
-	// Notify 발동할 때마다, 공격력만 다르게 적용.
+	// 공격력
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Attack Power", Meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData AttackPower;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, AttackPower);
+	FGameplayAttributeData Power;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, Power);
 
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Attack Rate", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRate;
 	ATTRIBUTE_ACCESSORS(USLAttributeSet, AttackRate);
 
+	// 현재 스태미나
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Stamina", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Stamina;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, Stamina);
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Stamina", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxStamina;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxStamina);
+
+
+	// 경직 저항 수치
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Resist", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData PoiseResist;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, PoiseResist);
+#pragma endregion
+
+#pragma region Skill
+	// 화염
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Flame")
+	FGameplayAttributeData FireResist;          // 화염저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, FireResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Flame")
+	FGameplayAttributeData OverheatResist;      // 과열 상태이상 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, OverheatResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Flame")
+	FGameplayAttributeData OverheatBuildup;     // 과열 누적치(0~100)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, OverheatBuildup);
+
+	// 전격
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Electricity")
+	FGameplayAttributeData ElectricResist;      // 전격저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, ElectricResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Electricity")
+	FGameplayAttributeData ShockResist;         // 감전 상태이상 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, ShockResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Electricity")
+	FGameplayAttributeData ShockBuildup;        // 감전 누적치(0~100)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, ShockBuildup);
+
+	// 산성
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Acid")
+	FGameplayAttributeData AcidResist;          // 산성저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, AcidResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Acid")
+	FGameplayAttributeData CorrodeResist;       // 부식 상태이상 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, CorrodeResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Acid")
+	FGameplayAttributeData CorrodeBuildup;      // 부식 누적치(0~100)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, CorrodeBuildup);
+
+	// 붕괴
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Breakdown")
+	FGameplayAttributeData BreakdownResist;     // 붕괴저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, BreakdownResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Breakdown")
+	FGameplayAttributeData DeathResist;         // 즉사 상태이상 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, DeathResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Breakdown")
+	FGameplayAttributeData DeathBuildup;        // 즉사 누적치(0~100)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, DeathBuildup);
+
+	// 충격
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Impact")
+	FGameplayAttributeData ImpactResist;        // 충격 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, ImpactResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Impact")
+	FGameplayAttributeData CollapseResist;       // 충격 상태이상 저항(0~1)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, CollapseResist);
+
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttribute | Impact")
+	FGameplayAttributeData CollapseBuildup;      // 부식 누적치(0~100)
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, CollapseBuildup);
+
+#pragma endregion
+
 public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	// virtual void PostGameplayEffectExecute(const FGameplayAttribute& Attribute, float& OldValue ,float& NewValue) override;
-	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 };
