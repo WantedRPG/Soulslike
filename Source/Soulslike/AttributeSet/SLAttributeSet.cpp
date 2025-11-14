@@ -4,6 +4,8 @@
 #include "AttributeSet/SLAttributeSet.h"
 #include "GameplayEffectExtension.h"
 
+// TODO. 몬스터 데미지 반영을 위해 임시로 0 이하로 체력이 떨어질 수 있도록 수정함.
+
 USLAttributeSet::USLAttributeSet()
 {
 }
@@ -17,10 +19,10 @@ void USLAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 		NewValue = FMath::Clamp(NewValue, 0, GetMaxHealth());
 	}*/
 
-	if (Attribute == GetAttackPowerAttribute()) 
+	/*if (Attribute == GetAttackPowerAttribute()) 
 	{
 		NewValue = NewValue < 0.0f ? 0.0f : NewValue;
-	}
+	}*/
 }
 
 void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -30,26 +32,16 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) 
 	{
 		UE_LOG(LogTemp, Log, TEXT("Health : %f"), GetHealth());
-		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		//bSetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		SetHealth(GetHealth());
 	}
 	
 	if (Data.EvaluatedData.Attribute == GetAttackPowerAttribute()) 
 	{
 		UE_LOG(LogTemp, Log, TEXT("Damage : %f"), GetAttackPower());
 		// 데미지를 체력에 반영
-		SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
+		// SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
+		SetHealth(GetHealth() - GetAttackPower());
 		SetAttackPower(0.0f);
 	}
 }
-
-//
-//void USLAttributeSet::PostGameplayEffectExecute(const FGameplayAttribute& Attribute, float& OldValue, float& NewValue)
-//{
-//	// Super::PostGameplayEffectExecute(Attribute, OldValue, NewValue);
-//
-//	// 데미지가 체력에 반영됐는지 확인하는 코드
-//	if (Attribute == GetHealthAttribute()) 
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Health : %f -> %f"), OldValue, NewValue);
-//	}
-//}
