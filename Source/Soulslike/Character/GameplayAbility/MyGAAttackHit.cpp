@@ -19,7 +19,7 @@ void UMyGAAttackHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	// 노티파이로부터 공격 레벨 획득
 	CurrentLevel = TriggerEventData->EventMagnitude;
-	AttackTag = TriggerEventData->EventTag;
+	// AttackTag = TriggerEventData->EventTag;
 
 	UMyATAttackHit* AttackTraceTask = UMyATAttackHit::CreateTask(this, AMyTA_Target::StaticClass());
 	AttackTraceTask->OnComplete.AddDynamic(this, &UMyGAAttackHit::OnTraceResultCallback);
@@ -38,22 +38,24 @@ void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 		const USLAttributeSet* SourceAttribute = SourceASC->GetSet<USLAttributeSet>();
 
+		FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
+
+		if (Spec.IsValid())
+		{
+			// TODO. 여기서 몬스터한테 레벨값(스킬별 공격력) 반영하기. 
+			// (1) GE 작업해야 함. AttackRate를 적용하는 방식. 
+			// (2) 다만 현재 로직은 AttributeSet의 AttackPower 자체를 바꾸는 게 아님.... Set하고 나서 Get로 전달해주는 방향으로 수정
+			Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
+			// GE로 전달
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec, TargetDataHandle);
+		}
+
 		// 공격력만 셋팅된 GE이므로 데미지만 적용됨. 
-		TSubclassOf<UGameplayEffect> AttackEffect = EffectByAttackTag.FindRef(AttackTag);
+		/*TSubclassOf<UGameplayEffect> AttackEffect = EffectByAttackTag.FindRef(AttackTag);
 		if (AttackEffect)
 		{
-			FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(AttackEffect, CurrentLevel);
-
-			if (Spec.IsValid())
-			{
-				// TODO. 여기서 몬스터한테 레벨값(스킬별 공격력) 반영하기. 
-				// (1) GE 작업해야 함. AttackRate를 적용하는 방식.
-				// (2) 다만 현재 로직은 AttributeSet의 AttackPower 자체를 바꾸는 게 아님.... Set하고 나서 Get로 전달해주는 방향으로 수정
-				Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
-				// GE로 전달
-				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec, TargetDataHandle);
-			}
-		}
+			UE_LOG(LogTemp, Log, TEXT("Player의 공격 Hit GE 셋팅"));
+		}*/
 
 	}
 

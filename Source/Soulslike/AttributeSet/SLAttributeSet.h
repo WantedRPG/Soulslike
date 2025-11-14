@@ -127,6 +127,7 @@ public:
 
 public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	// virtual void PostGameplayEffectExecute(const FGameplayAttribute& Attribute, float& OldValue ,float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 };

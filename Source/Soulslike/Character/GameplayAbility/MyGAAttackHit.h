@@ -23,11 +23,14 @@ protected:
 	UFUNCTION()
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
+	
 	// 공격별 Attack 값 지정
-	UPROPERTY(EditAnywhere, Category = "GAS | GE")
-	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> EffectByAttackTag;
+	/*UPROPERTY(EditAnywhere, Category = "GAS | GE")
+	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> EffectByAttackTag;*/
 
 	float CurrentLevel;
 
-	FGameplayTag AttackTag;
+	//FGameplayTag AttackTag;
 };

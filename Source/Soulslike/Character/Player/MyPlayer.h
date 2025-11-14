@@ -8,17 +8,17 @@
 #include "Character/PrimaryDataAsset/MyPDAComboAttack.h"
 #include "MyPlayer.generated.h"
 
-USTRUCT(BlueprintType)
-struct FGEStruct
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UGameplayEffect> Effect;
-
-	UPROPERTY(EditAnywhere)
-	float Level;
-};
+//USTRUCT(BlueprintType)
+//struct FGEStruct
+//{
+//	GENERATED_BODY()
+//
+//	UPROPERTY(EditAnywhere)
+//	TSubclassOf<class UGameplayEffect> Effect;
+//
+//	UPROPERTY(EditAnywhere)
+//	float Level;
+//};
 
 class UGameplayAbility;
 class UInputAction;
