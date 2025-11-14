@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-#include "Attribute/SLMonsterAttributeSet.h"
+#include "AttributeSet/SLAttributeSet.h"
+#include "SLSignalComponent.h"
+#include "Monster/Common/SLAttackInfoStruct.h"
 #include "SLMonsterbase.generated.h"
 
 UCLASS()
@@ -22,8 +24,21 @@ protected:
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TObjectPtr<class USLMonsterAttributeSet> MonsterAttributes;
+	TObjectPtr<class USLAttributeSet> Attributes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class USLSignalComponent> SignalComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAcess = "true"))
+	FSLAttackInfoStruct CurrentAttackInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGameplayEffect> DamageGEClass;
 
 public:	
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyHitToTarget(AActor* HitActor);
+
 };

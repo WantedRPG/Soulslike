@@ -56,6 +56,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Stamina", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(USLAttributeSet, Stamina);
+	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Stamina", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxStamina;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, MaxStamina);
+
 
 	// 경직 저항 수치
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Resist", Meta = (AllowPrivateAccess = true))

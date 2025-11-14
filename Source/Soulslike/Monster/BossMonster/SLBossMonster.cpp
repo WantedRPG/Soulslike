@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SLBossMonster.h"
@@ -7,7 +7,7 @@
 
 ASLBossMonster::ASLBossMonster()
 {
-    // º¸½º°¡ ½ºÆù/¹èÄ¡µÇ¸é ÀÚµ¿À¸·Î º¸½º AI°¡ ÀåÂøµÇµµ·Ï
+    // ë³´ìŠ¤ê°€ ìŠ¤í°/ë°°ì¹˜ë˜ë©´ ìë™ìœ¼ë¡œ ë³´ìŠ¤ AIê°€ ì¥ì°©ë˜ë„ë¡
     AIControllerClass = ASLBossMonsterAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -17,7 +17,7 @@ void ASLBossMonster::BeginPlay()
 {
     Super::BeginPlay();
 
-    // º¸½º¿ë µ¥ÀÌÅÍ¿¡¼Â ´©¶ô ½Ã ½ºÅµ(·Î±×)
+    // ë³´ìŠ¤ìš© ë°ì´í„°ì—ì…‹ ëˆ„ë½ ì‹œ ìŠ¤í‚µ(ë¡œê·¸)
     if (!MontageDataPDA || !AttackPDA)
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: MontageDataPDA is not assigned"), *GetName());
