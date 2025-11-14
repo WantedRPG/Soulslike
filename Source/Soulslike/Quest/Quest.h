@@ -7,19 +7,10 @@
 #include "Objective.h"
 #include "Quest.generated.h"
 
-
-UENUM()
-enum class EQuestType : uint8
-{
-	Main,
-	Side,
-	Arbeit
-};
-
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class SOULSLIKE_API UQuest : public UObject
 {
 	GENERATED_BODY()
@@ -38,13 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FText Description;
 
-	// Quest type
-	UPROPERTY(EditAnywhere, Category = Quest)
-	EQuestType Type = EQuestType::Main;
-
 	// Objectives of a quest
-	UPROPERTY(EditAnywhere, Category = Quest)
-	TArray<TObjectPtr<UObjective>> Objectives;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
+	TArray<TObjectPtr<AObjective>> Objectives;
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = Quest)

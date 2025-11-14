@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Objective.h"
+#include "Quest/QuestDefinition.h"
 
-AObjective::AObjective()
+UQuestDefinition::UQuestDefinition()
 {
 }

@@ -1,8 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Objective.h"
-
-AObjective::AObjective()
-{
-}
+#include "Quest/QuestData.h"

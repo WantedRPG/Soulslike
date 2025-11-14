@@ -9,19 +9,21 @@
 /**
  * 
  */
-UCLASS()
-class SOULSLIKE_API UObjective : public UObject
+UCLASS(Blueprintable)
+class SOULSLIKE_API AObjective : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	UObjective();
+	AObjective();
 
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FString Name;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FText Description;
+
+
 
 
 };
