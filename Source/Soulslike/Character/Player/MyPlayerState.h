@@ -11,19 +11,19 @@
  * 
  */
 UCLASS()
-class SOULSLIKE_API AMyPlayerState : public APlayerState, public IAbilitySystemInterface
+class SOULSLIKE_API AMyPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 	
 public:
-	AMyPlayerState();
+	//AMyPlayerState() = default;
 
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-protected:
-	UPROPERTY(EditAnywhere, Category = GAS)
-	TObjectPtr<class UAbilitySystemComponent> ASC;
-
-	UPROPERTY()
-	TObjectPtr<class USLAttributeSet> AttributeSet;
+//	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+//
+//protected:
+//	UPROPERTY(EditAnywhere, Category = GAS)
+//	TObjectPtr<class UAbilitySystemComponent> ASC;
+//
+//	UPROPERTY()
+//	TObjectPtr<class USLAttributeSet> AttributeSet;
 };
