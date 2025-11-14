@@ -39,37 +39,40 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
 	UFUNCTION(BlueprintCallable)
-	void ShowItemGetUI();
-	UFUNCTION(BlueprintCallable)
-	void HiddenItemGetUI();
-	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName InItemID, int32 InStackCount);
 	//인벤토리 widget 켜기/끄기
 	UFUNCTION(BlueprintCallable)
 	void ToggleInventory();
-	
+	void DropItem(int32 InSlotIndex);
+	void RequestSwapItems(int32 FromIndex, int32 ToIndex);
 private:
 	void ShowInventory();
 	void HiddenInventory();
 	void UpdateInventory();
 	void InitInventoryWidget();
-
+	
 
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USLInventoryWidget> InventoryWidgetClass;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USLInventoryWidget> InventoryWidgetInstance;
-	//아이템 칸
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class ASLItemPickupActor> ItemPickupActorClass;
+	//최대 아이템 칸
+	UPROPERTY(EditDefaultsOnly)
 	int32 MaxItemSlotCount = 100;
-	//아이템 칸
+	//현재 아이템 칸
+	UPROPERTY(VisibleAnywhere)
 	int32 CurrentItemCount = 0;
-	//TArrayFInventorySlotData
+
 	//아이템 실제 데이터
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TArray<FInventorySlotData> Items;
 	//아이템 매니저
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USLItemManagerSubsystem> ItemManager;
 
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	class USLInventoryComponent* InventoryComponent;
 };

@@ -5,7 +5,7 @@
 #include "SLInventoryWidget.h"
 #include <Item/SLItemManagerSubsystem.h>
 #include <Item/SLItemData.h>
-
+#include <Item/SLItemPickupActor.h>
 // Sets default values for this component's properties
 USLInventoryComponent::USLInventoryComponent()
 {
@@ -13,7 +13,7 @@ USLInventoryComponent::USLInventoryComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetFinder(TEXT("WidgetBlueprint'/Game/LSJ/Inventory/WBP_Inventory.WBP_Inventory_C'"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetFinder(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LSJ/Inventory/WBP_Inventory.WBP_Inventory_C'"));
 	if (InventoryWidgetFinder.Succeeded())
 	{
 		InventoryWidgetClass = InventoryWidgetFinder.Class;
@@ -47,19 +47,6 @@ void USLInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
-void USLInventoryComponent::ShowItemGetUI()
-{
-	check(InventoryWidgetInstance);
-
-	InventoryWidgetInstance->ShowGetItemUI();
-}
-
-void USLInventoryComponent::HiddenItemGetUI()
-{
-	check(InventoryWidgetInstance);
-	InventoryWidgetInstance->HiddenGetItemUI();
-}
-
 bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 {
 	//인벤토리가 가득 찼는지 체크
@@ -73,7 +60,7 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 	//아이템 존재 확인
 	if (nullptr == InItemData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("존재하지 않는 아이템입니다"));
+		UE_LOG(LogTemp, Warning, TEXT("ItemID %s 존재하지 않는 아이템입니다"),*InItemID.ToString());
 		return false;
 	}
 	
@@ -84,7 +71,7 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 		for (int32 Index = 0; Index<Items.Num(); ++Index)
 		{
 			//ItemID 일치하고, 비교 아이템의 StackCount가 MaxStackCount보다 낮다면 아이템을 넣고 초과된 수만큼 아이템 넣기
-			if (InItemID.IsEqual(Items[Index].ItemID) && InItemData->MaxStack < Items[Index].CurrentStack)
+			if (InItemID.IsEqual(Items[Index].ItemID) && InItemData->MaxStack > Items[Index].CurrentStack)
 			{
 				int32 TotalStackCount = Items[Index].CurrentStack + InStackCount;
 				if (TotalStackCount <= InItemData->MaxStack)
@@ -101,6 +88,10 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 				}
 				else
 				{
+					//101 21
+					//20 
+					//121
+					
 					Items[Index].CurrentStack = InItemData->MaxStack;
 					//UI업데이트
 					if (InventoryWidgetInstance)
@@ -113,8 +104,7 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 		}
 	}
 
-	//아이템 추가
-	//초과된 StackCount 고려
+	//빈 슬롯에 아이템 추가
 	for (int32 Index = 0; Index < Items.Num(); ++Index)
 	{
 		if (Items[Index].ItemID.IsNone())
@@ -122,14 +112,16 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 			if (InStackCount > 0)
 			{
 				Items[Index].ItemID = InItemID;
+				//초과된 StackCount 고려
 				Items[Index].CurrentStack = FMath::Min(InStackCount, InItemData->MaxStack);
+				InStackCount -= InItemData->MaxStack;
+
 				//UI업데이트
 				if (InventoryWidgetInstance)
 				{
 					InventoryWidgetInstance->UpdateItemSlot(Index, Items[Index].ItemID, Items[Index].CurrentStack);
 				}
-				
-				InStackCount -= InItemData->MaxStack;
+
 				++CurrentItemCount;
 			}
 			else
@@ -152,8 +144,33 @@ void USLInventoryComponent::UpdateInventory()
 
 void USLInventoryComponent::InitInventoryWidget()
 {
-
+	check(InventoryWidgetInstance);
+	InventoryWidgetInstance->SetInventoryComponent(this);
 	UpdateInventory();
+}
+
+void USLInventoryComponent::RequestSwapItems(int32 FromIndex, int32 ToIndex)
+{
+	//인덱스 유효성 검사
+	if (!Items.IsValidIndex(FromIndex) || !Items.IsValidIndex(ToIndex))
+		return;
+
+	//대상 슬롯이 비어있는지 확인
+	if (Items[ToIndex].ItemID.IsNone())
+	{
+		Items[ToIndex] = Items[FromIndex];
+		Items[FromIndex].ItemID = NAME_None;
+		Items[FromIndex].CurrentStack = 0;
+	}
+	else
+	{
+		FInventorySlotData TempItemData = Items[ToIndex];
+		Items[ToIndex] = Items[FromIndex];
+		Items[FromIndex] = TempItemData;
+	}
+
+	InventoryWidgetInstance->UpdateItemSlot(ToIndex, Items[ToIndex].ItemID, Items[ToIndex].CurrentStack);
+	InventoryWidgetInstance->UpdateItemSlot(FromIndex, Items[FromIndex].ItemID, Items[FromIndex].CurrentStack);
 }
 
 void USLInventoryComponent::ToggleInventory()
@@ -168,6 +185,18 @@ void USLInventoryComponent::ToggleInventory()
 	}
 }
 
+void USLInventoryComponent::DropItem(int32 InSlotIndex)
+{
+	if (ItemPickupActorClass)
+	{
+		ASLItemPickupActor* ItemPickupActor =GetWorld()->SpawnActor<ASLItemPickupActor>(ItemPickupActorClass, GetOwner()->GetTransform());
+		ItemPickupActor->SetItemData(Items[InSlotIndex].ItemID, Items[InSlotIndex].CurrentStack);
+	}
+	Items[InSlotIndex].ItemID = NAME_None;
+	Items[InSlotIndex].CurrentStack = 0;
+	InventoryWidgetInstance->SetEmptySlot(InSlotIndex);
+}
+
 void USLInventoryComponent::ShowInventory()
 {
 	InventoryWidgetInstance = CreateWidget<USLInventoryWidget>(GetWorld(), InventoryWidgetClass);
@@ -179,8 +208,13 @@ void USLInventoryComponent::ShowInventory()
 		//마우스 UI모드 및 보이기
 		if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 		{
-			//PlayerController->SetInputMode(FInputModeUIOnly());
-			//PlayerController->bShowMouseCursor = false;
+			// 게임 월드와 상호작용도 필요
+			FInputModeGameAndUI InputMode; 
+			// 포커스 설정
+			InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
+			
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = true;
 		}
 	}
 }
@@ -190,11 +224,12 @@ void USLInventoryComponent::HiddenInventory()
 	InventoryWidgetInstance->RemoveFromParent();
 	InventoryWidgetInstance = nullptr;
 	
-	//마우스 게임모드 및 감추기
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 	{
-		//PlayerController->SetInputMode(FInputModeGameOnly());
-		//PlayerController->bShowMouseCursor = false;
+		//마우스 게임모드 및 감추기
+		PlayerController->SetInputMode(FInputModeGameOnly());
+		PlayerController->bShowMouseCursor = false;
 	}
 }
 

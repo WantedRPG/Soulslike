@@ -7,22 +7,33 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "SLItemData.h"
+#include "SLDragDropSlot.h"
+#include "Inventory/SLInventoryComponent.h"
+#include "Item/SLItemData.h"
+#include "SLItemManagerSubsystem.h"
 
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
 #include "Styling/SlateBrush.h"
+#include <Blueprint/WidgetBlueprintLibrary.h>
+
 
 USLItemSlot::USLItemSlot(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 
 }
-//Todo : 보유개수 때문에 USLItemData를 쓰는건 아닌거 같다
-void USLItemSlot::SetItemData(USLItemData* NewItemData,int32 InStackCount)
+void USLItemSlot::SetItemSlotData(USLItemData* NewItemData,int32 InStackCount,int32 InSlotIndex, USLInventoryComponent* InInventoryComponent)
 {
-	check(NewItemData);
-	
+	InventoryComponent = InInventoryComponent;
+	SlotIndex = InSlotIndex;
+	StackCount = InStackCount;
+
+	if (nullptr == NewItemData)
+	{
+		return;
+	}
+
 	ItemID = NewItemData->ItemID;
-	//Todo : 이미지 누락
 	FGameplayTag StackableTag = FGameplayTag::RequestGameplayTag(FName("Item.Property.Stackable"));
 	//같은 종류 아이템 누적 가능여부 tag로 구별 
 	if (NewItemData->ItemTags.HasTag(StackableTag))
@@ -36,13 +47,15 @@ void USLItemSlot::SetItemData(USLItemData* NewItemData,int32 InStackCount)
 
 void USLItemSlot::SetEmpty()
 {
+	ItemID = NAME_None;
 	Image_ItemIcon->SetVisibility(ESlateVisibility::Hidden);
 	Txt_StackCount->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void USLItemSlot::UpdateStackCount(int32 InStackCount)
+void USLItemSlot::SetTxtStackCount(int32 InStackCount)
 {
 	Txt_StackCount->SetText(FText::AsNumber(InStackCount));
+	Txt_StackCount->SetVisibility(ESlateVisibility::Visible);
 }
 
 void USLItemSlot::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)
@@ -74,15 +87,77 @@ void USLItemSlot::OnIconLoaded(FSoftObjectPath SoftIconPath)
 
 	if (LoadedTexture && Image_ItemIcon)
 	{
-		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
 		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
+		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
 	}
+}
+
+FReply USLItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FEventReply Reply;
+
+	Reply.NativeReply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	
+	if (ItemID.IsNone())
+		return Reply.NativeReply;
+	// 좌클릭 입력이 들어온 경우
+	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+	{
+		Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
+		
+	}
+
+	return Reply.NativeReply;
+}
+
+void USLItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	if (OutOperation == nullptr)
+	{
+		// 드래그 슬롯을 생성
+		if (USLDragDropSlot* Operation = NewObject<USLDragDropSlot>())
+		{
+			OutOperation = Operation;
+
+			// 슬롯 인덱스 지정
+			Operation->PrevSlotIndex = SlotIndex;
+			Operation->InventoryComponent = InventoryComponent;
+			// 드래그 슬롯의 드래그 위젯을 설정.
+			USLItemSlot* DragVisualWidget = CreateWidget<USLItemSlot>(GetOwningPlayer(), DragVisualClass);
+			if (DragVisualWidget)
+			{
+				USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+				if (nullptr == ItemManager)
+					return;
+				DragVisualWidget->OnIconLoaded(ItemManager->GetItemData(ItemID)->ItemIcon.Get());
+				DragVisualWidget->SetTxtStackCount(StackCount);
+				Operation->DefaultDragVisual = DragVisualWidget;
+			}
+		}
+	}
+}
+
+bool USLItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	UE_LOG(LogTemp, Warning, TEXT("out %d"), SlotIndex);
+	USLDragDropSlot* Operation = Cast<USLDragDropSlot>(InOperation);
+
+	if (Operation)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%d %d"), SlotIndex, Operation->PrevSlotIndex);
+		Operation->InventoryComponent->RequestSwapItems(SlotIndex, Operation->PrevSlotIndex);
+
+		// 같은 타입의 슬롯인 경우
+		return true;
+	}
+	
+	return false;
 }
 
 void USLItemSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	Image_ItemIcon->SetVisibility(ESlateVisibility::Hidden);
-	Txt_StackCount->SetVisibility(ESlateVisibility::Hidden);
 }

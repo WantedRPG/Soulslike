@@ -32,13 +32,13 @@ USLItemData* USLItemManagerSubsystem::GetItemData(FName ItemID) const
 void USLItemManagerSubsystem::LoadAllItemData()
 {
 	//데이터 테이블 첫번째 컬럼은 중복값이 들어갈 수 없음 -> 출력이 안됨
-	UDataTable* ItemTable = LoadDataTable(TEXT("ITEM_TABLE_FILE"), FItemTableRow::StaticStruct());
-	UDataTable* ActionTable = LoadDataTable(TEXT("ACTION_TABLE_FILE"), FActionTableRow::StaticStruct());
-	UDataTable* ItemToActionTable = LoadDataTable(TEXT("ITEM_TO_ACTION_TABLE_FILE"), FItemToActionTableRow::StaticStruct());
-	UDataTable* EffectTable = LoadDataTable(TEXT("EFFECT_TABLE_FILE"), FEffectTableRow::StaticStruct());
-	UDataTable* ItemToEffectTable = LoadDataTable(TEXT("ITEM_TO_EFFECT_TABLE_FILE"), FItemToEffectTableRow::StaticStruct());
-	UDataTable* TextKoTable = LoadDataTable(TEXT("TEXT_KO_TABLE_FILE"), FItemTextTableRow::StaticStruct());
-	UDataTable* ItemTagTable = LoadDataTable(TEXT("ITEM_TAG_TABLE_FILE"), FItemTagTableRow::StaticStruct());
+	UDataTable* ItemTable = LoadDataTable(TEXT("CsvPathSettings"),TEXT("ITEM_TABLE_FILE"), FItemTableRow::StaticStruct());
+	UDataTable* ActionTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("ACTION_TABLE_FILE"), FActionTableRow::StaticStruct());
+	UDataTable* ItemToActionTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("ITEM_TO_ACTION_TABLE_FILE"), FItemToActionTableRow::StaticStruct());
+	UDataTable* EffectTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("EFFECT_TABLE_FILE"), FEffectTableRow::StaticStruct());
+	UDataTable* ItemToEffectTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("ITEM_TO_EFFECT_TABLE_FILE"), FItemToEffectTableRow::StaticStruct());
+	UDataTable* TextKoTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("TEXT_KO_TABLE_FILE"), FItemTextTableRow::StaticStruct());
+	UDataTable* ItemTagTable = LoadDataTable(TEXT("CsvPathSettings"), TEXT("ITEM_TAG_TABLE_FILE"), FItemTagTableRow::StaticStruct());
 
 	if (!ItemTable || !ActionTable || !ItemToActionTable || !EffectTable || !ItemToEffectTable || !TextKoTable || !ItemTagTable)
 	{
@@ -162,25 +162,16 @@ void USLItemManagerSubsystem::LoadAllItemData()
 	);
 }
 
-bool USLItemManagerSubsystem::LoadCsvFilePath(FString& OutFilePath, const TCHAR* Settings, const TCHAR* CsvName) const
+void USLItemManagerSubsystem::GetCsvFilePath(FString& OutFilePath, const TCHAR* Settings, const TCHAR* CsvName) const
 {
 	GConfig->GetString(Settings, CsvName, OutFilePath, GGameIni);
-	if (OutFilePath.IsEmpty())
-	{
-		UE_LOG(LogTemp, Error, TEXT("ItemDataCsvPath %s not found in Config/DefaultGame.ini"), *FString(CsvName));
-		return false;
-	}
 	OutFilePath = FPaths::ProjectContentDir() / OutFilePath;
-	return true;
 }
 
-UDataTable* USLItemManagerSubsystem::LoadDataTable(const TCHAR* CsvName, UScriptStruct* BaseStruct) const
+UDataTable* USLItemManagerSubsystem::LoadDataTable(const TCHAR* Settings, const TCHAR* CsvName, UScriptStruct* BaseStruct) const
 {
 	FString CSVFilePath;
-	if (!LoadCsvFilePath(CSVFilePath, TEXT("CsvPathSettings"), CsvName))
-	{
-		return nullptr;
-	}
+	GetCsvFilePath(CSVFilePath, Settings, CsvName);
 
 	FString FileContents;
 	if (!FFileHelper::LoadFileToString(FileContents, *CSVFilePath))

@@ -21,8 +21,8 @@ public:
 	FORCEINLINE TMap<FName, TObjectPtr<USLItemData>>& GetAllItemData() { return ItemDataCache; };
 private:
 	void LoadAllItemData();
-	bool LoadCsvFilePath(FString& OutFilePath, const TCHAR* Settings, const TCHAR* CsvName) const;
-	UDataTable* LoadDataTable(const TCHAR* CsvName,UScriptStruct* BaseStruct) const;
+	void GetCsvFilePath(FString& OutFilePath, const TCHAR* Settings, const TCHAR* CsvName) const;
+	UDataTable* LoadDataTable(const TCHAR* Settings, const TCHAR* CsvName,UScriptStruct* BaseStruct) const;
 private:
 	UPROPERTY()
 	TMap<FName, TObjectPtr<USLItemData>> ItemDataCache;
