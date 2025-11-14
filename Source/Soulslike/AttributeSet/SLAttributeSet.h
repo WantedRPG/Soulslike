@@ -45,8 +45,8 @@ public:
 
 	// 공격력
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Attack Power", Meta = (AllowPrivateAccess = true))
-	FGameplayAttributeData Power;
-	ATTRIBUTE_ACCESSORS(USLAttributeSet, Power);
+	FGameplayAttributeData AttackPower;
+	ATTRIBUTE_ACCESSORS(USLAttributeSet, AttackPower);
 
 	UPROPERTY(BlueprintReadOnly, Category = "SLAttributeSet | Attack Rate", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRate;
