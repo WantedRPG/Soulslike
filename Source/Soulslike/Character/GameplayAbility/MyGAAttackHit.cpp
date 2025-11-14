@@ -7,7 +7,6 @@
 #include "Character/GameplayAbilityTargetActor/MyTA_Target.h"
 #include "Character/Tag/MyGameplayTag.h"
 #include "AttributeSet/SLAttributeSet.h"
-#include "Monster/Common/SLMonsterbase.h"
 
 UMyGAAttackHit::UMyGAAttackHit()
 {
@@ -29,56 +28,39 @@ void UMyGAAttackHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
-    if (!UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
-    {
-        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-        return;
-    }
+	// 피격 판정 존재 확인
+	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
+	{
+		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+		UE_LOG(LogTemp, Log, TEXT("Target %s Detected"), *(HitResult.GetActor()->GetName()));
 
-    // 몬스터 정보 셋팅
-    FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
-    if (!HitResult.bBlockingHit)
-    {
-        return;
-    }
+		// 몬스터 정보 셋팅
+		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+		const USLAttributeSet* SourceAttribute = SourceASC->GetSet<USLAttributeSet>();
 
-    ASLMonsterbase* Monster = Cast<ASLMonsterbase>(HitResult.GetActor());
-    if (!Monster)
-    {
-        return;
-    }
+		FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
 
-    UAbilitySystemComponent* MonsterASC = Monster->FindComponentByClass<UAbilitySystemComponent>();
-    if (!MonsterASC)
-    {
-        return;
-    }
+		if (Spec.IsValid())
+		{
+			// TODO. 여기서 몬스터한테 레벨값(스킬별 공격력) 반영하기. 
+			// (1) GE 작업해야 함. AttackRate를 적용하는 방식. 
+			// (2) 다만 현재 로직은 AttributeSet의 AttackPower 자체를 바꾸는 게 아님.... Set하고 나서 Get로 전달해주는 방향으로 수정
+			Spec.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
+			// GE로 전달
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec, TargetDataHandle);
+		}
 
-    // 플레이어 정보 셋팅
-    UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
-    if (!SourceASC)
-    {
-        return;
-    }
+		// 공격력만 셋팅된 GE이므로 데미지만 적용됨. 
+		/*TSubclassOf<UGameplayEffect> AttackEffect = EffectByAttackTag.FindRef(AttackTag);
+		if (AttackEffect)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Player의 공격 Hit GE 셋팅"));
+		}*/
 
-    // 공격 스탯
-    const float AttackPower = SourceASC->GetNumericAttribute(USLAttributeSet::GetAttackPowerAttribute()); 
+	}
 
-    FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-    Context.AddSourceObject(GetAvatarActorFromActorInfo());
-
-	// 데미지 이펙트 적용
-    FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(AttackDamageEffect, CurrentLevel, Context);
-    if (!SpecHandle.IsValid())
-    {
-        return;
-    }
-
-    // Health를 깎으려면 음수로
-    SpecHandle.Data->SetSetByCallerMagnitude(MyTAG_DATA_DAMAGE, -AttackPower);
-    MonsterASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-
-    bool bReplicatedEndAbility = true;
-    bool bWasCancelled = false;
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+	// 종료
+	bool bReplicatedEndAbility = true;
+	bool bWasCancelled = false;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
