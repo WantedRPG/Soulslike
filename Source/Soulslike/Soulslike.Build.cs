@@ -21,7 +21,8 @@ public class Soulslike : ModuleRules
             "StateTreeModule",
             "GameplayStateTreeModule",
             "UMG",
-            "Slate"
+            "Slate",
+            "SlateCore"
         });
 
         PublicIncludePaths.AddRange(new string[] { ModuleDirectory });

@@ -1,0 +1,4 @@
+﻿ItemID,TextID,MaxStack,ItemType,ItemIcon
+Item_001,TID_001,100,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Health_potion.15_Health_potion'
+Item_002,TID_002,100,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Energy_potion.15_Energy_potion'
+Item_003,TID_003,100,Throwable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/Ranger7.Ranger7'
