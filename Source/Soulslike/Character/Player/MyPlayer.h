@@ -29,7 +29,6 @@ enum class EPlayerState : uint8
 	Dead	  UMETA(DisplayName = "Dead"),
 };
 
-
 class UGameplayAbility;
 class UInputAction;
 
@@ -132,7 +131,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
 	UAnimMontage* SkillAttackMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
+	UPROPERTY(EditAnywhere, Category = "KnockBack")
 	UAnimMontage* TakeHitMontage;
 
 public:

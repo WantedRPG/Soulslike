@@ -3,6 +3,7 @@
 
 #include "AttributeSet/SLAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Character/Player/MyPlayer.h"
 
 // 몬스터 데미지 반영을 위해 임시로 0 이하로 체력이 떨어질 수 있도록 수정함.
@@ -46,15 +47,28 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		SetHealth(GetHealth() - GetAttackPower());
 		SetAttackPower(0.0f);
 
-		// 죽음 처리
 		if (Data.Target.AbilityActorInfo.IsValid())
 		{
 			AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
 			if (AMyPlayer* Player = Cast<AMyPlayer>(TargetActor))
 			{
+				// 죽음 처리
 				if (GetHealth() <= 0.f)
 				{
 					Player->Death();
+				}
+				// 넉백 처리
+				else
+				{
+					FGameplayEventData EventData;
+					EventData.Target = Player;
+					EventData.Instigator = Data.EffectSpec.GetContext().GetInstigator();
+					EventData.ContextHandle = Data.EffectSpec.GetContext();
+
+					// TODO. 전체적인 태그 정리 및 설정 필요.
+					FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.TakeHit"));
+
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Player, HitTag, EventData);
 				}
 			}
 		}
