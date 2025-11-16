@@ -130,6 +130,11 @@ void AMyPlayer::SetupGASInputComponent()
 
 void AMyPlayer::GASInputPressed(int32 InputId)
 {
+	if (GetPlayerMode() == EPlayerState::Dead)
+	{
+		return;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 
 	if (Spec)
@@ -151,6 +156,11 @@ void AMyPlayer::GASInputPressed(int32 InputId)
 
 void AMyPlayer::GASInputReleased(int32 InputId)
 {
+	if (GetPlayerMode() == EPlayerState::Dead)
+	{
+		return;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 
 	if (Spec)
@@ -167,6 +177,11 @@ void AMyPlayer::GASInputReleased(int32 InputId)
 
 void AMyPlayer::Move(const FInputActionValue& Value)
 {
+	if (GetPlayerMode() == EPlayerState::Dead)
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// 카메라의 수평 고려
@@ -184,9 +199,36 @@ void AMyPlayer::Move(const FInputActionValue& Value)
 
 void AMyPlayer::MouseLook(const FInputActionValue& Value)
 {
+	if (GetPlayerMode() == EPlayerState::Dead)
+	{
+		return;
+	}
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	// 입력 전달
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AMyPlayer::Death()
+{
+	if (GetPlayerMode() == EPlayerState::Dead)
+	{
+		return;
+	}
+
+	PlayerMode = EPlayerState::Dead;
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+		PC->SetIgnoreLookInput(true);
+		PC->SetIgnoreMoveInput(true);
+	}
+
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->DisableMovement();
+	}
 }

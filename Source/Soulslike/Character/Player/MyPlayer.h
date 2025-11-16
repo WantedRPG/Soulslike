@@ -20,6 +20,16 @@
 //	float Level;
 //};
 
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	Peace	  UMETA(DisplayName = "Peace"),
+	Attack    UMETA(DisplayName = "Attack"),
+	KnockBack UMETA(DisplayName = "KnockBack"),
+	Dead	  UMETA(DisplayName = "Dead"),
+};
+
+
 class UGameplayAbility;
 class UInputAction;
 
@@ -39,6 +49,12 @@ public:
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
 
 	FORCEINLINE UAnimMontage* GetSkillActionMontage() const { return SkillAttackMontage; }
+	FORCEINLINE UAnimMontage* GetSTakeHitMontage() const { return TakeHitMontage; }
+
+	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
+
+	UFUNCTION()
+	void Death();
 
 protected:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -116,7 +132,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
 	UAnimMontage* SkillAttackMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
+	UAnimMontage* TakeHitMontage;
+
 public:
 	UPROPERTY()
 	TObjectPtr<class USLAttributeSet> AttributeSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
+	EPlayerState PlayerMode = EPlayerState::Peace;
 };
