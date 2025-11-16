@@ -29,7 +29,7 @@ protected:
 	
 	void OnIconLoaded(FSoftObjectPath SoftIconPath);
 
-//드래그&드랍에 필요한 함수
+//마우스 이벤트 함수
 protected:
 	//마우스 버튼 이벤트 함수
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -37,7 +37,8 @@ protected:
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	//드랍 했을때 호출되는 함수
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)override;
-
+	//더블클릭 이벤트 함수
+	FReply  NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI Setup")
 	TSubclassOf<class USLItemSlot> DragVisualClass;

@@ -15,8 +15,8 @@ class SOULSLIKE_API USLDragDropSlot : public UDragDropOperation
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
 	int PrevSlotIndex;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USLInventoryComponent* InventoryComponent;
 };

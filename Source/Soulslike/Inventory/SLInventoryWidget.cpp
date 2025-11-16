@@ -11,6 +11,7 @@
 #include "Item/SLItemSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include <Item/SLDragDropSlot.h>
+#include "Components/CanvasPanelSlot.h"
 USLInventoryWidget::USLInventoryWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	
@@ -25,10 +26,6 @@ void USLInventoryWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-    if (Border_DragHandle)
-    {
-        Border_DragHandle->SetVisibility(ESlateVisibility::Visible);
-    }
 }
 
 void USLInventoryWidget::NativeDestruct()
@@ -39,12 +36,15 @@ void USLInventoryWidget::NativeDestruct()
 FReply USLInventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
     Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+    
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && Border_DragHandle && Border_DragHandle->IsHovered())
     {
         bIsDragging = true;
-   
+        
+        
+        DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
         //마우스 위치에서 위젯의 좌상단 위치를 뺀 값
-        DragOffset = InMouseEvent.GetScreenSpacePosition()- InGeometry.GetAbsolutePosition();
+        //DragOffset = InMouseEvent.GetScreenSpacePosition()- InGeometry.GetAbsolutePosition();
         return FReply::Handled().CaptureMouse(TakeWidget());
     }
 
@@ -65,32 +65,28 @@ FReply USLInventoryWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, co
 FReply USLInventoryWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
     Super::NativeOnMouseMove(InGeometry, InMouseEvent);
-
+    
     if (bIsDragging)
     {
+        if (UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(this
+            ->Slot))
+        {
+            const FGeometry& ParentGeometry = GetParent()->GetCachedGeometry
+            ();
+            const FVector2D NewLocalPosition = ParentGeometry.
+                AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+            //Todo : 주석쓰기
+            CanvasSlot->SetPosition(NewLocalPosition - DragOffset);
+        }
         // 현재 마우스 위치에서 드래그 시작 시의 오프셋을 빼서 위젯의 새 위치 계산
-        SetPositionInViewport(InMouseEvent.GetScreenSpacePosition() - DragOffset,false);
+        //SetPositionInViewport(InMouseEvent.GetScreenSpacePosition() - DragOffset,false);
 
         return FReply::Handled();
     }
     return FReply::Unhandled();
 }
 
-bool USLInventoryWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-    Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-    USLDragDropSlot* Operation = Cast<USLDragDropSlot>(InOperation);
-    if (Operation)
-    {
-        //간혹 인벤토리 안에서 Drop이 발생하는 경우가 있는데 포커싱이 의심된다
-        //인벤토리 상위 보드를 드래그 가능하게 만들어보자
-        //Operation->InventoryComponent->DropItem(Operation->PrevSlotIndex);
-        // 같은 타입의 슬롯인 경우
-        UE_LOG(LogTemp, Warning, TEXT("Drop"));
-        return true;
-    }
-    return false;
-}
+
 
 void USLInventoryWidget::AddItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount)
 {

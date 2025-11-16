@@ -175,7 +175,7 @@ void USLInventoryComponent::RequestSwapItems(int32 FromIndex, int32 ToIndex)
 
 void USLInventoryComponent::ToggleInventory()
 {
-	if (InventoryWidgetInstance)
+	if (InventoryWidgetInstance->GetVisibility()==ESlateVisibility::Visible)
 	{
 		HiddenInventory();
 	}
@@ -199,12 +199,14 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 
 void USLInventoryComponent::ShowInventory()
 {
-	InventoryWidgetInstance = CreateWidget<USLInventoryWidget>(GetWorld(), InventoryWidgetClass);
+	//InventoryWidgetInstance = CreateWidget<USLInventoryWidget>(GetWorld(), InventoryWidgetClass);
 
 	if (InventoryWidgetInstance)
 	{
 		InventoryWidgetInstance->AddToViewport();
-		InitInventoryWidget();
+		InventoryWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+		
+		//InitInventoryWidget();
 		//마우스 UI모드 및 보이기
 		if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 		{
@@ -221,9 +223,9 @@ void USLInventoryComponent::ShowInventory()
 
 void USLInventoryComponent::HiddenInventory()
 {
-	InventoryWidgetInstance->RemoveFromParent();
-	InventoryWidgetInstance = nullptr;
-	
+	//InventoryWidgetInstance->RemoveFromParent();
+	//InventoryWidgetInstance = nullptr;
+	InventoryWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 	{

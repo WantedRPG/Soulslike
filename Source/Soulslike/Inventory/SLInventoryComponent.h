@@ -43,8 +43,15 @@ public:
 	//인벤토리 widget 켜기/끄기
 	UFUNCTION(BlueprintCallable)
 	void ToggleInventory();
+	UFUNCTION(BlueprintCallable)
 	void DropItem(int32 InSlotIndex);
 	void RequestSwapItems(int32 FromIndex, int32 ToIndex);
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetInventoryWidget(class USLInventoryWidget* InWidget) {
+		InventoryWidgetInstance = InWidget
+			;
+		InitInventoryWidget();
+	}
 private:
 	void ShowInventory();
 	void HiddenInventory();
