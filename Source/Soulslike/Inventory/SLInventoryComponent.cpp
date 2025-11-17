@@ -203,7 +203,7 @@ void USLInventoryComponent::ShowInventory()
 
 	if (InventoryWidgetInstance)
 	{
-		InventoryWidgetInstance->AddToViewport();
+		//InventoryWidgetInstance->AddToViewport();
 		InventoryWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 		
 		//InitInventoryWidget();
