@@ -26,10 +26,10 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 
 	MyPlayer->SetPlayerMode(EPlayerState::KnockBack);
 
-	if (MyPlayerMovement->IsMovingOnGround())
+	/*if (MyPlayerMovement->IsMovingOnGround())
 	{
 		MyPlayerMovement->SetMovementMode(EMovementMode::MOVE_None);
-	}
+	}*/
 
 	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, MontageSection
@@ -57,7 +57,7 @@ void UMyGATakeHit::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
 	if (!MyPlayer->IsDead())
 	{
-		MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		//MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		if (MyPlayer->IsKnockBack())
 		{
 			MyPlayer->SetPlayerMode(EPlayerState::Peace);
