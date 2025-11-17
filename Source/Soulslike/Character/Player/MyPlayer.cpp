@@ -2,14 +2,15 @@
 
 
 #include "Character/Player/MyPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "MyPlayerState.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "MyPlayerState.h"
 #include "AttributeSet/SLAttributeSet.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -130,6 +131,11 @@ void AMyPlayer::SetupGASInputComponent()
 
 void AMyPlayer::GASInputPressed(int32 InputId)
 {
+	if (IsDead())
+	{
+		return;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 
 	if (Spec)
@@ -151,6 +157,11 @@ void AMyPlayer::GASInputPressed(int32 InputId)
 
 void AMyPlayer::GASInputReleased(int32 InputId)
 {
+	if (IsDead())
+	{
+		return;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 
 	if (Spec)
@@ -167,6 +178,11 @@ void AMyPlayer::GASInputReleased(int32 InputId)
 
 void AMyPlayer::Move(const FInputActionValue& Value)
 {
+	if (IsDead())
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// 카메라의 수평 고려
@@ -184,9 +200,48 @@ void AMyPlayer::Move(const FInputActionValue& Value)
 
 void AMyPlayer::MouseLook(const FInputActionValue& Value)
 {
+	if (IsDead())
+	{
+		return;
+	}
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	// 입력 전달
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
+{
+	// 넉백 이벤트
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
+	// TODO. 전체적인 태그 정리 및 설정 필요.
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.TakeHit"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
+}
+
+void AMyPlayer::Death()
+{
+	if (IsDead())
+	{
+		return;
+	}
+
+	SetPlayerMode(EPlayerState::Dead);
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+		PC->SetIgnoreLookInput(true);
+		PC->SetIgnoreMoveInput(true);
+	}
+
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->DisableMovement();
+	}
 }

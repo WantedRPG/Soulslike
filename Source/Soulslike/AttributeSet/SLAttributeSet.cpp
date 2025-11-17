@@ -1,8 +1,7 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
+﻿
 #include "AttributeSet/SLAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "Character/Player/MyPlayer.h"
 
 USLAttributeSet::USLAttributeSet()
 {
@@ -12,14 +11,9 @@ void USLAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	/*if (Attribute == GetHealthAttribute()) 
+	if (Attribute == GetHealthAttribute()) 
 	{
 		NewValue = FMath::Clamp(NewValue, 0, GetMaxHealth());
-	}*/
-
-	if (Attribute == GetAttackPowerAttribute()) 
-	{
-		NewValue = NewValue < 0.0f ? 0.0f : NewValue;
 	}
 }
 
@@ -29,10 +23,34 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) 
 	{
-		UE_LOG(LogTemp, Log, TEXT("Health : %f"), GetHealth());
-		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		float NewHealth = GetHealth();
+		float OldHealth = NewHealth - Data.EvaluatedData.Magnitude;
+
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+		NewHealth = GetHealth();
+
+		if (OldHealth > NewHealth)
+		{
+			if (Data.Target.AbilityActorInfo.IsValid())
+			{
+				AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+				if (AMyPlayer* Player = Cast<AMyPlayer>(TargetActor))
+				{
+					if (NewHealth <= 0.f)
+					{
+						Player->Death();
+					}
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("KnockBack"));
+						const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
+						Player->KnockBack(Context);
+					}
+				}
+			}
+		}
 	}
-	
+
 	if (Data.EvaluatedData.Attribute == GetAttackPowerAttribute()) 
 	{
 		UE_LOG(LogTemp, Log, TEXT("Damage : %f"), GetAttackPower());
@@ -41,15 +59,3 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		SetAttackPower(0.0f);
 	}
 }
-
-//
-//void USLAttributeSet::PostGameplayEffectExecute(const FGameplayAttribute& Attribute, float& OldValue, float& NewValue)
-//{
-//	// Super::PostGameplayEffectExecute(Attribute, OldValue, NewValue);
-//
-//	// 데미지가 체력에 반영됐는지 확인하는 코드
-//	if (Attribute == GetHealthAttribute()) 
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Health : %f -> %f"), OldValue, NewValue);
-//	}
-//}

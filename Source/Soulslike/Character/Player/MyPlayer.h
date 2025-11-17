@@ -6,6 +6,7 @@
 #include "Character/MyCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "Character/PrimaryDataAsset/MyPDAComboAttack.h"
+#include "GameplayEffectTypes.h"
 #include "MyPlayer.generated.h"
 
 //USTRUCT(BlueprintType)
@@ -19,6 +20,15 @@
 //	UPROPERTY(EditAnywhere)
 //	float Level;
 //};
+
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	Peace	  UMETA(DisplayName = "Peace"),
+	// Attack    UMETA(DisplayName = "Attack"),
+	KnockBack UMETA(DisplayName = "KnockBack"),
+	Dead	  UMETA(DisplayName = "Dead"),
+};
 
 class UGameplayAbility;
 class UInputAction;
@@ -35,10 +45,24 @@ public:
 	AMyPlayer();
 
 public:
+	FORCEINLINE bool IsDead() const { return PlayerMode == EPlayerState::Dead; }
+	FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
+
+	FORCEINLINE void SetPlayerMode(EPlayerState State) { PlayerMode = State; }
+
 	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
 
 	FORCEINLINE UAnimMontage* GetSkillActionMontage() const { return SkillAttackMontage; }
+	FORCEINLINE UAnimMontage* GetSTakeHitMontage() const { return TakeHitMontage; }
+
+	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
+
+	UFUNCTION()
+	void KnockBack(const FGameplayEffectContextHandle& Context);
+
+	UFUNCTION()
+	void Death();
 
 protected:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -116,7 +140,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
 	UAnimMontage* SkillAttackMontage;
 
+	UPROPERTY(EditAnywhere, Category = "KnockBack")
+	UAnimMontage* TakeHitMontage;
+
 public:
 	UPROPERTY()
 	TObjectPtr<class USLAttributeSet> AttributeSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
+	EPlayerState PlayerMode = EPlayerState::Peace;
 };

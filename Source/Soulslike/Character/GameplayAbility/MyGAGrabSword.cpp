@@ -8,7 +8,10 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Player/MyPlayer.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Character/AbilityTask/MyATWeaponHit.h"           
 #include "Character/GameplayAbilityTargetActor/MyTA_Sword.h"      
@@ -27,6 +30,14 @@ void UMyGAGrabSword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
+	UCharacterMovementComponent* MyPlayerMovement = MyPlayer->GetCharacterMovement();
+
+	if (MyPlayerMovement->IsMovingOnGround())
+	{
+		MyPlayerMovement->SetMovementMode(EMovementMode::MOVE_None);
+	}
 
 	// 몽타주 AT
 	if (GrabMontage)
@@ -51,6 +62,14 @@ void UMyGAGrabSword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 			WaitEventTask->ReadyForActivation();
 		}
 	}
+}
+
+void UMyGAGrabSword::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
+	MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void UMyGAGrabSword::OnNotifyEventReceived(FGameplayEventData EventData)
@@ -121,6 +140,15 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 	Sword->SetInstigator(Character);
 	// 무기 장착
 	Sword->AttachToComponent(CharMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
+
+	// 무기 장착 태그
+	if (HasWeaponTag.IsValid())
+	{
+		if (UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked())
+		{
+			SourceASC->AddLooseGameplayTag(HasWeaponTag);
+		}
+	}
 }
 
 void UMyGAGrabSword::OnMontageCompleted()

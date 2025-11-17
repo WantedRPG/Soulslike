@@ -26,6 +26,7 @@ public:
 	UMyGAGrabSword();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 protected:
 	UFUNCTION()
@@ -49,6 +50,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab")
 	FName HandSocketName = TEXT("hand_rSocket");
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grab | Tag")
+	FGameplayTag HasWeaponTag;
 
 protected:
 	UPROPERTY()
