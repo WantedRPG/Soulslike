@@ -18,6 +18,8 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 
+	void SetToolTipWidget();
+
 public:
 	void SetItemSlotData(class USLItemData* NewItemData, int32 InStackCount, int32 InSlotIndex,class USLInventoryComponent* InInventoryComponent);
 	void SetEmpty();
@@ -38,8 +40,14 @@ protected:
 	//드랍 했을때 호출되는 함수
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)override;
 	//더블클릭 이벤트 함수
-	FReply  NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
+	FReply  NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USLItemTooltip> ItemToolTipClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USLItemTooltip> ItemToolTipWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI Setup")
 	TSubclassOf<class USLItemSlot> DragVisualClass;
 	UPROPERTY(meta = (BindWidget))

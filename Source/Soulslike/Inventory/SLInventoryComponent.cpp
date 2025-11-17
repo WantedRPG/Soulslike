@@ -6,6 +6,9 @@
 #include <Item/SLItemManagerSubsystem.h>
 #include <Item/SLItemData.h>
 #include <Item/SLItemPickupActor.h>
+
+#include "AbilitySystemComponent.h"
+
 // Sets default values for this component's properties
 USLInventoryComponent::USLInventoryComponent()
 {
@@ -201,10 +204,46 @@ void USLInventoryComponent::UseItem(int32 InSlotIndex)
 {
 	if (nullptr == ItemManager)
 		return;
+
 	USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
 	ItemData->ItemActionMap[EItemActionType::Primary];
-}
+	/*
+	// 1. 컴포넌트 소유 액터로부터 ASC 가져오기
+	UAbilitySystemComponent* ASC = nullptr;
+	if (AActor* Owner = GetOwner())
+	{
+		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Owner);
+		if (ASI)
+		{
+			ASC = ASI->GetAbilitySystemComponent();
+		}
+	}
 
+	if (!ASC || !HealingEffectClass || !ItemDataTable) return;
+
+	// 2. 데이터 테이블에서 회복량 가져오기
+	FItemData* ItemData = ItemDataTable->FindRow<FItemData>(ItemRowName, TEXT("UseItem Logic"));
+	if (!ItemData) return;
+
+	float HealingAmount = ItemData->HealingAmount;
+
+	// 3. Gameplay Effect Spec 생성
+	// GA 없이 직접 생성하므로, 레벨(1.0f)과 ContextHandle을 직접 제공합니다.
+	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(HealingEffectClass, 1.0f, EffectContext);
+
+	if (!SpecHandle.IsValid()) return;
+
+	// 4. SetByCaller를 사용하여 동적 값 주입
+	FGameplayTag HealingTag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("Data.HealingValue"));
+	SpecHandle.Data.Get()->SetSetByCallerMagnitude(HealingTag, HealingAmount);
+
+	// 5. GE 적용 (GA를 거치지 않고 바로 적용)
+	// 소유자에게 직접 Spec을 적용합니다.
+	FActiveGameplayEffectHandle ActiveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+	*/
+}
 void USLInventoryComponent::ShowInventory()
 {
 	//InventoryWidgetInstance = CreateWidget<USLInventoryWidget>(GetWorld(), InventoryWidgetClass);

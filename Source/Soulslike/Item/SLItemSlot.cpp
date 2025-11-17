@@ -9,8 +9,8 @@
 #include "SLItemData.h"
 #include "SLDragDropSlot.h"
 #include "Inventory/SLInventoryComponent.h"
-#include "Item/SLItemData.h"
 #include "SLItemManagerSubsystem.h"
+#include "SLItemTooltip.h"
 
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
@@ -43,6 +43,7 @@ void USLItemSlot::SetItemSlotData(USLItemData* NewItemData,int32 InStackCount,in
 	}
 
 	SetItemIconAsync(NewItemData->ItemIcon);
+	SetToolTipWidget();
 }
 
 void USLItemSlot::SetEmpty()
@@ -171,7 +172,36 @@ FReply  USLItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry,
 	return FReply::Handled();
 }
 
+void USLItemSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::OnMouseEnter(InGeometry, InMouseEvent);
+	if (ItemID.IsNone())
+		return;
+	
+}
+
 void USLItemSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	
+	
+}
+
+void USLItemSlot::SetToolTipWidget()
+{
+	// 여기서 생성을 함
+	if(nullptr == ItemToolTipClass)	return;
+	ItemToolTipWidget = CreateWidget<USLItemTooltip>(this, ItemToolTipClass);
+	if(nullptr == ItemToolTipWidget) return;
+    
+	USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+	if (nullptr == ItemManager)
+		return;
+	USLItemData* ItemData = ItemManager->GetItemData(ItemID);
+	if (nullptr == ItemData) return;
+	ItemToolTipWidget->OnIconLoaded(ItemData->ItemIcon.Get());
+	ItemToolTipWidget->Txt_ItemName->SetText(ItemData->ItemName);
+	ItemToolTipWidget->Txt_ItemDesc->SetText(ItemData->ItemDescription);
+	SetToolTip(ItemToolTipWidget);
 }
