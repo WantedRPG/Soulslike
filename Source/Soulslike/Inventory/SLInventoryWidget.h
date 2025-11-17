@@ -38,6 +38,9 @@ public:
 	void SetInventoryComponent(class USLInventoryComponent* InInventoryCompoent);
 protected:
 	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_All;
+	
+	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* Grid_Item;
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* Border_DragHandle;

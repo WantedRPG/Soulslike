@@ -42,11 +42,10 @@ protected:
 	//더블클릭 이벤트 함수
 	FReply  NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
-	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USLItemTooltip> ItemToolTipClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	TObjectPtr<class USLItemTooltip> ItemToolTipWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI Setup")
 	TSubclassOf<class USLItemSlot> DragVisualClass;

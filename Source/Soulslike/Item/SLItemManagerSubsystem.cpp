@@ -95,23 +95,27 @@ void USLItemManagerSubsystem::LoadAllItemData()
 		return;
 	}
 		
-	//TArray<FItemToEffectTableRow> TempItemToEffectDataCache;
 	ItemToEffectTable->ForeachRow<FItemToEffectTableRow>(TEXT("ItemToEffectTable"), [&](const FName& TableNum, const FItemToEffectTableRow& Row)
 		{
-			FItemActionDetail ItemActionDetail;
-			UE_LOG(LogTemp, Log, TEXT("EffectRow %d %s %s"), Row.ActionType, *Row.ItemID.ToString(), *Row.EffectID.ToString());
 			
-			ItemDataCache[Row.ItemID]->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
+			UE_LOG(LogTemp, Warning, TEXT("FItemToEffectTableRow %d %s %s"), Row.ActionType, *Row.ItemID.ToString(), *Row.EffectID.ToString());
 			
 			FEffectTableRow* EffectRow = EffectTable->FindRow<FEffectTableRow>(Row.EffectID, "FEffectTableRow");
 			if (EffectRow)
 			{
-				//Todo : GameplayEffectClass 구현 후 넣기
-				//ItemDataCache[ItemID]->ItemActionMap[Row.ActionType].EffectsToApply.Add(EffectRow->GameplayEffectClass.LoadSynchronous());
-				//UE_LOG(LogTemp, Log, TEXT("EffectRow %d %s"), ItemDataCache[ItemID]->ItemActionMap.Num(), *ItemID.ToString());
-			}
+				if (ItemDataCache[Row.ItemID]->ItemActionMap.Find(Row.ActionType))
+				{
+					ItemDataCache[Row.ItemID]->ItemActionMap[Row.ActionType].DataDrivenModifierInfos.Add (*EffectRow);
+				}
+				else
+				{
+					FItemActionDetail ItemActionDetail;
+					ItemActionDetail.DataDrivenModifierInfos.Add(*EffectRow);
+					ItemDataCache[Row.ItemID]->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
+				}
 
-			//TempItemToEffectDataCache.Add(Row);
+				//Todo : GameplayEffectClass 구현 후 넣기
+			}
 		}
 	);
 

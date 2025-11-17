@@ -12,6 +12,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include <Item/SLDragDropSlot.h>
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Button.h"
 USLInventoryWidget::USLInventoryWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	
@@ -20,6 +21,11 @@ USLInventoryWidget::USLInventoryWidget(const FObjectInitializer& ObjectInitializ
 void USLInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+    if (Btn_All)
+    {
+        //Btn_All->OnClicked.AddDynamic(InventoryComponent,)
+    }
 }
 
 void USLInventoryWidget::NativeOnInitialized()

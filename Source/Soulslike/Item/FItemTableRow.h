@@ -78,8 +78,7 @@ struct FEffectTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName EffectID;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UGameplayEffect> GameplayEffectClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -89,7 +88,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
 
-	FEffectTableRow() : EffectID(), Value(0), Duration(0.0) {};
+	FEffectTableRow() : Value(0), Duration(0.0) {};
 };
 
 USTRUCT(BlueprintType)
@@ -116,7 +115,7 @@ public:
 	TSoftClassPtr<UGameplayAbility> AbilityToActivate;
 	//아이템 효과 - 여러 효과 적용 가능
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
-	TArray<TSoftClassPtr<UGameplayEffect>> EffectsToApply;
+	TArray<FEffectTableRow> DataDrivenModifierInfos;
 };
 
 USTRUCT(BlueprintType)

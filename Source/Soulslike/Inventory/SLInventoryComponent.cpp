@@ -202,11 +202,30 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 
 void USLInventoryComponent::UseItem(int32 InSlotIndex)
 {
-	if (nullptr == ItemManager)
+	if (nullptr == ItemManager || nullptr == ItemGameplayEffectClass)
 		return;
 
 	USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
-	ItemData->ItemActionMap[EItemActionType::Primary];
+	if (nullptr == ItemData)
+		return;
+
+	for (auto& GEInfo : ItemData->ItemActionMap[EItemActionType::Primary].DataDrivenModifierInfos)
+	{
+		/*
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectDetail.GameplayEffectClass, 1.0f, AbilitySystemComponent->MakeEffectContext());
+		if (SpecHandle.IsValid())
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(GEInfo.ItemTag, GEInfo.Value);
+			if (EffectDetail.Duration > 0)
+			{
+				SpecHandle.Data->SetDuration(GEInfo.Duration, true);
+			}
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+		*/
+	}
+
+
 	/*
 	// 1. 컴포넌트 소유 액터로부터 ASC 가져오기
 	UAbilitySystemComponent* ASC = nullptr;

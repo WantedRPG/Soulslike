@@ -62,6 +62,8 @@ private:
 	
 
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UGameplayEffect> ItemGameplayEffectClass;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USLInventoryWidget> InventoryWidgetClass;
 	UPROPERTY(VisibleAnywhere)

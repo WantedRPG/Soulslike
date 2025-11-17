@@ -172,13 +172,7 @@ FReply  USLItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry,
 	return FReply::Handled();
 }
 
-void USLItemSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	Super::OnMouseEnter(InGeometry, InMouseEvent);
-	if (ItemID.IsNone())
-		return;
-	
-}
+
 
 void USLItemSlot::NativeConstruct()
 {
@@ -192,8 +186,12 @@ void USLItemSlot::SetToolTipWidget()
 {
 	// 여기서 생성을 함
 	if(nullptr == ItemToolTipClass)	return;
-	ItemToolTipWidget = CreateWidget<USLItemTooltip>(this, ItemToolTipClass);
-	if(nullptr == ItemToolTipWidget) return;
+	
+	if (nullptr == ItemToolTipWidget)
+	{
+		ItemToolTipWidget = CreateWidget<USLItemTooltip>(this, ItemToolTipClass);
+	}
+		
     
 	USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
 	if (nullptr == ItemManager)
