@@ -40,12 +40,15 @@ void AMyPlayer::PossessedBy(AController* NewController)
 
 		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
 		EffectContextHandle.AddSourceObject(this);
-		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
 
-		if (EffectSpecHandle.IsValid())
+		for (const auto& StatEffect : StatEffects) 
 		{
-			// 본인에게 Setting하는 GE
-			ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
+			if (EffectSpecHandle.IsValid())
+			{
+				// 본인에게 Setting하는 GE
+				ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+			}
 		}
 
 		// GameplayAbiltySpec 등록
@@ -212,13 +215,17 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AMyPlayer::Sprint(const FGameplayEffectContextHandle& Context)
+{
+
+}
+
 void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
 {
 	FGameplayEventData EventData;
 	EventData.Target = this;
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
-	// TODO. 전체적인 태그 정리 및 설정 필요.
 	FGameplayTag StopSprintTag = FGameplayTag::RequestGameplayTag(FName("Character.State.StopSprint"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
 }

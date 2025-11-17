@@ -59,6 +59,9 @@ public:
 	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
 
 	UFUNCTION()
+	void Sprint(const FGameplayEffectContextHandle& Context);
+
+	UFUNCTION()
 	void StopSprint(const FGameplayEffectContextHandle& Context);
 
 	UFUNCTION()
@@ -91,7 +94,7 @@ protected:
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class UGameplayEffect> StatEffect;
+	TArray<TSubclassOf<class UGameplayEffect>> StatEffects;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	float Level;

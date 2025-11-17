@@ -53,11 +53,16 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
         if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
         {
+            const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
+            
             if (GetStamina() <= 0.f)
             {
-                const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
                 Player->StopSprint(Context);
-                // SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+				SetStamina(0.f);
+            }
+            else 
+            {
+                SetStamina(FMath::Clamp(GetStamina(), GetStamina(), 50));
             }
         }
     }
