@@ -2,6 +2,7 @@
 #include "AttributeSet/SLAttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Character/Player/MyPlayer.h"
+#include "Monster/Common/SLMonsterbase.h"
 
 USLAttributeSet::USLAttributeSet()
 {
@@ -57,6 +58,18 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
             // 데미지를 체력에 반영
             SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
             SetAttackPower(0.0f);
+        }
+    }
+
+    if (ASLMonsterbase* Monster = Cast<ASLMonsterbase>(TargetActor))
+    {
+        if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+        {
+            if (GetHealth() <= 0)
+            {
+                Monster->MonsterDead();
+                UE_LOG(LogTemp, Log, TEXT("Monster Die"));
+            }
         }
     }
 }
