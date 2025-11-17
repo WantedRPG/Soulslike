@@ -34,11 +34,19 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TObjectPtr<USLMonsterAttack> AttackPDA;
 
+    // BPGA_Turn 블루프린트 클래스를 보관할 변수
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<class UGameplayAbility> TurnAbilityClass;
+
     // BPGA_Move 블루프린트 클래스를 보관할 변수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<class UGameplayAbility> MoveAbilityClass;
 
-    // BPGA_Turn 블루프린트 클래스를 보관할 변수
+    // BPGA_Dead 블루프린트 클래스를 보관할 변수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<class UGameplayAbility> TurnAbilityClass;
+    TSubclassOf<class UGameplayAbility> DeadAbilityClass;
+
+    // BPGA_Grogy 블루프린트 클래스를 보관할 변수
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<class UGameplayAbility> GrogyAbilityClass;
 };
