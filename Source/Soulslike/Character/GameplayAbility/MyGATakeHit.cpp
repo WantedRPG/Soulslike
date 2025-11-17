@@ -18,6 +18,14 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
 	UCharacterMovementComponent* MyPlayerMovement = MyPlayer->GetCharacterMovement();
 
+	if (MyPlayer->IsKnockBack() || MyPlayer->IsDead())
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+
+	MyPlayer->SetPlayerMode(EPlayerState::KnockBack);
+
 	if (MyPlayerMovement->IsMovingOnGround())
 	{
 		MyPlayerMovement->SetMovementMode(EMovementMode::MOVE_None);
@@ -47,7 +55,14 @@ void UMyGATakeHit::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
-	MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	if (!MyPlayer->IsDead())
+	{
+		MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		if (MyPlayer->IsKnockBack())
+		{
+			MyPlayer->SetPlayerMode(EPlayerState::Peace);
+		}
+	}
 }
 
 void UMyGATakeHit::OnCompleteCallback()

@@ -2,14 +2,15 @@
 
 
 #include "Character/Player/MyPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "MyPlayerState.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "MyPlayerState.h"
 #include "AttributeSet/SLAttributeSet.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -130,7 +131,7 @@ void AMyPlayer::SetupGASInputComponent()
 
 void AMyPlayer::GASInputPressed(int32 InputId)
 {
-	if (GetPlayerMode() == EPlayerState::Dead)
+	if (IsDead())
 	{
 		return;
 	}
@@ -156,7 +157,7 @@ void AMyPlayer::GASInputPressed(int32 InputId)
 
 void AMyPlayer::GASInputReleased(int32 InputId)
 {
-	if (GetPlayerMode() == EPlayerState::Dead)
+	if (IsDead())
 	{
 		return;
 	}
@@ -177,7 +178,7 @@ void AMyPlayer::GASInputReleased(int32 InputId)
 
 void AMyPlayer::Move(const FInputActionValue& Value)
 {
-	if (GetPlayerMode() == EPlayerState::Dead)
+	if (IsDead())
 	{
 		return;
 	}
@@ -199,7 +200,7 @@ void AMyPlayer::Move(const FInputActionValue& Value)
 
 void AMyPlayer::MouseLook(const FInputActionValue& Value)
 {
-	if (GetPlayerMode() == EPlayerState::Dead)
+	if (IsDead())
 	{
 		return;
 	}
@@ -211,14 +212,26 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
+{
+	// 넉백 이벤트
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
+	// TODO. 전체적인 태그 정리 및 설정 필요.
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.TakeHit"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
+}
+
 void AMyPlayer::Death()
 {
-	if (GetPlayerMode() == EPlayerState::Dead)
+	if (IsDead())
 	{
 		return;
 	}
 
-	PlayerMode = EPlayerState::Dead;
+	SetPlayerMode(EPlayerState::Dead);
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{

@@ -6,6 +6,7 @@
 #include "Character/MyCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "Character/PrimaryDataAsset/MyPDAComboAttack.h"
+#include "GameplayEffectTypes.h"
 #include "MyPlayer.generated.h"
 
 //USTRUCT(BlueprintType)
@@ -24,7 +25,7 @@ UENUM(BlueprintType)
 enum class EPlayerState : uint8
 {
 	Peace	  UMETA(DisplayName = "Peace"),
-	Attack    UMETA(DisplayName = "Attack"),
+	// Attack    UMETA(DisplayName = "Attack"),
 	KnockBack UMETA(DisplayName = "KnockBack"),
 	Dead	  UMETA(DisplayName = "Dead"),
 };
@@ -44,6 +45,11 @@ public:
 	AMyPlayer();
 
 public:
+	FORCEINLINE bool IsDead() const { return PlayerMode == EPlayerState::Dead; }
+	FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
+
+	FORCEINLINE void SetPlayerMode(EPlayerState State) { PlayerMode = State; }
+
 	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
 
@@ -51,6 +57,9 @@ public:
 	FORCEINLINE UAnimMontage* GetSTakeHitMontage() const { return TakeHitMontage; }
 
 	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
+
+	UFUNCTION()
+	void KnockBack(const FGameplayEffectContextHandle& Context);
 
 	UFUNCTION()
 	void Death();
