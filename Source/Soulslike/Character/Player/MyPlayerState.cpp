@@ -5,13 +5,13 @@
 #include "AbilitySystemComponent.h"
 #include "AttributeSet/SLAttributeSet.h"
 
-AMyPlayerState::AMyPlayerState()
-{
-	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
-	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player AttributeSet"));
-}
-
-UAbilitySystemComponent* AMyPlayerState::GetAbilitySystemComponent() const
-{
-	return ASC;
-}
+//AMyPlayerState::AMyPlayerState()
+//{
+//	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+//	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player AttributeSet"));
+//}
+//
+//UAbilitySystemComponent* AMyPlayerState::GetAbilitySystemComponent() const
+//{
+//	return ASC;
+//}

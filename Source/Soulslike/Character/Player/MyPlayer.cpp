@@ -8,13 +8,16 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "MyPlayerState.h"
+#include "AttributeSet/SLAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
 	// 빙의 시, PlayerState의 ASC와 중복 방지하기 위함.
-	ASC = nullptr;
-
+	//ASC = nullptr;
+	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player_AttributeSet"));
+	
 	Level = 1;
 }
 
@@ -31,14 +34,9 @@ void AMyPlayer::PossessedBy(AController* NewController)
 
 	if (MyPS)
 	{
-		ASC = MyPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(MyPS/*owner*/, this/*빙의 대상*/);
+		// ASC = MyPS->GetAbilitySystemComponent();
+		ASC->InitAbilityActorInfo(MyPS, this);
 
-		// ASC에 GE 적용
-		/*for (const auto& GE : StatEffect)
-		{
-
-		}*/
 		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
 		EffectContextHandle.AddSourceObject(this);
 		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);

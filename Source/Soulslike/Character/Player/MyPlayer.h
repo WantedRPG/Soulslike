@@ -115,4 +115,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack | Skill")
 	UAnimMontage* SkillAttackMontage;
+
+public:
+	UPROPERTY()
+	TObjectPtr<class USLAttributeSet> AttributeSet;
 };
