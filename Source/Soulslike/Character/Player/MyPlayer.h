@@ -59,6 +59,9 @@ public:
 	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
 
 	UFUNCTION()
+	void StopSprint(const FGameplayEffectContextHandle& Context);
+
+	UFUNCTION()
 	void KnockBack(const FGameplayEffectContextHandle& Context);
 
 	UFUNCTION()

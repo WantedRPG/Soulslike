@@ -212,6 +212,17 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
+{
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
+	// TODO. 전체적인 태그 정리 및 설정 필요.
+	FGameplayTag StopSprintTag = FGameplayTag::RequestGameplayTag(FName("Character.State.StopSprint"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
+}
+
 void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
 {
 	// 넉백 이벤트

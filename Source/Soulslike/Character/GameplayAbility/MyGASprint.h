@@ -25,7 +25,15 @@ public:
 	// 전력질주 키 떼었을 때 처리
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
 protected:
 	UFUNCTION()
 	void OnCompleteCallback();
+
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> SprintDrainEffect;
+
+	UPROPERTY()
+	FActiveGameplayEffectHandle SprintDrainEffectHandle;
 };

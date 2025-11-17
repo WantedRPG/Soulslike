@@ -4,7 +4,8 @@
 #include "Character/GameplayAbility/MyGASprint.h"
 #include "GameFramework/Character.h"          
 #include "GameFramework/CharacterMovementComponent.h"
-#include "MyGARoll.h"
+#include "AbilitySystemComponent.h"
+#include "AttributeSet/SLAttributeSet.h"
 
 UMyGASprint::UMyGASprint()
 {
@@ -28,6 +29,19 @@ bool UMyGASprint::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+	const USLAttributeSet* SourceAttributeSet = SourceASC->GetSet<USLAttributeSet>();
+
+	if (!SourceASC || !SourceAttributeSet)
+	{
+		return false;
+	}
+
+	if (SourceAttributeSet->GetStamina() <= 0.f)
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -35,7 +49,31 @@ void UMyGASprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+	if (SourceASC && SprintDrainEffect)
+	{
+		FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+		FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(SprintDrainEffect, 1.f, Context);
+		if (Spec.IsValid())
+		{
+			SprintDrainEffectHandle = SourceASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		}
+	}
+
 	// TODO. AT 연결
+}
+
+void UMyGASprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+	if (ASC && SprintDrainEffectHandle.IsValid())
+	{
+		ASC->RemoveActiveGameplayEffect(SprintDrainEffectHandle);
+		SprintDrainEffectHandle.Invalidate();
+	}
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UMyGASprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
