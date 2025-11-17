@@ -30,7 +30,7 @@ void ASLBossMonster::BeginPlay()
         return;
     }
 
-    // Give Move Ga 
+    // Give Move GA 
     if (MoveAbilityClass)
     {
         FGameplayAbilitySpec Spec(MoveAbilityClass, 1, 0, MontageDataPDA);
@@ -51,6 +51,28 @@ void ASLBossMonster::BeginPlay()
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: TurnAbilityClass is null"), *GetName());
+    }
+    // Give Dead GA 
+    if (DeadAbilityClass)
+    {
+        FGameplayAbilitySpec Spec(DeadAbilityClass, 1, 0, MontageDataPDA);
+        ASC->GiveAbility(Spec);
+        UE_LOG(LogTemp, Log, TEXT("%s: GA_Dead granted"), *GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("%s: DeadAbilityClass is null"), *GetName());
+    }
+    // Give Grogy GA 
+    if (GrogyAbilityClass)
+    {
+        FGameplayAbilitySpec Spec(GrogyAbilityClass, 1, 0, MontageDataPDA);
+        ASC->GiveAbility(Spec);
+        UE_LOG(LogTemp, Log, TEXT("%s: GA_Grogy granted"), *GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("%s: GrogyAbilityClass is null"), *GetName());
     }
 
     // Give Normal Attack GA
