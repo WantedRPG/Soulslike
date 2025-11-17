@@ -7,9 +7,13 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Player/MyPlayer.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
+
+#include "AbilitySystemComponent.h"  
 
 UMyGADropSword::UMyGADropSword()
 {
@@ -22,6 +26,14 @@ void UMyGADropSword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
+	UCharacterMovementComponent* MyPlayerMovement = MyPlayer->GetCharacterMovement();
+
+	if (MyPlayerMovement->IsMovingOnGround())
+	{
+		MyPlayerMovement->SetMovementMode(EMovementMode::MOVE_None);
+	}
 
 	if (DropNotifyTag.IsValid())
 	{
@@ -52,6 +64,14 @@ void UMyGADropSword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		DoDropNow();
 		OnMontageCompleted();
 	}
+}
+
+void UMyGADropSword::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
+	MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void UMyGADropSword::OnNotifyEventReceived(FGameplayEventData /*EventData*/)
@@ -108,6 +128,15 @@ void UMyGADropSword::DoDropNow()
 
 		FoundSword->SetOwner(nullptr);
 		FoundSword->SetInstigator(nullptr);
+
+		// 무기 장착 태그 해제
+		if (HasWeaponTag.IsValid())
+		{
+			if (UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked())
+			{
+				SourceASC->RemoveLooseGameplayTag(HasWeaponTag);
+			}
+		}
 	}
 }
 
