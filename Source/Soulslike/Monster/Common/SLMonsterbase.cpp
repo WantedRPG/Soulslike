@@ -8,6 +8,9 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AIController.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ASLMonsterbase::ASLMonsterbase()
@@ -122,6 +125,70 @@ void ASLMonsterbase::ApplyHitToTarget(AActor* HitActor)
 
     UE_LOG(LogTemp, Log, TEXT("ApplyHitToTarget: Applied Damage=%.1f Knockback=%.1f"),
         Damage, Knockback);
+}
+
+void ASLMonsterbase::MonsterDead()
+{
+    // AI 중지 (AIController와 BT 모두)
+    if (AAIController* AICon = Cast<AAIController>(GetController()))
+    {
+        AICon->StopMovement();
+
+        if (UBehaviorTreeComponent* BTComp = AICon->FindComponentByClass<UBehaviorTreeComponent>())
+        {
+            BTComp->StopTree(EBTStopMode::Safe);
+        }
+    }
+    // 이동 정지
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        MoveComp->DisableMovement();
+        MoveComp->StopMovementImmediately();
+    }
+
+    // Ability 시스템에서 모든 Ability 정지
+    if (ASC)
+    {
+        // 실행 중인 모든 어빌리티 중단
+        ASC->CancelAllAbilities();
+
+        // Dead Ability 활성화
+        static FGameplayTag DeadTag = FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Dead"));
+
+        ASC->HandleGameplayEvent(DeadTag, nullptr);
+    }
+}
+
+void ASLMonsterbase::MonsterGrogy()
+{
+    // AI 중지 (AIController와 BT 모두)
+    if (AAIController* AICon = Cast<AAIController>(GetController()))
+    {
+        AICon->StopMovement();
+
+        if (UBrainComponent* Brain = AICon->GetBrainComponent())
+        {
+            Brain->PauseLogic(TEXT("Grogy"));
+        }
+    }
+    // 이동 정지
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        MoveComp->DisableMovement();
+        MoveComp->StopMovementImmediately();
+    }
+
+    // Ability 시스템에서 모든 Ability 정지
+    if (ASC)
+    {
+        // 실행 중인 모든 어빌리티 중단
+        ASC->CancelAllAbilities();
+
+        // Grogy Ability 활성화
+        static FGameplayTag GrogyTag = FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Grogy"));
+
+        ASC->HandleGameplayEvent(GrogyTag, nullptr);
+    }
 }
 
 

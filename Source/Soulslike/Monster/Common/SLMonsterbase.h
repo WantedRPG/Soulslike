@@ -41,7 +41,15 @@ protected:
 public:	
 	virtual void BeginPlay() override;
 
+	// 플레이어 공격 게임이펙트 적용
 	UFUNCTION(BlueprintCallable)
 	void ApplyHitToTarget(AActor* HitActor);
 
+	// 몬스터 죽음
+	UFUNCTION(BlueprintCallable)
+	void MonsterDead();
+
+	// 몬스터 그로기(상태이상)
+	UFUNCTION(BlueprintCallable)
+	void MonsterGrogy();
 };
