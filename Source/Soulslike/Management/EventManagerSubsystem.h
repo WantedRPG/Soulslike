@@ -10,7 +10,7 @@
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParams(FOnItemUsedSignature, FName /*ItemID*/);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemUsedSignature, FName,ItemID);
 
 UCLASS()
 class SOULSLIKE_API UEventManagerSubsystem : public UGameInstanceSubsystem
@@ -18,6 +18,6 @@ class SOULSLIKE_API UEventManagerSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 	FOnItemUsedSignature OnItemUsed;
 };

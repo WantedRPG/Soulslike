@@ -160,10 +160,11 @@ bool USLItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 FReply  USLItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	// 어느 마우스 버튼이 더블클릭되었는지 확인할 수 있습니다.
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && InventoryComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Left Mouse Button Double Click!"));
 		// 아이템 사용/장착 로직 호출
+		InventoryComponent->UseItem(SlotIndex);
 	}
 
 	// 이벤트를 처리했음을 반환하여 다른 위젯으로 전파되지 않게 합니다.

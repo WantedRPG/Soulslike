@@ -52,6 +52,8 @@ public:
 			;
 		InitInventoryWidget();
 	}
+
+	void UseItem(int32 InSlotIndex);
 private:
 	void ShowInventory();
 	void HiddenInventory();

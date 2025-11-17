@@ -197,6 +197,14 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 	InventoryWidgetInstance->SetEmptySlot(InSlotIndex);
 }
 
+void USLInventoryComponent::UseItem(int32 InSlotIndex)
+{
+	if (nullptr == ItemManager)
+		return;
+	USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
+	ItemData->ItemActionMap[EItemActionType::Primary];
+}
+
 void USLInventoryComponent::ShowInventory()
 {
 	//InventoryWidgetInstance = CreateWidget<USLInventoryWidget>(GetWorld(), InventoryWidgetClass);
