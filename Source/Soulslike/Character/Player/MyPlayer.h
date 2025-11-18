@@ -152,6 +152,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "KnockBack")
 	UAnimMontage* TakeHitMontage;
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UMyWidgetComponent> HpBar;
+
 public:
 	UPROPERTY()
 	TObjectPtr<class USLAttributeSet> AttributeSet;

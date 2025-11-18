@@ -33,10 +33,10 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 if (Data.Target.HasMatchingGameplayTag(MyTAG_Invincibility))
                 {
                     SetAttackPower(0.0f);
-                    const float NewHealth = GetHealth();
-                    const float Mag = Data.EvaluatedData.Magnitude; // 공격력 : -30
-                    const float OriginalHealth = NewHealth - Mag;   // 원래 체력 : 70 -(-30) = 100
-                    SetHealth(OriginalHealth);
+                    //const float NewHealth = GetHealth();
+                    //const float Mag = Data.EvaluatedData.Magnitude; // 공격력 : -30
+                    //const float OriginalHealth = NewHealth - Mag;   // 원래 체력 : 70 -(-30) = 100
+                    //SetHealth(OriginalHealth);
                     UE_LOG(LogTemp, Warning, TEXT("무적 상태 구르기. 데미지 없음."));
                     return;
                 }
@@ -48,6 +48,7 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 }
                 else
                 {
+					SetHealth(0.f);
                     Player->Death();
                 }
             }

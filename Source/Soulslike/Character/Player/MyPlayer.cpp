@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "AttributeSet/SLAttributeSet.h"
+#include "Character/UI/MyWidgetComponent.h"
+#include "Character/UI/MyUserWidget.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -20,6 +22,19 @@ AMyPlayer::AMyPlayer()
 	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player_AttributeSet"));
 	
 	Level = 1;
+
+	//
+	HpBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("Widget"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KMS/Asset/UI/WBP_PlayerHpBar.WBP_PlayerHpBar_C'"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(200.0f, 20.f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 UAbilitySystemComponent* AMyPlayer::GetAbilitySystemComponent() const
