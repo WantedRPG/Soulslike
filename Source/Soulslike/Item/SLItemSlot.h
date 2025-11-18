@@ -21,7 +21,8 @@ protected:
 	void SetToolTipWidget();
 
 public:
-	void SetItemSlotData(class USLItemData* NewItemData, int32 InStackCount, int32 InSlotIndex,class USLInventoryComponent* InInventoryComponent);
+	void SetInventoryComponent(class USLInventoryComponent* InInventoryComponent);
+	void SetItemSlotData(class USLItemData* NewItemData, int32 InStackCount, int32 InSlotIndex);
 	void SetEmpty();
 	FORCEINLINE FName GetItemID() { return ItemID; }
 	void SetTxtStackCount(int32 InStackCount);

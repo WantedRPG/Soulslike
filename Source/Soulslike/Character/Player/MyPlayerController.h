@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
+#include "Inventory/SLInventoryComponent.h"
 #include "MyPlayerController.generated.h"
 
 /**
@@ -14,11 +15,22 @@ UCLASS()
 class SOULSLIKE_API AMyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-protected:
-	virtual void SetupInputComponent() override;
 
+public:
+	void ToggleInventory();
+	UFUNCTION()
+	void UpdateInventoryUI(const FInventorySlotData& ChangedItemInfo);
+	UFUNCTION()
+	void AddInventorySlotUI(int32 LastIndex, int32 InAddSlotCount);
+protected:
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> CurrentCharacterContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USLPlayerHUD> PlayerHUDClass;
+	UPROPERTY()
+	TObjectPtr<class USLPlayerHUD> PlayerHUDInstance;
 };

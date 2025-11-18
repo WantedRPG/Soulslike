@@ -33,6 +33,7 @@ public:
 	void UpdateItemSlot(int32 InSlotIndex, FName InItemID, int32 InStackCount);
 	void CleanInventory();
 	void SetItemStackCount(int32 InSlotIndex,int32 InStackCount);
+	void AddEmptySlot(int32 LastIndex, int32 InAddSlotCount);
 	void SetEmptySlot(int32 InSlotIndex);
 	void SetRemoveSlot(int32 InSlotIndex);
 	void SetInventoryComponent(class USLInventoryComponent* InInventoryCompoent);

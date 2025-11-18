@@ -20,7 +20,7 @@ void USLItemManagerSubsystem::Deinitialize()
 
 USLItemData* USLItemManagerSubsystem::GetItemData(FName ItemID) const
 {
-	if (ItemDataCache.Contains(ItemID))
+	if (!ItemID.IsNone()&&ItemDataCache.Contains(ItemID))
 	{
 		return ItemDataCache[ItemID];
 	}

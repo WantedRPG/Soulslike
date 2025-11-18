@@ -22,9 +22,12 @@ USLItemSlot::USLItemSlot(const FObjectInitializer& ObjectInitializer) : Super(Ob
 {
 
 }
-void USLItemSlot::SetItemSlotData(USLItemData* NewItemData,int32 InStackCount,int32 InSlotIndex, USLInventoryComponent* InInventoryComponent)
+void USLItemSlot::SetInventoryComponent(class USLInventoryComponent* InInventoryComponent)
 {
 	InventoryComponent = InInventoryComponent;
+}
+void USLItemSlot::SetItemSlotData(USLItemData* NewItemData,int32 InStackCount,int32 InSlotIndex)
+{
 	SlotIndex = InSlotIndex;
 	StackCount = InStackCount;
 
@@ -51,6 +54,7 @@ void USLItemSlot::SetEmpty()
 	ItemID = NAME_None;
 	Image_ItemIcon->SetVisibility(ESlateVisibility::Hidden);
 	Txt_StackCount->SetVisibility(ESlateVisibility::Hidden);
+	SetToolTip(nullptr);
 }
 
 void USLItemSlot::SetTxtStackCount(int32 InStackCount)

@@ -112,7 +112,7 @@ void USLInventoryWidget::AddItemSlot(int32 InSlotIndex, FName InItemID, int32 In
             if (ItemManager)
             {
                 USLItemData* ItemData = ItemManager->GetItemData(InItemID);
-                NewSlotWidget->SetItemSlotData(ItemData, InStackCount, InSlotIndex, InventoryComponent);
+                NewSlotWidget->SetItemSlotData(ItemData, InStackCount, InSlotIndex);
             }
             else
             {
@@ -135,7 +135,7 @@ void USLInventoryWidget::UpdateItemSlot(int32 InSlotIndex, FName InItemID, int32
         USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
         if (USLItemData* ItemData = ItemManager->GetItemData(InItemID))
         {
-            ItemSlot->SetItemSlotData(ItemData, InStackCount, InSlotIndex, InventoryComponent);
+            ItemSlot->SetItemSlotData(ItemData, InStackCount, InSlotIndex);
         }
         //ItemSlot->UpdateStackCount(InStackCount);  
     }
@@ -153,7 +153,27 @@ void USLInventoryWidget::SetItemStackCount(int32 InSlotIndex, int32 InStackCount
         ItemSlot->SetTxtStackCount(InStackCount);
     }
 }
-
+void USLInventoryWidget::AddEmptySlot(int32 LastIndex,int32 InAddSlotCount)
+{
+    for (int32 Count = 0; Count < InAddSlotCount; ++Count)
+    {
+        USLItemSlot* NewSlotWidget = CreateWidget<USLItemSlot>(this, ItemSlotWidgetClass);
+        if (NewSlotWidget)
+        {
+            //UniformGridPanel에 자식으로 추가
+            //AddChildToUniformGrid 한 후 슬롯 데이터가 적용됨
+            UUniformGridSlot* NewSlot = Grid_Item->AddChildToUniformGrid(NewSlotWidget);
+            if (NewSlot)
+            {
+                NewSlot->SetRow(LastIndex / MaxRow);
+                NewSlot->SetColumn(LastIndex % MaxRow);
+                ++LastIndex;
+                NewSlotWidget->SetItemSlotData(nullptr, 0, Count);
+                NewSlotWidget->SetInventoryComponent(InventoryComponent);
+            }
+        }
+    }
+}
 void USLInventoryWidget::SetEmptySlot(int32 InSlotIndex)
 {
     if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(InSlotIndex)))

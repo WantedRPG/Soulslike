@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Item/SLItemEums.h"
 #include "SLInventoryComponent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -12,23 +13,34 @@ struct FInventorySlotData
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SlotIndex;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ItemID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentStack;
-
-	FInventorySlotData() : ItemID(NAME_None), CurrentStack(0){}
-	FInventorySlotData(FName InItemID,int32 InStack) : ItemID(InItemID), CurrentStack(InStack) {}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EItemType ItemType;
+	FInventorySlotData() : SlotIndex(0),ItemID(NAME_None), CurrentStack(0), ItemType(EItemType::None){}
+	FInventorySlotData(FName InItemID,int32 InStack) : SlotIndex(0),ItemID(InItemID), CurrentStack(InStack), ItemType(EItemType::None) {}
 };
 
+// 데이터 변경 시 호출될 델리게이트 선언
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryUpdated, const FInventorySlotData&, ChangeInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAddInventorySlot, int32, LastSlotIndex, int32 , AddSlotCount);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULSLIKE_API USLInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
-public:	
+public:
 	// Sets default values for this component's properties
 	USLInventoryComponent();
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
+	FOnInventoryUpdated OnInventoryUpdated;
+	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
+	FAddInventorySlot AddInventorySlot;
 
 protected:
 	// Called when the game starts
@@ -38,29 +50,19 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
+	
 	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName InItemID, int32 InStackCount);
 	//인벤토리 widget 켜기/끄기
 	UFUNCTION(BlueprintCallable)
-	void ToggleInventory();
-	UFUNCTION(BlueprintCallable)
 	void DropItem(int32 InSlotIndex);
 	void RequestSwapItems(int32 FromIndex, int32 ToIndex);
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetInventoryWidget(class USLInventoryWidget* InWidget) {
-		InventoryWidgetInstance = InWidget
-			;
-		InitInventoryWidget();
-	}
-
+	void InitInventory(int32 InMaXSlotCount);
+	void AddItem();
 	void UseItem(int32 InSlotIndex);
 private:
-	void ShowInventory();
-	void HiddenInventory();
-	void UpdateInventory();
-	void InitInventoryWidget();
-	
-
+	void UpdateItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
+	void AddItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UGameplayEffect> ItemGameplayEffectClass;

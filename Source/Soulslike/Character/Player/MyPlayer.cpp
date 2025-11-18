@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "AttributeSet/SLAttributeSet.h"
+#include "MyPlayerController.h"
+#include "Inventory/SLInventoryComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -18,7 +20,8 @@ AMyPlayer::AMyPlayer()
 	//ASC = nullptr;
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player_AttributeSet"));
-	
+	InventoryComponent = CreateDefaultSubobject<USLInventoryComponent>(TEXT("InventoryComponent"));
+
 	Level = 1;
 }
 
@@ -66,8 +69,11 @@ void AMyPlayer::PossessedBy(AController* NewController)
 		SetupGASInputComponent();
 
 		// 디버그 모드
-		APlayerController* PlayerController = CastChecked<APlayerController>(NewController);
-		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+		if (AMyPlayerController* PlayerController = CastChecked<AMyPlayerController>(NewController))
+		{
+			PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+		}
+		
 	}
 }
 
@@ -81,6 +87,7 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyPlayer::Move);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AMyPlayer::MouseLook);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AMyPlayer::ToggleInventory);
 	}
 }
 
@@ -210,6 +217,15 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	// 입력 전달
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+
+void AMyPlayer::ToggleInventory()
+{
+	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
+	{
+		PC->ToggleInventory();
+	}
 }
 
 void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)

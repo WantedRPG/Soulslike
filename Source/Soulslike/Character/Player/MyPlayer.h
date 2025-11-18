@@ -76,7 +76,7 @@ protected:
 protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
-
+	void ToggleInventory();
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> ASC;
@@ -129,6 +129,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ImpactAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> InventoryAction;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
@@ -149,4 +151,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
 	EPlayerState PlayerMode = EPlayerState::Peace;
+	//Todo : 아이템 픽업 예정
+	//인벤토리 컴포넌트
+private:
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TObjectPtr<class USLInventoryComponent> InventoryComponent;
 };
