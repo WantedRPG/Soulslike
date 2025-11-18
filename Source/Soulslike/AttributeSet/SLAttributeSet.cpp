@@ -20,6 +20,12 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
     AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
     if (AMyPlayer* Player = Cast<AMyPlayer>(TargetActor))
     {
+        if (Data.EvaluatedData.Attribute == GetAttackPowerAttribute())
+        {
+            SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
+            SetAttackPower(0.0f);
+        }
+
         if (Data.EvaluatedData.Attribute == GetHealthAttribute())
         {
             if (Data.Target.AbilityActorInfo.IsValid())
@@ -27,33 +33,26 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 if (Data.Target.HasMatchingGameplayTag(MyTAG_Invincibility))
                 {
                     SetAttackPower(0.0f);
-
-                    //const float NewHealth = GetHealth();
-                    //const float Mag = Data.EvaluatedData.Magnitude; // 공격력 : -30
-                    //const float OriginalHealth = NewHealth - Mag;   // 원래 체력 : 70 -(-30) = 100
-                    //SetHealth(OriginalHealth);
-
+                    const float NewHealth = GetHealth();
+                    const float Mag = Data.EvaluatedData.Magnitude; // 공격력 : -30
+                    const float OriginalHealth = NewHealth - Mag;   // 원래 체력 : 70 -(-30) = 100
+                    SetHealth(OriginalHealth);
                     UE_LOG(LogTemp, Warning, TEXT("무적 상태 구르기. 데미지 없음."));
                     return;
                 }
 
-                if (GetHealth() <= 0.f)
+                if (GetHealth() > 0.f)
                 {
-                    Player->Death();
+                    const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
+                    Player->KnockBack(Context);  
                 }
                 else
                 {
-                    const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
-                    Player->KnockBack(Context);
+                    Player->Death();
                 }
             }
         }
 
-        if (Data.EvaluatedData.Attribute == GetAttackPowerAttribute())
-        {
-            SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
-            SetAttackPower(0.0f);
-        }
 
         if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
         {

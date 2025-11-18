@@ -233,7 +233,7 @@ void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
 	// TODO. 전체적인 태그 정리 및 설정 필요.
-	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.State.KnockBack"));
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
 }
 
