@@ -215,11 +215,6 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void AMyPlayer::Sprint(const FGameplayEffectContextHandle& Context)
-{
-
-}
-
 void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
 {
 	FGameplayEventData EventData;
@@ -238,7 +233,7 @@ void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
 	// TODO. 전체적인 태그 정리 및 설정 필요.
-	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.TakeHit"));
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.State.KnockBack"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
 }
 

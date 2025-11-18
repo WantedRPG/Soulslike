@@ -6,9 +6,6 @@
 #include "Abilities/GameplayAbility.h"
 #include "MyGATakeHit.generated.h"
 
-// TODO. 피격 당했을 때 재생할 GA (InputGA 아닌, GA. Trigger Event 설정해야 함.)
-// 넉백은 GA 몽타주 피격 둥울 처리할 예정. 누적치도...
-
 UCLASS()
 class SOULSLIKE_API UMyGATakeHit : public UGameplayAbility
 {

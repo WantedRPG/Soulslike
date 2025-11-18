@@ -26,7 +26,7 @@ enum class EPlayerState : uint8
 {
 	Peace	  UMETA(DisplayName = "Peace"),
 	// Attack    UMETA(DisplayName = "Attack"),
-	KnockBack UMETA(DisplayName = "KnockBack"),
+	// KnockBack UMETA(DisplayName = "KnockBack"),
 	Dead	  UMETA(DisplayName = "Dead"),
 };
 
@@ -46,9 +46,11 @@ public:
 
 public:
 	FORCEINLINE bool IsDead() const { return PlayerMode == EPlayerState::Dead; }
-	FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
+	// FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
 
 	FORCEINLINE void SetPlayerMode(EPlayerState State) { PlayerMode = State; }
+
+	FORCEINLINE UAnimMontage* GetRollActionMontage() const { return RollMontage; }
 
 	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
@@ -57,9 +59,6 @@ public:
 	FORCEINLINE UAnimMontage* GetSTakeHitMontage() const { return TakeHitMontage; }
 
 	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
-
-	UFUNCTION()
-	void Sprint(const FGameplayEffectContextHandle& Context);
 
 	UFUNCTION()
 	void StopSprint(const FGameplayEffectContextHandle& Context);
@@ -135,6 +134,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Attack", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ImpactAction;
+
+protected:	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> RollMontage;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")

@@ -74,6 +74,11 @@ void UMyGADropSword::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 	MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
+void UMyGADropSword::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 void UMyGADropSword::OnNotifyEventReceived(FGameplayEventData /*EventData*/)
 {
 	DoDropNow();
