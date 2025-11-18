@@ -60,7 +60,6 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
             SetAttackPower(0.0f);
         }
     }
-
     if (ASLMonsterbase* Monster = Cast<ASLMonsterbase>(TargetActor))
     {
         if (Data.EvaluatedData.Attribute == GetHealthAttribute())
