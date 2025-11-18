@@ -15,6 +15,9 @@ class SOULSLIKE_API UQuestObjectiveDefinition : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+	FText ObjectiveName;
+
 	// 스폰 위치(레벨 내 Transform). 에디터/블루프린트에서 변경 가능.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
 	FTransform SpawnTransform;

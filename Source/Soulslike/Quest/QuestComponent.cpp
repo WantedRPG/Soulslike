@@ -155,6 +155,12 @@ void UQuestComponent::StartQuest(FName QuestID)
 	// 전달 받은 퀘스트 ID를 현재 퀘스트로 등록
 }
 
+// Getter 구현: ActiveQuestsInstance 읽기 전용으로 반환
+const TArray<TObjectPtr<UQuest>>& UQuestComponent::GetActiveQuestsInstance() const
+{
+	return ActiveQuestsInstance;
+}
+
 void UQuestComponent::OnQuestCompleted(UQuest* CompletedQuest)
 {
 	if (!CompletedQuest)

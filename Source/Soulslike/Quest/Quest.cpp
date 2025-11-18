@@ -70,8 +70,11 @@ bool UQuest::SpawnObjectiveActorsFromDefinition(UQuestDefinition* QuestDef, AAct
 		AQuestObjectiveActor* Spawned = World->SpawnActor<AQuestObjectiveActor>(ObjClass, SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), SpawnParams);
 		if (Spawned)
 		{
-			// Owning Quest 정보 설정 (선택적: 만약 구현되어 있다면)
-			Spawned->SetOwningQuest(this); // 필요 시 사용
+			// Owning Quest 정보 설정
+			Spawned->SetOwningQuest(this);
+
+			// Definition으로부터 추가 초기화 (ObjectiveName, SpawnTransform 등)
+			Spawned->InitializeFromDefinition(ObjDefPtr);
 
 			QuestObjectiveActors.Add(Spawned);
 			UE_LOG(LogTemp, Log, TEXT("UQuest::SpawnObjectivesFromDefinition - Spawned objective actor: %s"), *Spawned->GetName());

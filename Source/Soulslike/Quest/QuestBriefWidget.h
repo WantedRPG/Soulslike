@@ -8,6 +8,9 @@
 
 class UTextBlock;
 class UDataTable;
+class UButton;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnOpenDetailRequested, FName);
 
 /**
  * 
@@ -24,8 +27,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Quest")
 	void InitializeFromRow(FName InRowName);
 
+	// 상세 보기 요청시 브로드캐스트되는 delegate
+	FOnOpenDetailRequested OnOpenDetailRequested;
+
 protected:
 	virtual void NativeConstruct() override;
+
+	// 버튼 클릭 핸들러
+	UFUNCTION()
+	void HandleOpenDetailClicked();
 
 	// Data Table
 	UPROPERTY(EditDefaultsOnly, Category = "Quest")
@@ -40,4 +50,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UTextBlock> QuestDescription;
+
+	// UMG에서 바인딩할 상세 열기 버튼 (위젯 이름: "OpenDetailButton")
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> OpenDetailButton;
 };

@@ -2,9 +2,15 @@
 
 #include "Quest/QuestMenuWidget.h"
 #include "Quest/QuestBriefWidget.h"
+#include "Quest/QuestDetailWidget.h"
+#include "Quest/QuestComponent.h"
 #include "Components/ScrollBox.h"
+#include "Components/MenuAnchor.h"
+#include "Components/TextBlock.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/DataTable.h"
 #include "Quest.h"
+#include "QuestObjectiveActor.h"
 
 UQuestMenuWidget::UQuestMenuWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -59,6 +65,8 @@ void UQuestMenuWidget::InitializeFromQuestIDs(const TArray<FName>& InActiveQuest
 		{
 			Brief->InitializeFromRow(QuestID);
 			ActiveQuestScrollBox->AddChild(Brief);
+			// 상세 요청 바인딩 (이 함수 모드에서는 추가 바인딩 필요 시 사용)
+			Brief->OnOpenDetailRequested.AddUObject(this, &UQuestMenuWidget::ShowQuestDetail);
 		}
 	}
 }
@@ -74,14 +82,14 @@ void UQuestMenuWidget::RefreshQuestLists(const TArray<TObjectPtr<UQuest>>& InAct
 
 	if (!ActiveQuestScrollBox)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::InitializeFromQuestLists - ActiveQuestScrollBox is not set"));
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::RefreshQuestLists - ActiveQuestScrollBox is not set"));
 		// 계속 진행하되 Active 쪽은 건너뜀
 	}
 	else
 	{
 		if (!QuestBriefWidget)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::InitializeFromQuestLists - QuestBriefWidget class not assigned"));
+			UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::RefreshQuestLists - QuestBriefWidget class not assigned"));
 		}
 		else
 		{
@@ -96,6 +104,8 @@ void UQuestMenuWidget::RefreshQuestLists(const TArray<TObjectPtr<UQuest>>& InAct
 				{
 					Brief->InitializeFromRow(QuestPtr->ID);
 					ActiveQuestScrollBox->AddChild(Brief);
+					// 상세 열기 요청 바인딩
+					Brief->OnOpenDetailRequested.AddUObject(this, &UQuestMenuWidget::ShowQuestDetail);
 				}
 			}
 		}
@@ -109,13 +119,13 @@ void UQuestMenuWidget::RefreshQuestLists(const TArray<TObjectPtr<UQuest>>& InAct
 
 	if (!FinishedQuestScrollBox)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::InitializeFromQuestLists - FinishedQuestScrollBox is not set"));
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::RefreshQuestLists - FinishedQuestScrollBox is not set"));
 		return;
 	}
 
 	if (!QuestBriefWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::InitializeFromQuestLists - QuestBriefWidget class not assigned"));
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::RefreshQuestLists - QuestBriefWidget class not assigned"));
 		return;
 	}
 
@@ -127,6 +137,114 @@ void UQuestMenuWidget::RefreshQuestLists(const TArray<TObjectPtr<UQuest>>& InAct
 		{
 			Brief->InitializeFromRow(QuestID);
 			FinishedQuestScrollBox->AddChild(Brief);
+			// 완료된 항목에서도 상세 열기 허용
+			Brief->OnOpenDetailRequested.AddUObject(this, &UQuestMenuWidget::ShowQuestDetail);
 		}
+	}
+}
+
+void UQuestMenuWidget::ShowQuestDetail(FName QuestID)
+{
+	// 기존 인스턴스 제거
+	if (QuestDetailWidgetInstance)
+	{
+		QuestDetailWidgetInstance->RemoveFromParent();
+		QuestDetailWidgetInstance = nullptr;
+	}
+
+	// QuestComponent에서 ActiveQuestsInstance를 찾아 QuestID로 검색
+	UQuestComponent* QuestComp = nullptr;
+	// 우선 소유 플레이어의 pawn에서 찾기
+	if (APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr)
+	{
+		if (APawn* Pawn = PC->GetPawn())
+		{
+			QuestComp = Pawn->FindComponentByClass<UQuestComponent>();
+		}
+	}
+
+	// 실패 시 GetOwningPlayerPawn로 재시도
+	if (!QuestComp)
+	{
+		if (APawn* OwningPawn = GetOwningPlayerPawn())
+		{
+			QuestComp = OwningPawn->FindComponentByClass<UQuestComponent>();
+		}
+	}
+
+	if (!QuestComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - QuestComponent not found"));
+		return;
+	}
+
+	const TArray<TObjectPtr<UQuest>>& ActiveList = QuestComp->GetActiveQuestsInstance();
+	UQuest* FoundQuest = nullptr;
+	for (const TObjectPtr<UQuest>& Q : ActiveList)
+	{
+		if (Q && Q->ID == QuestID)
+		{
+			FoundQuest = Q.Get();
+			break;
+		}
+	}
+
+	if (!QuestDetailWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - QuestDetailWidgetClass not assigned"));
+		return;
+	}
+
+	// 상세 위젯 생성
+	UQuestDetailWidget* Detail = CreateWidget<UQuestDetailWidget>(GetWorld(), QuestDetailWidgetClass);
+	if (!Detail)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Failed to create QuestDetailWidget"));
+		return;
+	}
+
+	QuestDetailWidgetInstance = Detail;
+	if (QuestDetailMenuAnchor)
+	{
+		QuestDetailMenuAnchor->AddChild(Detail);
+	}
+	Detail->AddToViewport();
+
+	// 찾은 퀘스트 인스턴스로 상세 정보 설정
+	if (FoundQuest)
+	{
+		if (Detail->QuestNameTextBlock)
+		{
+			Detail->QuestNameTextBlock->SetText(FoundQuest->Summary);
+		}
+		if (Detail->QuestDescTextBlock)
+		{
+			Detail->QuestDescTextBlock->SetText(FoundQuest->Description);
+		}
+
+		// QuestObjectiveScrollBox가 있고, QuestObjectiveActors가 있으면 간단히 목록을 추가할 수 있음.
+		// (구체적인 Objective 위젯이 없으므로 텍스트로만 추가하는 예시)
+		if (Detail->QuestObjectiveScrollBox)
+		{
+			Detail->QuestObjectiveScrollBox->ClearChildren();
+			for (const TObjectPtr<AQuestObjectiveActor>& ObjActorPtr : FoundQuest->QuestObjectiveActors)
+			{
+				if (!ObjActorPtr)
+					continue;
+
+				// 간단한 텍스트 위젯 생성으로 Objective 표시 (UMG에서 적절한 위젯을 사용하는 것이 권장됨)
+				UTextBlock* TB = NewObject<UTextBlock>(Detail);
+				if (TB)
+				{
+					FText ObjText = ObjActorPtr->GetObjectiveName();
+					TB->SetText(ObjText);
+					Detail->QuestObjectiveScrollBox->AddChild(TB);
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Quest %s not found in ActiveQuestsInstance"), *QuestID.ToString());
 	}
 }
