@@ -22,13 +22,16 @@ public:
 public:
 	UFUNCTION(BlueprintCallable)
 	class USLInventoryWidget* GetInventoryWidget();
-
+	UFUNCTION()
 	void UpdateItemSlot(const FInventorySlotData& ChangedItemInfo);
+	UFUNCTION()
 	void AddItemSlot(int32 LastIndex, int32 InAddSlotCount);
 	bool ToggleInventory();
 
 	void SetInventoryComponent(USLInventoryComponent* InventoryComp);
-
+	void HiddeItemInfo();
+	UFUNCTION()
+	void ShowItemInfo(FName InItemID);
 	void ShowItemGetText();
 	void HiddenItemGetText();
 protected:
@@ -36,9 +39,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class USLInventoryWidget> WBP_Inventory;
 
+
 	//아이템 획득 표시
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UBorder> Border_GetItem;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_GetItem;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class USLItemInfo> WBP_ItemInfo;
+	FTimerHandle ItemInfoTimerHandle;
 };

@@ -89,17 +89,12 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 		UE_LOG(LogTemp, Warning, TEXT("ItemID %s 존재하지 않는 아이템입니다"),*InItemID.ToString());
 		return false;
 	}
+
+	//처음에 획득하는 아이템을 제외하고 맵에서 획득할때 알려야 함
 	
 	FGameplayTag StackableTag = FGameplayTag::RequestGameplayTag(FName("Item.Property.Stackable"));
 	//같은 종류 아이템 누적 가능여부 tag로 구별 
 	bool bStackTag = InItemData->ItemTags.HasTag(StackableTag);
-
-	if (Items.Num() == 0)
-	{
-		AddItemAndBroadcast(0, InStackCount, InItemID);
-		return true;
-	}
-
 	
 	int32 MaxStack = InItemData->MaxStack;
 
@@ -116,6 +111,7 @@ bool USLInventoryComponent::AddItem(FName InItemID,int32 InStackCount)
 				{
 					// 스택이 모두 들어가는 경우
 					UpdateItemAndBroadcast(Index, TotalStackCount, InItemID);
+
 					return true;
 				}
 				else

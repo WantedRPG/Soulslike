@@ -13,6 +13,9 @@
 #include "AttributeSet/SLAttributeSet.h"
 #include "MyPlayerController.h"
 #include "Inventory/SLInventoryComponent.h"
+#include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Item/SLItemPickupActor.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -23,6 +26,13 @@ AMyPlayer::AMyPlayer()
 	InventoryComponent = CreateDefaultSubobject<USLInventoryComponent>(TEXT("InventoryComponent"));
 
 	Level = 1;
+}
+
+void AMyPlayer::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	ScanItem();
 }
 
 UAbilitySystemComponent* AMyPlayer::GetAbilitySystemComponent() const
@@ -106,7 +116,7 @@ void AMyPlayer::SetupGASInputComponent()
 			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
 
 			// Equip Toggle
-			EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 4);
+			EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::PickupItem, 4);
 			// EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 4);
 
 			EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 5);
@@ -136,6 +146,109 @@ void AMyPlayer::SetupGASInputComponent()
 	}
 }
 
+void AMyPlayer::ScanItem()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	//트레이스 시작점과 끝점 계산
+	FVector StartLocation = FollowCamera->GetComponentLocation();
+	FVector EndLocation = StartLocation + GetControlRotation().Vector() * 500.0f;
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	//Todo : 줍기 전에는 무기가 ItemType이었다가 주운 후 무기타입으로 변경
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+
+	bool bHit = World->LineTraceSingleByObjectType(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ObjectTypes, 
+		Params
+	);
+
+	//FColor LineColor = FColor::Red;
+	//float DrawDuration = 2.0f;     
+	
+	// 5. 결과 처리
+	if (bHit)
+	{
+		//LineColor = FColor::Green;
+		ItemActor = HitResult.GetActor();
+
+		if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
+		{
+			PC->ShowItemText();
+		}
+	}
+	else
+	{
+		ItemActor = nullptr;
+
+		if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
+		{
+			PC->HiddenItemText();
+		}
+	}
+	/*
+	DrawDebugLine(
+		World,
+		StartLocation,
+		EndLocation,
+		LineColor,
+		false,              
+		DrawDuration 
+	);
+	*/
+}
+
+void AMyPlayer::PickupItem(int32 InputId)
+{
+	if (nullptr == ItemActor || IsDead())
+	{
+		return;
+	}
+
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
+	if (nullptr == Spec) return;
+	Spec->InputPressed = true;
+	if (Spec->IsActive())
+	{
+		// GA가 활성화 상태면 입력 신호 전달
+		ASC->AbilitySpecInputPressed(*Spec);
+		return;
+	}
+	
+
+	//아이템방향으로 회전
+	FVector ItemLocation = ItemActor->GetActorLocation();
+	ItemLocation.Z = 0;
+	FVector CurrentLocation = GetActorLocation();
+	CurrentLocation.Z = 0;
+	FVector Direction = ItemLocation - CurrentLocation;
+	SetActorRotation(FRotationMatrix::MakeFromX(Direction).Rotator());
+	
+	//아이템 획득
+	if (InventoryComponent)
+	{
+		if (ASLItemPickupActor* NewItem = Cast<ASLItemPickupActor>(ItemActor))
+		{
+			InventoryComponent->AddItem(NewItem->GetItemID(), NewItem->GetStackCount());
+			if (InventoryComponent->OnItemAcquired.IsBound())
+				InventoryComponent->OnItemAcquired.Broadcast(NewItem->GetItemID());
+			NewItem->Destroy();
+		}
+	}
+
+	//무기 획득 및 줍기 애니메이션 동작
+	// GA가 비활성화 상태면 활성화 시도
+	ASC->TryActivateAbility(Spec->Handle);
+}
+
 void AMyPlayer::GASInputPressed(int32 InputId)
 {
 	if (IsDead())
@@ -149,6 +262,7 @@ void AMyPlayer::GASInputPressed(int32 InputId)
 	{
 		Spec->InputPressed = true;
 
+		
 		if (Spec->IsActive())
 		{
 			// GA가 활성화 상태면 입력 신호 전달

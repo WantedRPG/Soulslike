@@ -13,19 +13,20 @@ ASLItemPickupActor::ASLItemPickupActor()
 	SetRootComponent(InteractionSphere);
 	ItemMaterialBillboard = CreateDefaultSubobject<UMaterialBillboardComponent>(TEXT("ItemMaterialBillboard"));
 	ItemMaterialBillboard->SetupAttachment(RootComponent);
+	
+	static ConstructorHelpers::FObjectFinder<UMaterial> MaterialFinder(TEXT("/Script/Engine.Material'/Game/LSJ/Item/LSJHelpActorMaterial.LSJHelpActorMaterial'"));
+	if (MaterialFinder.Succeeded())
+	{
+		ItemMaterialBillboard->AddElement(MaterialFinder.Object,nullptr,false, 32.0, 32.0, nullptr);
+	}
+
+	InteractionSphere->SetCollisionProfileName(TEXT("Item"));
 }
 
 // Called when the game starts or when spawned
 void ASLItemPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-// Called every frame
-void ASLItemPickupActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void ASLItemPickupActor::SetItemData(FName InItemID, int32 InStackCount)

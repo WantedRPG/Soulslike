@@ -18,13 +18,13 @@ class SOULSLIKE_API AMyPlayerController : public APlayerController
 
 public:
 	void ToggleInventory();
-	UFUNCTION()
-	void UpdateInventoryUI(const FInventorySlotData& ChangedItemInfo);
-	UFUNCTION()
-	void AddInventorySlotUI(int32 LastIndex, int32 InAddSlotCount);
+	void HiddenItemText();
+	void ShowItemText();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> CurrentCharacterContext;

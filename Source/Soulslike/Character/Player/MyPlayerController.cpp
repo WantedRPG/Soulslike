@@ -21,15 +21,16 @@ void AMyPlayerController::BeginPlay()
 		}
 	}
 
+	AMyPlayer* MyPlayer = Cast<AMyPlayer>(GetPawn());
 	// 캐릭터에서 InventoryComponent를 가져옵니다.
-	if (AMyPlayer* MyPlayer = Cast<AMyPlayer>(GetPawn()))
+	if (PlayerHUDInstance && MyPlayer)
 	{
 		if (USLInventoryComponent* InventoryComponent = Cast<USLInventoryComponent>(MyPlayer->GetComponentByClass(USLInventoryComponent::StaticClass())))
 		{
 			// 컴포넌트의 델리게이트에 UI 갱신 함수 바인딩
-			InventoryComponent->OnInventoryUpdated.AddDynamic(this, &AMyPlayerController::UpdateInventoryUI);
-			InventoryComponent->AddInventorySlot.AddDynamic(this, &AMyPlayerController::AddInventorySlotUI);
-
+			InventoryComponent->OnInventoryUpdated.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::UpdateItemSlot);
+			InventoryComponent->AddInventorySlot.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::AddItemSlot);
+			InventoryComponent->OnItemAcquired.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::ShowItemInfo);
 			if (PlayerHUDInstance)
 				PlayerHUDInstance->SetInventoryComponent(InventoryComponent);
 
@@ -55,10 +56,25 @@ void AMyPlayerController::SetupInputComponent()
 	}
 }
 
+void AMyPlayerController::HiddenItemText()
+{
+	if (PlayerHUDInstance)
+	{
+		PlayerHUDInstance->HiddenItemGetText();
+	}
+}
+
+void AMyPlayerController::ShowItemText()
+{
+	if (PlayerHUDInstance) 
+	{
+		PlayerHUDInstance->ShowItemGetText();
+	}
+}
 
 void AMyPlayerController::ToggleInventory()
 {
-	if (PlayerHUDInstance) // CurrentHUD는 UMyHUDWidget* 타입이어야 함
+	if (PlayerHUDInstance) 
 	{
 		if (PlayerHUDInstance->ToggleInventory())
 		{
@@ -78,21 +94,4 @@ void AMyPlayerController::ToggleInventory()
 		}
 	}
 
-}
-
-void AMyPlayerController::UpdateInventoryUI(const FInventorySlotData& ChangedItemInfo)
-{
-	// 여기서 HUD 위젯 인스턴스의 함수를 호출하여 텍스트나 슬롯을 갱신합니다.
-	if (PlayerHUDInstance)
-	{
-		PlayerHUDInstance->UpdateItemSlot(ChangedItemInfo);
-	}
-}
-
-void AMyPlayerController::AddInventorySlotUI(int32 LastIndex, int32 InAddSlotCount)
-{
-	if (PlayerHUDInstance)
-	{
-		PlayerHUDInstance->AddItemSlot(LastIndex, InAddSlotCount);
-	}
 }

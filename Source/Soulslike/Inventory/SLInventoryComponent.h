@@ -27,6 +27,8 @@ public:
 // 데이터 변경 시 호출될 델리게이트 선언
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryUpdated, const FInventorySlotData&, ChangeInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAddInventorySlot, int32, LastSlotIndex, int32 , AddSlotCount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemAcquired, FName, ItemID);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULSLIKE_API USLInventoryComponent : public UActorComponent
@@ -41,7 +43,8 @@ public:
 	FOnInventoryUpdated OnInventoryUpdated;
 	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
 	FAddInventorySlot AddInventorySlot;
-
+	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
+	FOnItemAcquired OnItemAcquired;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -50,7 +53,6 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
-	
 	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName InItemID, int32 InStackCount);
 	//인벤토리 widget 켜기/끄기

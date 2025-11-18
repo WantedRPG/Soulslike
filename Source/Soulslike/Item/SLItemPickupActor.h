@@ -20,8 +20,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	FORCEINLINE const FName& GetItemID() { return ItemID; }
+	FORCEINLINE const int32 GetStackCount() { return StackCount; }
 public:
 	void SetItemData(FName InItemID,int32 InStackCount);
 protected:

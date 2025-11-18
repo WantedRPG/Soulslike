@@ -40,5 +40,5 @@ public:
 	TMap<EItemActionType, FItemActionDetail> ItemActionMap;
 	//월드 아이템 BP
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WordItemBP")
-	TObjectPtr<class AItemActor> WordItemClass;
+	TObjectPtr<class ASLItemPickupActor> WordItemClass;
 };

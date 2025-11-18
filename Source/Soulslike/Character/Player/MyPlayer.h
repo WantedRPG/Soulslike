@@ -65,11 +65,14 @@ public:
 	void Death();
 
 protected:
+	virtual void Tick(float DeltaSeconds) override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void SetupGASInputComponent();
+	void ScanItem();
+	void PickupItem(int32 InputId);
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
 
@@ -156,4 +159,6 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TObjectPtr<class USLInventoryComponent> InventoryComponent;
+	UPROPERTY(EditAnywhere, Category = "Item")
+	TObjectPtr<class AActor> ItemActor;
 };
