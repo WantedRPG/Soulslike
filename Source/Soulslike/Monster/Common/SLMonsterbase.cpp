@@ -60,6 +60,7 @@ void ASLMonsterbase::BeginPlay()
 
         // 초기 스탯 GE한 번 발동!
         ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+        UE_LOG(LogTemp, Log, TEXT("Init Stat GE for %s"), *GetName());
     }
 
 }

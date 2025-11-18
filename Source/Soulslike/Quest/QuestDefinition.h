@@ -7,6 +7,9 @@
 #include "QuestData.h"
 #include "QuestDefinition.generated.h"
 
+class AQuestObjectiveActor;
+class UQuestObjectiveDefinition;
+
 /**
  * 
  */
@@ -31,4 +34,13 @@ public:
 	// Text struct including the quest name and description
 	UPROPERTY(EditAnywhere, Category = "Quest Data")
 	FQuestText Text;
+
+	// Objective actor classes associated with this quest.
+	// 디자이너는 여기서 Objective Actor의 블루프린트 클래스를 지정할 수 있습니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest Data")
+	TSubclassOf<AQuestObjectiveActor> ObjectiveActorClass;
+
+	// Quest objective 데이터 자산들 (각 Objective의 세부 정의)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest Data")
+	TArray<TObjectPtr<UQuestObjectiveDefinition>> ObjectiveDefinitions;
 };
