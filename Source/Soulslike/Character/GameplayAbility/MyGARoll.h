@@ -27,4 +27,10 @@ public:
 protected:
 	UFUNCTION()
 	void OnCompleteCallback();
+
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> InvincibilityEffect;
+
+	UPROPERTY()
+	FActiveGameplayEffectHandle InvincibilityEffectHandle;
 };

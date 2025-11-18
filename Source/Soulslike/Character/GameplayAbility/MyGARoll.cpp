@@ -31,35 +31,46 @@ void UMyGARoll::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
         return;
     }
 
+    UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+    if (SourceASC && InvincibilityEffect)
+    {
+        FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+        FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(InvincibilityEffect, 1.f, Context);
+        if (Spec.IsValid())
+        {
+            InvincibilityEffectHandle = SourceASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+        }
+    }
+
     UAbilityTask_PlayMontageAndWait* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Roll"), MyPlayer->GetRollActionMontage(), 1.f, NAME_None, true, 1.f, 0.f);
     Task->OnCompleted.AddDynamic(this, &UMyGARoll::OnCompleteCallback);
     Task->ReadyForActivation();
-
-    /*UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-    static const FGameplayTag RollTag = FGameplayTag::RequestGameplayTag(TEXT("Character.State.Roll"));
-
-    if (ASC)
-    {
-        ASC->AddLooseGameplayTag(RollTag);
-    }*/
 }
 
 void UMyGARoll::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-    /*UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-    static const FGameplayTag RollTag = FGameplayTag::RequestGameplayTag(TEXT("Character.State.Roll"));
-
-    if (ASC)
-    {
-        ASC->RemoveLooseGameplayTag(RollTag);
-    }*/
-
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+    if (ASC && InvincibilityEffectHandle.IsValid())
+    {
+        ASC->RemoveActiveGameplayEffect(InvincibilityEffectHandle);
+        InvincibilityEffectHandle.Invalidate();
+    }
 }
 
 void UMyGARoll::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
     Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+    if (ASC && InvincibilityEffectHandle.IsValid())
+    {
+        ASC->RemoveActiveGameplayEffect(InvincibilityEffectHandle);
+        InvincibilityEffectHandle.Invalidate();
+    }
 }
 
 void UMyGARoll::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

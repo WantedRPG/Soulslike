@@ -66,6 +66,8 @@ void UMyGASprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UMyGASprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 
 	if (ASC && SprintDrainEffectHandle.IsValid())
@@ -73,13 +75,18 @@ void UMyGASprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		ASC->RemoveActiveGameplayEffect(SprintDrainEffectHandle);
 		SprintDrainEffectHandle.Invalidate();
 	}
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UMyGASprint::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC && SprintDrainEffectHandle.IsValid())
+	{
+		ASC->RemoveActiveGameplayEffect(SprintDrainEffectHandle);
+		SprintDrainEffectHandle.Invalidate();
+	}
 }
 
 void UMyGASprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

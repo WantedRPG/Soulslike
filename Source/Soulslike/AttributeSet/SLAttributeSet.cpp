@@ -1,7 +1,8 @@
 ﻿#include "AttributeSet/SLAttributeSet.h"
 #include "GameplayEffectExtension.h"
-#include "Character/Player/MyPlayer.h"
 #include "AbilitySystemComponent.h"
+#include "Character/Player/MyPlayer.h"
+#include "Character/Tag/MyGameplayTag.h"
 
 USLAttributeSet::USLAttributeSet()
 {
@@ -23,6 +24,19 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
         {
             if (Data.Target.AbilityActorInfo.IsValid())
             {
+                if (Data.Target.HasMatchingGameplayTag(MyTAG_Invincibility))
+                {
+                    SetAttackPower(0.0f);
+
+                    //const float NewHealth = GetHealth();
+                    //const float Mag = Data.EvaluatedData.Magnitude; // 공격력 : -30
+                    //const float OriginalHealth = NewHealth - Mag;   // 원래 체력 : 70 -(-30) = 100
+                    //SetHealth(OriginalHealth);
+
+                    UE_LOG(LogTemp, Warning, TEXT("무적 상태 구르기. 데미지 없음."));
+                    return;
+                }
+
                 if (GetHealth() <= 0.f)
                 {
                     Player->Death();
@@ -37,24 +51,6 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
         if (Data.EvaluatedData.Attribute == GetAttackPowerAttribute())
         {
-            //static const FGameplayTag RollTag = FGameplayTag::RequestGameplayTag(TEXT("Character.State.Roll"));
-            //if (Data.Target.AbilityActorInfo.IsValid())
-            //{
-            //    if (UAbilitySystemComponent* PlayerASC = Data.Target.AbilityActorInfo->AbilitySystemComponent.Get())
-            //    {
-            //        FGameplayTagContainer OwnedTags;
-            //        PlayerASC->GetOwnedGameplayTags(OwnedTags);
-
-            //        // 구르기 무적 태그가 있으면 데미지 무시
-            //        if (OwnedTags.HasTagExact(RollTag))
-            //        {
-            //            UE_LOG(LogTemp, Warning, TEXT("무적 구르기. 데미지 무시"));
-            //            SetAttackPower(0.0f);
-            //            return;
-            //        }
-            //    }
-            //}
-
             SetHealth(FMath::Clamp(GetHealth() - GetAttackPower(), 0.f, GetMaxHealth()));
             SetAttackPower(0.0f);
         }
