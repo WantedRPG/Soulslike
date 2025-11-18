@@ -7,7 +7,11 @@
 #include "Quest.h"
 #include "QuestComponent.generated.h"
 
+class UQuest;
 class UQuestDefinition;
+class AQuestObjectiveActor;
+class UQuestObjectiveDefinition;
+class UQuestMenuWidget;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULSLIKE_API UQuestComponent : public UActorComponent
@@ -20,39 +24,51 @@ public:
 
 	// Data Table
 	UPROPERTY(EditDefaultsOnly, Category = "Quest")
-	TObjectPtr<UDataTable> QuestDataTabel;
-
-	// Quest Properties<
+	TObjectPtr<UDataTable> QuestDataTable;
 
 	// Quest list
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
-	TArray<FName> ActiveQuests;
+	TArray<FName> ActiveQuestsID;
 
 	// Active quest which is shown on quest system ui
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
-	TObjectPtr<UQuest> CurrentQuest;
+	FName CurrentQuest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
-	TArray<TObjectPtr<UQuest>> FinishedQuests;
+	TArray<FName> FinishedQuests;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
-	TArray<TObjectPtr<UQuest>> FailedQuests;
+	TArray<FName> FailedQuests;
 
 	// UI
-	// 인스턴스를 보관하는 포인터(런타임에 CreateWidget으로 생성됨)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Quest)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
 	TObjectPtr<class UQuestMenuWidget> QuestMenuWidget;
 
-	// 에디터에서 할당할 위젯 클래스
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Quest)
 	TSubclassOf<class UQuestMenuWidget> QuestMenuWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
 	TObjectPtr<class UQuestBriefWidget> QuestBriefWidget;
 
+private:
+	// 런타임에 생성된 UQuest 인스턴스들 (ActiveQuestsID -> UQuest 객체)
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UQuest>> ActiveQuestsInstance;
+
+public:
+	// UQuest에서 완료 알림을 받을 콜백
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void OnQuestCompleted(UQuest* CompletedQuest);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	// ActiveQuestsID로부터 UQuest 인스턴스들을 생성하고, 필요하면 Objective 액터들을 스폰하여 연결합니다.
+	void CreateActiveQuestInstances();
+
+	// ActiveQuestsInstance 변경 시 UMG를 갱신
+	void RefreshQuestMenu();
 
 public:	
 	// Called every frame
