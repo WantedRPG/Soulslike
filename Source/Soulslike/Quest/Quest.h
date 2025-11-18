@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Objective.h"
 #include "Quest.generated.h"
+
+class AQuestObjectiveActor;
+class UQuestDefinition;
 
 /**
  * 
@@ -29,11 +31,31 @@ public:
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FText Description;
 
-	// Objectives of a quest
+	// Objectives of a quest (스폰된 액터들을 보관)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
-	TArray<TObjectPtr<AObjective>> Objectives;
+	TArray<TObjectPtr<AQuestObjectiveActor>> QuestObjectiveActors;
+
+private:
+	int32 CurrentObjectiveIndex = 0;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = Quest)
-	bool QuestScript();
+	UFUNCTION()
+	void ProgressQuest();
+
+	// 현재 인덱스에 해당하는 Objective의 TriggerBox만 활성화하고 나머지는 비활성화
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void UpdateObjectiveActors();
+
+	// QuestDefinition 기반으로 Objective 액터들을 스폰해서 QuestObjectiveActors에 저장합니다.
+	// OwnerActor가 null이면 World를 찾을 수 없으므로 실패합니다.
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	bool SpawnObjectiveActorsFromDefinition(UQuestDefinition* QuestDef, AActor* OwnerActor);
+
+	// 퀘스트 완료 처리: 소유 컴포넌트에 알리기 위해 호출
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void CompleteQuest();
+
+	// Quest가 보유한 Objective 액터들을 정리(비활성화 + 지연 파괴)
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void CleanupObjectives();
 };

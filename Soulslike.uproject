@@ -7,25 +7,28 @@
     {
       "Name": "Soulslike",
       "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "GameplayAbilities",
-        "UMG"
-      ]
+      "LoadingPhase": "Default"
     }
   ],
   "Plugins": [
     {
       "Name": "ModelingToolsEditorMode",
-      "Enabled": true,
-      "TargetAllowList": [
-        "Editor"
-      ]
+      "Enabled": true
     },
     {
       "Name": "GameplayAbilities",
       "Enabled": true
+    },
+    {
+      "Name": "VisualStudioTools",
+      "Enabled": true,
+      "SupportedTargetPlatforms": [
+        "Win64"
+      ]
     }
-  ]
+  ],
+  "TargetPlatforms": [],
+  "AdditionalRootDirectories": [],
+  "AdditionalPluginDirectories": [],
+  "EpicSampleNameHash": ""
 }

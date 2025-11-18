@@ -48,5 +48,5 @@ struct FQuestData : public FTableRowBase
 
 	// The Data Asset quest definition associated with this quest
 	UPROPERTY(EditAnywhere, Category = "Quest Data")
-	TObjectPtr<UQuestDefinition> QuestBase;
+	TObjectPtr<UQuestDefinition> QuestDataAsset;
 };
