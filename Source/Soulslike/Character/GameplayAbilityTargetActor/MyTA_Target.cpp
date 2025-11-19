@@ -54,8 +54,8 @@ FGameplayAbilityTargetDataHandle AMyTA_Target::MakeTargetData() const
 	FHitResult OutHitResult;
 
 	// 피격 범위 설정
-	const float AttackRange = 100.0f; 
-	const float AttackRadius = 50.0f; 
+	const float AttackRange = 120.0f; 
+	const float AttackRadius = 70.0f; 
 	const float CapsuleRadius = Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector Forward = Character->GetActorForwardVector();
 	const FVector Start = Character->GetActorLocation() + Forward * CapsuleRadius;
