@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Character/Player/MyPlayer.h"
 #include "Character/Tag/MyGameplayTag.h"
+#include "Monster/Common/SLMonsterbase.h"
 
 USLAttributeSet::USLAttributeSet()
 {
@@ -10,13 +11,13 @@ USLAttributeSet::USLAttributeSet()
 
 void USLAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	Super::PreAttributeChange(Attribute, NewValue);
+    Super::PreAttributeChange(Attribute, NewValue);
 }
 
 void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
     Super::PostGameplayEffectExecute(Data);
-        
+
     AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
     if (AMyPlayer* Player = Cast<AMyPlayer>(TargetActor))
     {
@@ -55,6 +56,17 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
                 Player->StopSprint(Context);
                 SetStamina(0.f);
+            }
+        }
+    }
+    if (ASLMonsterbase* Monster = Cast<ASLMonsterbase>(TargetActor))
+    {
+        if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+        {
+            if (GetHealth() <= 0.f)
+            {
+                Monster->MonsterDead();
+                SetHealth(0.0f);
             }
         }
     }
