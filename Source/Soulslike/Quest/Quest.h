@@ -9,6 +9,9 @@
 class AQuestObjectiveActor;
 class UQuestDefinition;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnQuestProgressUpdated, UQuest*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnQuestCompletedDelegate, UQuest*);
+
 /**
  * 
  */
@@ -35,12 +38,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
 	TArray<TObjectPtr<AQuestObjectiveActor>> QuestObjectiveActors;
 
+	// Broadcast when quest progress changes (objective progressed, etc.)
+	FOnQuestProgressUpdated OnQuestProgressUpdated;
+
+	// Broadcast when quest is completed
+	FOnQuestCompletedDelegate OnQuestCompletedDelegate;
+
 private:
 	int32 CurrentObjectiveIndex = 0;
 
 public:
 	UFUNCTION()
 	void ProgressQuest();
+
+	UFUNCTION(Category = "Quest")
+	FORCEINLINE int32 GetCurrentObjectiveIndex() { return CurrentObjectiveIndex; }
 
 	// 현재 인덱스에 해당하는 Objective의 TriggerBox만 활성화하고 나머지는 비활성화
 	UFUNCTION(BlueprintCallable, Category = "Quest")

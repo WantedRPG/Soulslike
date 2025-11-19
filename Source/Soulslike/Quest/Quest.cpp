@@ -70,8 +70,11 @@ bool UQuest::SpawnObjectiveActorsFromDefinition(UQuestDefinition* QuestDef, AAct
 		AQuestObjectiveActor* Spawned = World->SpawnActor<AQuestObjectiveActor>(ObjClass, SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), SpawnParams);
 		if (Spawned)
 		{
-			// Owning Quest 정보 설정 (선택적: 만약 구현되어 있다면)
-			Spawned->SetOwningQuest(this); // 필요 시 사용
+			// Owning Quest 정보 설정
+			Spawned->SetOwningQuest(this);
+
+			// Definition으로부터 추가 초기화 (ObjectiveName, SpawnTransform 등)
+			Spawned->InitializeFromDefinition(ObjDefPtr);
 
 			QuestObjectiveActors.Add(Spawned);
 			UE_LOG(LogTemp, Log, TEXT("UQuest::SpawnObjectivesFromDefinition - Spawned objective actor: %s"), *Spawned->GetName());
@@ -132,6 +135,9 @@ void UQuest::UpdateObjectiveActors()
 	{
 		UE_LOG(LogTemp, Verbose, TEXT("UQuest::UpdateObjectiveActors - CurrentObjectiveIndex %d out of range"), CurrentObjectiveIndex);
 	}
+
+	// Objective 상태가 바뀌었음을 알림 (UI 갱신 등)
+	OnQuestProgressUpdated.Broadcast(this);
 }
 
 void UQuest::ProgressQuest()
@@ -155,6 +161,9 @@ void UQuest::ProgressQuest()
 
 void UQuest::CompleteQuest()
 {
+	// Broadcast 먼저 (UI가 반응하도록)
+	OnQuestCompletedDelegate.Broadcast(this);
+
 	// Owner가 UQuestComponent인지 확인하고 알림
 	if (UQuestComponent* OwnerComp = Cast<UQuestComponent>(GetOuter()))
 	{
