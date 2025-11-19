@@ -64,7 +64,7 @@ public:
 	void StopSprint(const FGameplayEffectContextHandle& Context);
 
 	UFUNCTION()
-	void KnockBack(const FGameplayEffectContextHandle& Context);
+	void KnockBack(const FGameplayEffectContextHandle& Context, int32 KnockBackLevel);
 
 	UFUNCTION()
 	void Death();

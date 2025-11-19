@@ -31,5 +31,8 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Section", meta = (AllowPrivateAccess = "true"))
-	FName MontageSection;
+	FName MontageSection1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Section", meta = (AllowPrivateAccess = "true"))
+	FName MontageSection2;
 };

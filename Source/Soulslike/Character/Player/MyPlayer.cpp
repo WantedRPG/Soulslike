@@ -240,14 +240,16 @@ void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
 }
 
-void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, int32 KnockBackLevel)
 {
 	// 넉백 이벤트
 	FGameplayEventData EventData;
 	EventData.Target = this;
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
-	// TODO. 전체적인 태그 정리 및 설정 필요.
+
+	EventData.EventMagnitude = static_cast<float>(KnockBackLevel);
+
 	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
 }

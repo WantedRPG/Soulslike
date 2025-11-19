@@ -44,12 +44,16 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 if (GetHealth() > 0.f)
                 {
                     const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
-                    Player->KnockBack(Context);  
+
+					const float KnockBacKPower = Data.EvaluatedData.Magnitude;
+                    int32 KnockBackLevel = (KnockBacKPower <= 50.f) ? 1 : 2;
+
+                    Player->KnockBack(Context, KnockBackLevel);  
                 }
                 else
                 {
-					SetHealth(0.f);
                     Player->Death();
+                    SetHealth(0.f);
                 }
             }
         }

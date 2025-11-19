@@ -24,9 +24,15 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
-	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, MontageSection
-	);
+	int32 KnockBackLevel = 1;
+	if (TriggerEventData)
+	{
+		KnockBackLevel = FMath::RoundToInt(TriggerEventData->EventMagnitude);
+	}
+
+	FName SectionToPlay = (KnockBackLevel <= 1)? MontageSection1 : MontageSection2;
+	UAbilityTask_PlayMontageAndWait* PlayAttackTask = 
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, SectionToPlay);
 
 	PlayAttackTask->OnCompleted.AddDynamic(this, &UMyGATakeHit::OnCompleteCallback);
 	PlayAttackTask->OnInterrupted.AddDynamic(this, &UMyGATakeHit::OnInterruptedCallback);
