@@ -27,6 +27,11 @@ void UMyGAAttackHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	AttackTraceTask->ReadyForActivation();
 }
 
+void UMyGAAttackHit::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+    Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
     if (!UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))

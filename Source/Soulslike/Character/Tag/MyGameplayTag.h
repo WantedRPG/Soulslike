@@ -2,5 +2,8 @@
 
 #include "GameplayTagContainer.h"
 
-// 데미지 관련 태그
-#define MyTAG_DATA_DAMAGE			 FGameplayTag::RequestGameplayTag(FName("Character.Data.AttackPower"))
+// 무적 상태 태그
+#define MyTAG_Invincibility			 FGameplayTag::RequestGameplayTag(FName("Character.State.Roll"))
+
+// Hp바 무적 상태 태그
+#define MyTag_INVINSIBLE			 FGameplayTag::RequestGameplayTag(FName("Character.State.Invinsible"))

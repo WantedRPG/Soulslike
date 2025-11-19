@@ -16,6 +16,8 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Item/SLItemPickupActor.h"
+#include "Character/UI/MyWidgetComponent.h"
+#include "Character/UI/MyUserWidget.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -26,6 +28,19 @@ AMyPlayer::AMyPlayer()
 	InventoryComponent = CreateDefaultSubobject<USLInventoryComponent>(TEXT("InventoryComponent"));
 
 	Level = 1;
+
+	//
+	HpBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("Widget"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KMS/Asset/UI/WBP_PlayerHpBar.WBP_PlayerHpBar_C'"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(200.0f, 20.f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AMyPlayer::Tick(float DeltaSeconds)
@@ -53,12 +68,15 @@ void AMyPlayer::PossessedBy(AController* NewController)
 
 		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
 		EffectContextHandle.AddSourceObject(this);
-		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
 
-		if (EffectSpecHandle.IsValid())
+		for (const auto& StatEffect : StatEffects) 
 		{
-			// 본인에게 Setting하는 GE
-			ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
+			if (EffectSpecHandle.IsValid())
+			{
+				// 본인에게 Setting하는 GE
+				ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+			}
 		}
 
 		// GameplayAbiltySpec 등록
@@ -333,7 +351,6 @@ void AMyPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-
 void AMyPlayer::ToggleInventory()
 {
 	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
@@ -342,15 +359,27 @@ void AMyPlayer::ToggleInventory()
 	}
 }
 
-void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context)
+void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
+{
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
+	FGameplayTag StopSprintTag = FGameplayTag::RequestGameplayTag(FName("Character.State.StopSprint"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
+}
+
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, int32 KnockBackLevel)
 {
 	// 넉백 이벤트
 	FGameplayEventData EventData;
 	EventData.Target = this;
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
-	// TODO. 전체적인 태그 정리 및 설정 필요.
-	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.TakeHit"));
+
+	EventData.EventMagnitude = static_cast<float>(KnockBackLevel);
+
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
 }
 
