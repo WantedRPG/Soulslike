@@ -38,7 +38,7 @@ bool UMyGASprint::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 
 	// 스태미너가 완전히 채워져야 전력질주 가능 (자동으로 스태미너가 채워질 때까지 대기해야 하므로, 별도의 타이머 불필요)
-	if (SourceAttributeSet->GetStamina() <= 50.f)
+	if (SourceAttributeSet->GetStamina() < 50.f)
 	{
 		return false;
 	}
@@ -60,8 +60,6 @@ void UMyGASprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 			SprintDrainEffectHandle = SourceASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 		}
 	}
-
-	// TODO. AT 연결
 }
 
 void UMyGASprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

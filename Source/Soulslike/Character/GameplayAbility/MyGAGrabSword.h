@@ -11,12 +11,6 @@ class AMyTA_Sword;
 class UAbilityTask_WaitGameplayEvent;
 class UAnimMontage;
 
-// TODO. 
-// 1. 무기가 소켓에 장착되도록 수정. TA를 참고해서 태그도 넣어야 함.
-// 2. 무기 장착 여부에 따라 근접 공격과 무기 공격으로 나뉠 것
-
-// 3. 무기가 손에 있을 경우는 실행 불가.
-
 UCLASS()
 class SOULSLIKE_API UMyGAGrabSword : public UGameplayAbility
 {

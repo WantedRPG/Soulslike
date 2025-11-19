@@ -25,9 +25,9 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	}
 
 	int32 KnockBackLevel = 1;
-	if (TriggerEventData)
+	if (TriggerEventData->EventMagnitude)
 	{
-		KnockBackLevel = FMath::RoundToInt(TriggerEventData->EventMagnitude);
+		KnockBackLevel = (FMath::Abs(TriggerEventData->EventMagnitude) <= 20.f) ? 1 : 2;
 	}
 
 	FName SectionToPlay = (KnockBackLevel <= 1)? MontageSection1 : MontageSection2;
