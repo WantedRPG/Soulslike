@@ -8,6 +8,7 @@
 #include "Character/Tag/MyGameplayTag.h"
 #include "AttributeSet/SLAttributeSet.h"
 #include "Monster/Common/SLMonsterbase.h"
+#include "Niagara/Public/NiagaraFunctionLibrary.h"
 
 UMyGAAttackHit::UMyGAAttackHit()
 {
@@ -81,6 +82,21 @@ void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 
     // 데미지 전달
     MonsterASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+    // 나이아가라 효과 재생
+    if (HitNiagara)
+    {
+        ACharacter* SourceChar = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+        if (SourceChar && SourceChar->GetMesh())
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAttached(
+                HitNiagara, SourceChar->GetMesh(), HitNiagaraSocketName,
+                FVector::ZeroVector, FRotator::ZeroRotator,
+                EAttachLocation::SnapToTarget,
+                true
+            );
+        }
+    }
 
 	// 종료
 	bool bReplicatedEndAbility = true;
