@@ -82,12 +82,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UGameplayEffect> GameplayEffectClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTagContainer ItemTag;
+	FGameplayTag ItemTag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Value;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag DurationTag;
 	FEffectTableRow() : Value(0), Duration(0.0) {};
 };
 
@@ -115,7 +116,7 @@ public:
 	TSoftClassPtr<UGameplayAbility> AbilityToActivate;
 	//아이템 효과 - 여러 효과 적용 가능
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
-	TArray<FEffectTableRow> DataDrivenModifierInfos;
+	TArray<FEffectTableRow> AbilityToEffects;
 };
 
 USTRUCT(BlueprintType)

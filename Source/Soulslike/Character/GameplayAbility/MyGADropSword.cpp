@@ -14,6 +14,7 @@
 #include "Components/PrimitiveComponent.h"
 
 #include "AbilitySystemComponent.h"  
+#include <Components/BoxComponent.h>
 
 UMyGADropSword::UMyGADropSword()
 {
@@ -112,6 +113,11 @@ void UMyGADropSword::DoDropNow()
 	}
 
 	if (!FoundSword) return;
+
+	if (UBoxComponent* Collision = FoundSword->FindComponentByClass<UBoxComponent>())
+	{
+		Collision->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); //WorldDynamic
+	}
 
 	// 땅에 드랍
 	if (USceneComponent* RootComp = FoundSword->GetRootComponent())

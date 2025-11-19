@@ -103,15 +103,16 @@ void USLItemManagerSubsystem::LoadAllItemData()
 			FEffectTableRow* EffectRow = EffectTable->FindRow<FEffectTableRow>(Row.EffectID, "FEffectTableRow");
 			if (EffectRow)
 			{
-				if (ItemDataCache[Row.ItemID]->ItemActionMap.Find(Row.ActionType))
+				const TObjectPtr<USLItemData>* FoundItemDataPtr = ItemDataCache.Find(Row.ItemID);
+				if (FoundItemDataPtr && FoundItemDataPtr->Get()->ItemActionMap.Find(Row.ActionType))
 				{
-					ItemDataCache[Row.ItemID]->ItemActionMap[Row.ActionType].DataDrivenModifierInfos.Add (*EffectRow);
+					FoundItemDataPtr->Get()->ItemActionMap[Row.ActionType].AbilityToEffects.Add (*EffectRow);
 				}
 				else
 				{
 					FItemActionDetail ItemActionDetail;
-					ItemActionDetail.DataDrivenModifierInfos.Add(*EffectRow);
-					ItemDataCache[Row.ItemID]->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
+					ItemActionDetail.AbilityToEffects.Add(*EffectRow);
+					FoundItemDataPtr->Get()->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
 				}
 
 				//Todo : GameplayEffectClass 구현 후 넣기

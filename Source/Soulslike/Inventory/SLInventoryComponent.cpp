@@ -6,8 +6,10 @@
 #include <Item/SLItemManagerSubsystem.h>
 #include <Item/SLItemData.h>
 #include <Item/SLItemPickupActor.h>
+#include "Item/GA/ItemDataObject.h"
 
-#include "AbilitySystemComponent.h"
+
+#include <AbilitySystemBlueprintLibrary.h>
 
 // Sets default values for this component's properties
 USLInventoryComponent::USLInventoryComponent()
@@ -213,11 +215,32 @@ void USLInventoryComponent::UseItem(int32 InSlotIndex)
 	if (nullptr == ItemManager)
 		return;
 
-	USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
-	if (nullptr == ItemData)
-		return;
+	//USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
+	//if (nullptr == ItemData)
+	//	return;
 
+	AActor* OwnerActor = GetOwner();
 
+	// OwnerActor를 대상으로 이벤트를 보냅니다.
+	FGameplayEventData EventData;
+	EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Item.Event.Consumable"));
+	EventData.Instigator = OwnerActor;
+	EventData.Target = OwnerActor;
+	UItemDataObject* ItemDataObject = NewObject<UItemDataObject>();
+	ItemDataObject->ItemID = Items[InSlotIndex].ItemID;
+	EventData.OptionalObject = ItemDataObject;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, EventData.EventTag, EventData);
+	/*
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerActor);
+
+	if (ASC)
+	{
+		
+	}
+	*/
+
+	//ItemData->ItemActionMap[EItemActionType::Primary].AbilityToEffects
 	/*
 	for (auto& GEInfo : ItemData->ItemActionMap[EItemActionType::Primary].DataDrivenModifierInfos)
 	{

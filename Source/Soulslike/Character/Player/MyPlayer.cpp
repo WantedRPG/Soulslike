@@ -17,7 +17,8 @@
 #include "DrawDebugHelpers.h"
 #include "Item/SLItemPickupActor.h"
 #include "Character/UI/MyWidgetComponent.h"
-#include "Character/UI/MyUserWidget.h"
+#include "Character/UI/MyUserWidget.h" 
+#include "Components/ArrowComponent.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -40,6 +41,16 @@ AMyPlayer::AMyPlayer()
 		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
 		HpBar->SetDrawSize(FVector2D(200.0f, 20.f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	static ConstructorHelpers::FClassFinder<UGameplayAbility> GAItemConsumableRef(TEXT("/Game/LSJ/GA/BPGA_ItemConsumable.BPGA_ItemConsumable_C"));
+	if (GAItemConsumableRef.Succeeded())
+	{
+		StartAbilities.Add(GAItemConsumableRef.Class);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to find BPGA_ItemConsumable class!"));
 	}
 }
 
@@ -170,17 +181,29 @@ void AMyPlayer::ScanItem()
 	if (!World) return;
 
 	//트레이스 시작점과 끝점 계산
-	FVector StartLocation = FollowCamera->GetComponentLocation();
-	FVector EndLocation = StartLocation + GetControlRotation().Vector() * 500.0f;
+	FVector StartLocation = GetActorLocation();
+	UArrowComponent* MyArrow = GetArrowComponent();
+	StartLocation += MyArrow->GetForwardVector() * 100.0f;
 
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	//Todo : 줍기 전에는 무기가 ItemType이었다가 주운 후 무기타입으로 변경
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	
+	FVector BoxHalfSize = FVector(70.f, 70.f, 100.f);
 
+	bool bHit = World->SweepSingleByObjectType(
+		HitResult,        // 결과 저장
+		GetActorLocation(),   // 시작 위치
+		GetActorLocation(),     // 끝 위치
+		FQuat::Identity, // 박스의 회전 (FQuat::Identity는 회전 없음)
+		ObjectTypes,    // 트레이스 채널
+		FCollisionShape::MakeBox(BoxHalfSize), // 박스 모양과 크기 지정
+		Params  // 충돌 파라미터
+	);
+	/*
 	bool bHit = World->LineTraceSingleByObjectType(
 		HitResult,
 		StartLocation,
@@ -189,8 +212,10 @@ void AMyPlayer::ScanItem()
 		Params
 	);
 
-	//FColor LineColor = FColor::Red;
-	//float DrawDuration = 2.0f;     
+	FColor LineColor = FColor::Red;
+	float DrawDuration = 2.0f;
+	*/
+	
 	
 	// 5. 결과 처리
 	if (bHit)

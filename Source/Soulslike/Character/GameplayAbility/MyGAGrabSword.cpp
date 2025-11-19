@@ -18,6 +18,7 @@
 
 #include "AbilitySystemComponent.h"   
 #include "GameplayAbilitySpec.h" 
+#include <Components/BoxComponent.h>
 
 UMyGAGrabSword::UMyGAGrabSword()
 {
@@ -153,6 +154,11 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		{
 			SourceASC->AddLooseGameplayTag(HasWeaponTag);
 		}
+	}
+
+	if (UBoxComponent* Collision = Sword->FindComponentByClass<UBoxComponent>())
+	{
+		Collision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	}
 }
 
