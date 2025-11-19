@@ -4,3 +4,9 @@
 3,Item_003,Primary,Effect_Attack_Tier1_Damage
 4,Item_003,Primary,Effect_Potion_Tier1_Stamina
 5,Item_003,Primary,Effect_Attack_Tier1_Damage
+6,Item_004,Primary,Effect_Potion_Tier1_MaxHealth
+7,Item_005,Primary,Effect_Potion_Tier1_MovementSpeed
+8,Item_006,Primary,Effect_Potion_Tier1_MaxMovementSpeed
+9,Item_007,Primary,Effect_Potion_Tier1_AttackPower
+9,Item_008,Primary,Effect_Potion_Tier1_AttackRate
+10,Item_009,Primary,Effect_Potion_Tier1_MaxStamina

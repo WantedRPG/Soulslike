@@ -207,6 +207,7 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 		ASLItemPickupActor* ItemPickupActor =GetWorld()->SpawnActor<ASLItemPickupActor>(ItemPickupActorClass, GetOwner()->GetTransform());
 		ItemPickupActor->SetItemData(Items[InSlotIndex].ItemID, Items[InSlotIndex].CurrentStack);
 	}
+	--CurrentItemCount;
 	UpdateItemAndBroadcast(InSlotIndex, 0, NAME_None);
 }
 

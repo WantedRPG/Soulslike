@@ -1,4 +1,9 @@
 ﻿EffectID,GameplayEffectClass,ItemTag,Value,Duration,DurationTag
 Effect_Potion_Tier1_Health,,Item.Effect.Health,50,3,Item.Effect.Duration.HealTime
-Effect_Potion_Tier1_Stamina,,Item.Effect.Stamina,40,0,
-Effect_Attack_Tier1_Damage,,Item.Effect.Damage,40,0,
+Effect_Potion_Tier1_MaxHealth,,Item.Effect.MaxHealth,20,120,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_MovementSpeed,,Item.Effect.MovementSpeed,30,10,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_MaxMovementSpeed,,Item.Effect.MaxMovementSpeed,50,120,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_AttackPower,,Item.Effect.AttackPower,15,10,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_AttackRate,,Item.Effect.AttackRate,1,10,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_MaxStamina,,Item.Effect.MaxStamina,10,120,Item.Effect.Duration.Buff
+Effect_Potion_Tier1_Stamina,,Item.Effect.Stamina,40,0,Item.Effect.Duration.Buff
