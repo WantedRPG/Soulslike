@@ -3,6 +3,7 @@
 
 #include "Character/GameplayAbility/MyGATakeHit.h"
 #include "Character/Player/MyPlayer.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
@@ -29,6 +30,12 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	{
 		KnockBackLevel = (FMath::Abs(TriggerEventData->EventMagnitude) <= 20.f) ? 1 : 2;
 	}
+
+	FVector Dir = (MyPlayer->GetActorLocation() - TriggerEventData->Instigator->GetActorLocation());
+	Dir.Z = 0.f;
+	Dir = Dir.GetSafeNormal();
+	Dir *= TriggerEventData->EventMagnitude;
+	MyPlayer->LaunchCharacter(Dir, true, false);
 
 	FName SectionToPlay = (KnockBackLevel <= 1)? MontageSection1 : MontageSection2;
 	UAbilityTask_PlayMontageAndWait* PlayAttackTask = 
