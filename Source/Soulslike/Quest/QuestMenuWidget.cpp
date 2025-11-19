@@ -4,6 +4,7 @@
 #include "Quest/QuestBriefWidget.h"
 #include "Quest/QuestDetailWidget.h"
 #include "Quest/QuestComponent.h"
+#include "Quest/CurrentQuestProgressionWidget.h"
 #include "Components/ScrollBox.h"
 #include "Components/MenuAnchor.h"
 #include "Components/TextBlock.h"
@@ -197,6 +198,7 @@ void UQuestMenuWidget::ShowQuestDetail(FName QuestID)
 
 	// 상세 위젯 생성
 	UQuestDetailWidget* Detail = CreateWidget<UQuestDetailWidget>(GetWorld(), QuestDetailWidgetClass);
+	Detail->InitializeFromQuest(FoundQuest);
 	if (!Detail)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Failed to create QuestDetailWidget"));
@@ -247,4 +249,128 @@ void UQuestMenuWidget::ShowQuestDetail(FName QuestID)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Quest %s not found in ActiveQuestsInstance"), *QuestID.ToString());
 	}
+}
+
+void UQuestMenuWidget::RefreshCurrentQuestProgression()
+{
+	// 기존 인스턴스 제거 (먼저 Unbind 해주기)
+	if (CurrentQuestProgressionWidgetInstance)
+	{
+		if (UCurrentQuestProgressionWidget* Prev = Cast<UCurrentQuestProgressionWidget>(CurrentQuestProgressionWidgetInstance.Get()))
+		{
+			Prev->UnbindFromQuest();
+		}
+		CurrentQuestProgressionWidgetInstance->RemoveFromParent();
+		CurrentQuestProgressionWidgetInstance = nullptr;
+	}
+
+	if (!CurrentQuestProgressionMenuAnchor)
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - Anchor not set"));
+		return;
+	}
+
+	if (!CurrentQuestProgressionWidgetClass)
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - WidgetClass not set"));
+		return;
+	}
+
+	// QuestComponent 검색 (FirstPlayerController pawn 우선, 실패 시 OwningPlayerPawn)
+	UQuestComponent* QuestComp = nullptr;
+	if (APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr)
+	{
+		if (APawn* Pawn = PC->GetPawn())
+		{
+			QuestComp = Pawn->FindComponentByClass<UQuestComponent>();
+		}
+	}
+	if (!QuestComp)
+	{
+		if (APawn* OwningPawn = GetOwningPlayerPawn())
+		{
+			QuestComp = OwningPawn->FindComponentByClass<UQuestComponent>();
+		}
+	}
+
+	if (!QuestComp)
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - QuestComponent not found"));
+		return;
+	}
+
+	// CurrentQuest가 비어있으면 새로 생성하지 않고 바로 반환 (이미 이전 인스턴스는 제거됨).
+	if (QuestComp->CurrentQuest.IsNone())
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - No current quest, not creating progression widget"));
+		return;
+	}
+
+	// CreateWidget: OwningPlayer 우선
+	APlayerController* OwningPC = GetOwningPlayer();
+	UCurrentQuestProgressionWidget* ProgressWidget = nullptr;
+	if (OwningPC)
+	{
+		ProgressWidget = CreateWidget<UCurrentQuestProgressionWidget>(OwningPC, CurrentQuestProgressionWidgetClass);
+	}
+	else
+	{
+		ProgressWidget = CreateWidget<UCurrentQuestProgressionWidget>(GetWorld(), CurrentQuestProgressionWidgetClass);
+	}
+
+	if (!ProgressWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - Failed to create ProgressWidget"));
+		return;
+	}
+
+	CurrentQuestProgressionWidgetInstance = ProgressWidget;
+	CurrentQuestProgressionMenuAnchor->AddChild(ProgressWidget);
+
+	// CurrentQuest로 UQuest 인스턴스 검색 (컴포넌트 내부 Active 인스턴스 사용)
+	const TArray<TObjectPtr<UQuest>>& ActiveList = QuestComp->GetActiveQuestsInstance();
+	UQuest* FoundQuest = nullptr;
+	for (const TObjectPtr<UQuest>& Q : ActiveList)
+	{
+		if (Q && Q->ID == QuestComp->CurrentQuest)
+		{
+			FoundQuest = Q.Get();
+			break;
+		}
+	}
+
+	if (!FoundQuest)
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("UQuestMenuWidget::RefreshCurrentQuestProgression - CurrentQuest not found in ActiveQuestsInstance"));
+		// CurrentQuest가 유효하지 않다면 방금 생성한 위젯은 제거
+		if (CurrentQuestProgressionWidgetInstance)
+		{
+			if (UCurrentQuestProgressionWidget* Prev = Cast<UCurrentQuestProgressionWidget>(CurrentQuestProgressionWidgetInstance.Get()))
+			{
+				Prev->UnbindFromQuest();
+			}
+			CurrentQuestProgressionWidgetInstance->RemoveFromParent();
+			CurrentQuestProgressionWidgetInstance = nullptr;
+		}
+		return;
+	}
+
+	// ProgressWidget에 텍스트 적용
+	if (ProgressWidget->QuestTextBlock)
+	{
+		ProgressWidget->QuestTextBlock->SetText(FoundQuest->Summary);
+	}
+
+	if (ProgressWidget->ObjectiveTextBlock)
+	{
+		FText ObjText = FText::GetEmpty();
+		if (FoundQuest->QuestObjectiveActors.Num() > 0 && FoundQuest->QuestObjectiveActors[0] != nullptr)
+		{
+			ObjText = FoundQuest->QuestObjectiveActors[0]->GetObjectiveName();
+		}
+		ProgressWidget->ObjectiveTextBlock->SetText(ObjText);
+	}
+
+	// 새로 생성한 ProgressWidget에 바인딩
+	ProgressWidget->BindToQuest(FoundQuest);
 }

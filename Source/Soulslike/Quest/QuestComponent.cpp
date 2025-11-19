@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Quest.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UQuestComponent::UQuestComponent()
@@ -70,14 +71,14 @@ void UQuestComponent::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("UQuestComponent::BeginPlay - QuestMenuWidgetClass not assigned. Please set it in the component defaults."));
 	}
 
-	// ActiveQuestsID로부터 UQuest 인스턴스 생성 및 ObjectiveActor 스폰
-	CreateActiveQuestInstances();
-
 	// 임시 구현 : ActiveQuestsID의 첫 번째 퀘스트를 CurrentQuest로 설정
 	if (ActiveQuestsID.Num() > 0)
 	{
 		CurrentQuest = ActiveQuestsID[0];
 	}
+
+	// ActiveQuestsID로부터 UQuest 인스턴스 생성 및 ObjectiveActor 스폰
+	CreateActiveQuestInstances();
 }
 
 void UQuestComponent::CreateActiveQuestInstances()
@@ -191,10 +192,28 @@ void UQuestComponent::OnQuestCompleted(UQuest* CompletedQuest)
 			}
 		}
 		FinishedQuests.AddUnique(CompletedQuest->ID);
+
+		// 완료된 퀘스트가 현재 표시 중인 퀘스트라면 CurrentQuest를 비운다.
+		if (CurrentQuest == CompletedQuest->ID)
+		{
+			CurrentQuest = NAME_None;
+		}
 	}
 
-	// UI 갱신
-	RefreshQuestMenu();
+	// UI 갱신: 즉시 갱신하지 않고 일정 시간(예: 3초) 대기한 뒤 갱신하여
+	// UCurrentQuestProgressionWidget이 완료 후에도 화면에 남아 있도록 한다.
+	const float DelayBeforeHidingCurrentQuestWidget = 2.0f;
+	if (UWorld* World = GetWorld())
+	{
+		FTimerDelegate Del = FTimerDelegate::CreateUObject(this, &UQuestComponent::RefreshQuestMenu);
+		FTimerHandle Handle;
+		World->GetTimerManager().SetTimer(Handle, Del, DelayBeforeHidingCurrentQuestWidget, false);
+	}
+	else
+	{
+		// World가 없으면 즉시 갱신
+		RefreshQuestMenu();
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("UQuestComponent::OnQuestCompleted - Quest %s completed."), *CompletedQuest->ID.ToString());
 }
@@ -205,5 +224,6 @@ void UQuestComponent::RefreshQuestMenu()
 	{
 		// Active UQuest 인스턴스와 Finished ID 목록을 함께 전달
 		QuestMenuWidget->RefreshQuestLists(ActiveQuestsInstance, FinishedQuests);
+		QuestMenuWidget->RefreshCurrentQuestProgression();
 	}
 }

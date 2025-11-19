@@ -11,6 +11,7 @@ class UScrollBox;
 class UQuestBriefWidget;
 class UMenuAnchor;
 class UQuest;
+class UCurrentQuestProgressionWidget;
 
 /**
  * 
@@ -34,6 +35,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UMenuAnchor> QuestDetailMenuAnchor;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UMenuAnchor> CurrentQuestProgressionMenuAnchor;
+
 	// ActiveQuest ID 목록으로 위젯을 초기화합니다.
 	UFUNCTION(BlueprintCallable, Category = "Quest")
 	void InitializeFromQuestIDs(const TArray<FName>& InActiveQuestIDs);
@@ -42,9 +46,15 @@ public:
 	// Active 목록은 UQuest 인스턴스 배열을 사용하고, Finished 목록은 ID(FName) 배열을 사용합니다.
 	void RefreshQuestLists(const TArray<TObjectPtr<UQuest>>& InActiveQuests, const TArray<FName>& InFinishedQuestIDs);
 
+	void RefreshCurrentQuestProgression();
+
 	// 상세 위젯 클래스 (UMG에서 설정)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Quest)
 	TSubclassOf<UUserWidget> QuestDetailWidgetClass;
+
+	// Current Quest Progression 위젯 클래스 (UMG에서 설정)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Quest)
+	TSubclassOf<UCurrentQuestProgressionWidget> CurrentQuestProgressionWidgetClass;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -59,6 +69,10 @@ protected:
 	// 현재 표시 중인 상세 위젯 인스턴스
 	UPROPERTY()
 	TObjectPtr<UUserWidget> QuestDetailWidgetInstance;
+
+	// 현재 표시 중인 진행 위젯 인스턴스
+	UPROPERTY()
+	TObjectPtr<UCurrentQuestProgressionWidget> CurrentQuestProgressionWidgetInstance;
 
 	// 상세 표시 요청 처리
 	UFUNCTION()
