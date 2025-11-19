@@ -130,6 +130,7 @@ void ASLMonsterbase::ApplyHitToTarget(AActor* HitActor)
 
 void ASLMonsterbase::MonsterDead()
 {
+    UE_LOG(LogTemp, Log, TEXT("MonsterDead Called"));
     // AI 중지 (AIController와 BT 모두)
     if (AAIController* AICon = Cast<AAIController>(GetController()))
     {
@@ -147,16 +148,15 @@ void ASLMonsterbase::MonsterDead()
         MoveComp->StopMovementImmediately();
     }
 
-    // Ability 시스템에서 모든 Ability 정지
+    // Ability 시스템에서 모든 Ability 정지, 죽음 어빌리티 실행
     if (ASC)
     {
         // 실행 중인 모든 어빌리티 중단
         ASC->CancelAllAbilities();
 
-        // Dead Ability 활성화
-        static FGameplayTag DeadTag = FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Dead"));
-
-        ASC->HandleGameplayEvent(DeadTag, nullptr);
+        FGameplayTagContainer DeadTags;
+        DeadTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Dead")));
+        ASC->TryActivateAbilitiesByTag(DeadTags);
     }
 }
 
@@ -185,10 +185,9 @@ void ASLMonsterbase::MonsterGrogy()
         // 실행 중인 모든 어빌리티 중단
         ASC->CancelAllAbilities();
 
-        // Grogy Ability 활성화
-        static FGameplayTag GrogyTag = FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Grogy"));
-
-        ASC->HandleGameplayEvent(GrogyTag, nullptr);
+        FGameplayTagContainer GrogyTags;
+        GrogyTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Monster.Ability.Grogy")));
+        ASC->TryActivateAbilitiesByTag(GrogyTags);
     }
 }
 

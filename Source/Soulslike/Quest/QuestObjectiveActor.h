@@ -12,6 +12,7 @@ class UPrimitiveComponent;
 class UWidgetComponent;
 class UUserWidget;
 class UQuest;
+class UQuestObjectiveDefinition;
 struct FHitResult;
 
 UENUM()
@@ -32,6 +33,10 @@ public:
 
 	UFUNCTION()
 	void StartObjective();
+
+	// 초기화: QuestObjectiveDefinition으로부터 이름, 스폰 트랜스폼 등 멤버 설정
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	void InitializeFromDefinition(UQuestObjectiveDefinition* Definition);
 
 protected:
 	// Called when the game starts or when spawned
@@ -88,4 +93,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	UQuest* GetOwningQuest() const;
+
+	// Objective 이름 (QuestObjectiveDefinition에서 초기화)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+	FText ObjectiveName;
+
+	// ObjectiveName getter
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	FText GetObjectiveName() const;
 };

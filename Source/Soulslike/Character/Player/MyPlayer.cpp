@@ -394,7 +394,7 @@ void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
 }
 
-void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, int32 KnockBackLevel)
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, float InMagnitude)
 {
 	// 넉백 이벤트
 	FGameplayEventData EventData;
@@ -402,7 +402,7 @@ void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, int32 Kno
 	EventData.Instigator = Context.GetInstigator();
 	EventData.ContextHandle = Context;
 
-	EventData.EventMagnitude = static_cast<float>(KnockBackLevel);
+	EventData.EventMagnitude = InMagnitude;
 
 	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
