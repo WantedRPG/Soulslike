@@ -18,17 +18,21 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
 	UCharacterMovementComponent* MyPlayerMovement = MyPlayer->GetCharacterMovement();
 
-	if (MyPlayer->IsKnockBack() || MyPlayer->IsDead())
+	if (MyPlayer->IsDead())
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
 
-	MyPlayer->SetPlayerMode(EPlayerState::KnockBack);
+	int32 KnockBackLevel = 1;
+	if (TriggerEventData)
+	{
+		KnockBackLevel = FMath::RoundToInt(TriggerEventData->EventMagnitude);
+	}
 
-	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, MontageSection
-	);
+	FName SectionToPlay = (KnockBackLevel <= 1)? MontageSection1 : MontageSection2;
+	UAbilityTask_PlayMontageAndWait* PlayAttackTask = 
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, SectionToPlay);
 
 	PlayAttackTask->OnCompleted.AddDynamic(this, &UMyGATakeHit::OnCompleteCallback);
 	PlayAttackTask->OnInterrupted.AddDynamic(this, &UMyGATakeHit::OnInterruptedCallback);
@@ -48,19 +52,11 @@ void UMyGATakeHit::CancelAbility(const FGameplayAbilitySpecHandle Handle, const 
 void UMyGATakeHit::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
-	AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
-	if (!MyPlayer->IsDead())
-	{
-		if (MyPlayer->IsKnockBack())
-		{
-			MyPlayer->SetPlayerMode(EPlayerState::Peace);
-		}
-	}
 }
 
 void UMyGATakeHit::OnCompleteCallback()
 {
+	SetCanBeCanceled(true);
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = false;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
@@ -68,6 +64,7 @@ void UMyGATakeHit::OnCompleteCallback()
 
 void UMyGATakeHit::OnInterruptedCallback()
 {
+	SetCanBeCanceled(true);
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);

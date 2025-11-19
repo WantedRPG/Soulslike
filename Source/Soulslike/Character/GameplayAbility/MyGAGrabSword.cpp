@@ -72,6 +72,11 @@ void UMyGAGrabSword::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 	MyPlayer->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
+void UMyGAGrabSword::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 void UMyGAGrabSword::OnNotifyEventReceived(FGameplayEventData EventData)
 {
 	TSubclassOf<AMyTA_Sword> TargetActorClass = AMyTA_Sword::StaticClass();

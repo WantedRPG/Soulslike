@@ -3,9 +3,11 @@
 
 #include "Character/GameplayAbility/MyGARoll.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Player/MyPlayer.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystemComponent.h"
 
 UMyGARoll::UMyGARoll()
 {
@@ -15,28 +17,60 @@ UMyGARoll::UMyGARoll()
 bool UMyGARoll::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
     bool bResult = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
-    if (!bResult || (RollMontage == nullptr)) 
-    {
-        return false;
-    }
 
-	return true;
+    return bResult;
 }
 
 void UMyGARoll::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-    if (!Character) 
+    AMyPlayer* MyPlayer = CastChecked<AMyPlayer>(ActorInfo->AvatarActor.Get());
+    if (!MyPlayer)
     {
         return;
     }
 
-    UAbilityTask_PlayMontageAndWait* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Roll"), RollMontage, 1.f, NAME_None, true, 1.f, 0.f);
+    UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+    if (SourceASC && InvincibilityEffect)
+    {
+        FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+        FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(InvincibilityEffect, 1.f, Context);
+        if (Spec.IsValid())
+        {
+            InvincibilityEffectHandle = SourceASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+        }
+    }
 
+    UAbilityTask_PlayMontageAndWait* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Roll"), MyPlayer->GetRollActionMontage(), 1.f, NAME_None, true, 1.f, 0.f);
     Task->OnCompleted.AddDynamic(this, &UMyGARoll::OnCompleteCallback);
     Task->ReadyForActivation();
+}
+
+void UMyGARoll::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+    if (ASC && InvincibilityEffectHandle.IsValid())
+    {
+        ASC->RemoveActiveGameplayEffect(InvincibilityEffectHandle);
+        InvincibilityEffectHandle.Invalidate();
+    }
+}
+
+void UMyGARoll::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+    Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+    if (ASC && InvincibilityEffectHandle.IsValid())
+    {
+        ASC->RemoveActiveGameplayEffect(InvincibilityEffectHandle);
+        InvincibilityEffectHandle.Invalidate();
+    }
 }
 
 void UMyGARoll::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
@@ -49,9 +83,6 @@ void UMyGARoll::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGa
 
 void UMyGARoll::OnCompleteCallback()
 {
-    const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
-    ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-
     SetCanBeCanceled(true);
     bool bReplicatedEndAbility = true;
     bool bWasCancelled = false;

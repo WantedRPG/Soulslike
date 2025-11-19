@@ -40,6 +40,11 @@ void UMyGAJump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGa
 	Character->StopJumping();
 }
 
+void UMyGAJump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 void UMyGAJump::OnLandedCallback()
 {
 	bool bReplicatedEndAbility = true;

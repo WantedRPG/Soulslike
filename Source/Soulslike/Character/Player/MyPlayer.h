@@ -26,7 +26,7 @@ enum class EPlayerState : uint8
 {
 	Peace	  UMETA(DisplayName = "Peace"),
 	// Attack    UMETA(DisplayName = "Attack"),
-	KnockBack UMETA(DisplayName = "KnockBack"),
+	// KnockBack UMETA(DisplayName = "KnockBack"),
 	Dead	  UMETA(DisplayName = "Dead"),
 };
 
@@ -46,9 +46,11 @@ public:
 
 public:
 	FORCEINLINE bool IsDead() const { return PlayerMode == EPlayerState::Dead; }
-	FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
+	// FORCEINLINE bool IsKnockBack() const { return PlayerMode == EPlayerState::KnockBack; }
 
 	FORCEINLINE void SetPlayerMode(EPlayerState State) { PlayerMode = State; }
+
+	FORCEINLINE UAnimMontage* GetRollActionMontage() const { return RollMontage; }
 
 	FORCEINLINE UAnimMontage* GetComboActionMontage() const { return ComboAttackMontage; }
 	FORCEINLINE UMyPDAComboAttack* GetComboActionData() const { return ComboAttackData; }
@@ -59,7 +61,10 @@ public:
 	FORCEINLINE EPlayerState GetPlayerMode() const { return PlayerMode; }
 
 	UFUNCTION()
-	void KnockBack(const FGameplayEffectContextHandle& Context);
+	void StopSprint(const FGameplayEffectContextHandle& Context);
+
+	UFUNCTION()
+	void KnockBack(const FGameplayEffectContextHandle& Context, int32 KnockBackLevel);
 
 	UFUNCTION()
 	void Death();
@@ -91,7 +96,7 @@ protected:
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class UGameplayEffect> StatEffect;
+	TArray<TSubclassOf<class UGameplayEffect>> StatEffects;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	float Level;
@@ -135,6 +140,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> InventoryAction;
 
+protected:	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> RollMontage;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack | Melee")
 	UAnimMontage* ComboAttackMontage;
@@ -147,6 +156,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "KnockBack")
 	UAnimMontage* TakeHitMontage;
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UMyWidgetComponent> HpBar;
 
 public:
 	UPROPERTY()
