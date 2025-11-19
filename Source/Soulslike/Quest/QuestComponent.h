@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Quest")
 	void OnQuestCompleted(UQuest* CompletedQuest);
 
+	// Getter: ActiveQuestsInstance에 접근할 수 있도록 함 (읽기 전용)
+	const TArray<TObjectPtr<UQuest>>& GetActiveQuestsInstance() const;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

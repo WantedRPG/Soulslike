@@ -148,7 +148,7 @@ void ASLMonsterbase::MonsterDead()
         MoveComp->StopMovementImmediately();
     }
 
-    // Ability 시스템에서 모든 Ability 정지
+    // Ability 시스템에서 모든 Ability 정지, 죽음 어빌리티 실행
     if (ASC)
     {
         // 실행 중인 모든 어빌리티 중단

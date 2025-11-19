@@ -2,6 +2,7 @@
 
 #include "Quest/QuestBriefWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/Button.h"
 #include "Engine/DataTable.h"
 #include "Quest/QuestData.h"
 
@@ -9,7 +10,7 @@ UQuestBriefWidget::UQuestBriefWidget(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 	, QuestRowName(NAME_None)
 {
-	// 에디터에서 지정하지 않은 경우를 대비해 데이터테이블을 로드합니다.
+	// 데이터 테이블 폴백 (기존 로직 유지)
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(TEXT("/Game/Quest/DT_QuestData.DT_QuestData"));
 	if (DataTableRef.Succeeded())
 	{
@@ -20,8 +21,7 @@ UQuestBriefWidget::UQuestBriefWidget(const FObjectInitializer& ObjectInitializer
 void UQuestBriefWidget::InitializeFromRow(FName InRowName)
 {
 	QuestRowName = InRowName;
-	// 필요하면 여기서 즉시 UI 갱신 로직을 호출할 수 있으나,
-	// NativeConstruct에서 UI 위젯 바인딩 후에 처리합니다.
+	// NativeConstruct에서 UI를 채움
 }
 
 void UQuestBriefWidget::NativeConstruct()
@@ -30,8 +30,9 @@ void UQuestBriefWidget::NativeConstruct()
 
 	QuestName = Cast<UTextBlock>(GetWidgetFromName(TEXT("TextBlockQuestName")));
 	QuestDescription = Cast<UTextBlock>(GetWidgetFromName(TEXT("TextBlockQuestDescription")));
+	OpenDetailButton = Cast<UButton>(GetWidgetFromName(TEXT("OpenDetailButton")));
 
-	// 저장된 행 이름이 없으면 기존 하드코드된 기본값을 사용
+	// 기존 데이터 채우기
 	FName RowToUse = QuestRowName.IsNone() ? FName(TEXT("quest001")) : QuestRowName;
 
 	if (QuestDataTabel)
@@ -39,8 +40,6 @@ void UQuestBriefWidget::NativeConstruct()
 		const FQuestData* Row = QuestDataTabel->FindRow<FQuestData>(RowToUse, FString(TEXT("FindRow")));
 		if (Row)
 		{
-			UE_LOG(LogTemp, Log, TEXT("QuestName : %s"), *Row->Text.Name.ToString());
-
 			if (QuestName)
 			{
 				QuestName->SetText(Row->Text.Name);
@@ -58,5 +57,24 @@ void UQuestBriefWidget::NativeConstruct()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UQuestBriefWidget::NativeConstruct - QuestDataTabel not set"));
+	}
+
+	// 버튼 바인딩
+	if (OpenDetailButton)
+	{
+		OpenDetailButton->OnClicked.AddDynamic(this, &UQuestBriefWidget::HandleOpenDetailClicked);
+	}
+}
+
+void UQuestBriefWidget::HandleOpenDetailClicked()
+{
+	// 현재 선택된 RowName을 전달
+	if (!QuestRowName.IsNone())
+	{
+		OnOpenDetailRequested.Broadcast(QuestRowName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UQuestBriefWidget::HandleOpenDetailClicked - QuestRowName is None"));
 	}
 }
