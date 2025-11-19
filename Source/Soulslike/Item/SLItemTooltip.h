@@ -14,8 +14,8 @@ class SOULSLIKE_API USLItemTooltip : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	void OnIconLoaded(FSoftObjectPath SoftIconPath);
-	void SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon);
+	void SetupDragVisualIcon(UTexture2D* LoadedTexture);
+
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image_ItemIcon;

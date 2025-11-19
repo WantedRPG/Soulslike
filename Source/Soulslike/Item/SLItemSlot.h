@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/StreamableManager.h"
 #include "SLItemSlot.generated.h"
 
 /**
@@ -27,10 +28,12 @@ public:
 	FORCEINLINE FName GetItemID() { return ItemID; }
 	void SetTxtStackCount(int32 InStackCount);
 	void SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon);
+
 //아이콘 이미지 지정 및 비동기 함수
 protected:
-	
-	void OnIconLoaded(FSoftObjectPath SoftIconPath);
+	void OnIconLoaded();
+
+	void SetupDragVisualIcon(class UTexture2D* LoadedTexture);
 
 //마우스 이벤트 함수
 protected:
@@ -65,4 +68,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	class USLInventoryComponent* InventoryComponent;
+
+	TSharedPtr<FStreamableHandle> StreamingHandle;
+	TObjectPtr<class USLDragDropSlot> Operation;
+	TObjectPtr<class USLItemSlot> DragVisualWidget;
 };

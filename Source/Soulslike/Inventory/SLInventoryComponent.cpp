@@ -26,7 +26,15 @@ USLInventoryComponent::USLInventoryComponent()
 		UE_LOG(LogTemp, Error, TEXT("InventoryWidgetClassAsset를 찾을 수 없습니다! 경로를 확인하세요."));
 	}
 
-	
+	static ConstructorHelpers::FClassFinder<ASLItemPickupActor> ItemActorFinder(TEXT("/Script/Engine.Blueprint'/Game/LSJ/Item/BP_PickupItem.BP_PickupItem_C'"));
+	if (ItemActorFinder.Succeeded())
+	{
+		ItemPickupActorClass = ItemActorFinder.Class;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("USLInventoryWidget를 찾을 수 없습니다! 경로를 확인하세요."));
+	}
 }
 
 
@@ -202,16 +210,17 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 
 void USLInventoryComponent::UseItem(int32 InSlotIndex)
 {
-	if (nullptr == ItemManager || nullptr == ItemGameplayEffectClass)
+	if (nullptr == ItemManager)
 		return;
 
 	USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
 	if (nullptr == ItemData)
 		return;
 
+
+	/*
 	for (auto& GEInfo : ItemData->ItemActionMap[EItemActionType::Primary].DataDrivenModifierInfos)
 	{
-		/*
 		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectDetail.GameplayEffectClass, 1.0f, AbilitySystemComponent->MakeEffectContext());
 		if (SpecHandle.IsValid())
 		{
@@ -222,9 +231,8 @@ void USLInventoryComponent::UseItem(int32 InSlotIndex)
 			}
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
-		*/
 	}
-
+	*/
 
 	/*
 	// 1. 컴포넌트 소유 액터로부터 ASC 가져오기

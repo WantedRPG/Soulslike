@@ -2,41 +2,15 @@
 
 
 #include "Item/SLItemTooltip.h"
-#include "Engine/StreamableManager.h"
-#include "Engine/AssetManager.h"
-#include "Styling/SlateBrush.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-void USLItemTooltip::OnIconLoaded(FSoftObjectPath SoftIconPath)
-{
-	// 로드가 완료된 후 텍스처 적용
-	UTexture2D* LoadedTexture = Cast<UTexture2D>(SoftIconPath.ResolveObject());
 
-	if (LoadedTexture && Image_ItemIcon)
-	{
-		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
-		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
-	}
-}
-
-void USLItemTooltip::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)
+// 동기식으로 이미지 설정
+void USLItemTooltip::SetupDragVisualIcon(UTexture2D* LoadedTexture)
 {
-	//Todo : 이미지 로드 관련해서 조사하기, 위젯 닫을때 메모리해제 안되는거같음 -> 이미지 겹침 문제
-	UTexture2D* LoadedTexture = SoftIcon.Get();
-	//메모리에 로드되어 있는지 확인
-	//Slot이 가리는거같음
-	if (LoadedTexture && Image_ItemIcon)
+	if (Image_ItemIcon && LoadedTexture)
 	{
 		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
 		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		//로드되어 있지 않다면, 비동기 로드 요청
-		FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
-		StreamableManager.RequestAsyncLoad(
-			SoftIcon.ToSoftObjectPath(),
-			FStreamableDelegate::CreateUObject(this, &USLItemTooltip::OnIconLoaded, SoftIcon.ToSoftObjectPath())
-		);
 	}
 }

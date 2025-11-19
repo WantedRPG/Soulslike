@@ -66,10 +66,8 @@ private:
 	void UpdateItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
 	void AddItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class UGameplayEffect> ItemGameplayEffectClass;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class USLInventoryWidget> InventoryWidgetClass;
+	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USLInventoryWidget> InventoryWidgetInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

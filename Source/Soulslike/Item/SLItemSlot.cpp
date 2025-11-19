@@ -45,8 +45,8 @@ void USLItemSlot::SetItemSlotData(USLItemData* NewItemData,int32 InStackCount,in
 		Txt_StackCount->SetText(FText::AsNumber(InStackCount));
 	}
 
-	SetItemIconAsync(NewItemData->ItemIcon);
 	SetToolTipWidget();
+	SetItemIconAsync(NewItemData->ItemIcon);
 }
 
 void USLItemSlot::SetEmpty()
@@ -65,35 +65,57 @@ void USLItemSlot::SetTxtStackCount(int32 InStackCount)
 
 void USLItemSlot::SetItemIconAsync(TSoftObjectPtr<UTexture2D> SoftIcon)
 {
+	if (StreamingHandle.IsValid())
+	{
+		StreamingHandle->CancelHandle();
+		StreamingHandle.Reset();
+	}
+
 	//Todo : 이미지 로드 관련해서 조사하기, 위젯 닫을때 메모리해제 안되는거같음 -> 이미지 겹침 문제
 	UTexture2D* LoadedTexture = SoftIcon.Get();
 	//메모리에 로드되어 있는지 확인
 	//Slot이 가리는거같음
-	if (LoadedTexture && Image_ItemIcon)
+	if (LoadedTexture && Image_ItemIcon && ItemToolTipWidget)
 	{
 		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
 		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
+		ItemToolTipWidget->SetupDragVisualIcon(LoadedTexture);
+		SetToolTip(ItemToolTipWidget);
 	}
 	else 
 	{
 		//로드되어 있지 않다면, 비동기 로드 요청
 		FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
-		StreamableManager.RequestAsyncLoad(
+		StreamingHandle = StreamableManager.RequestAsyncLoad(
 			SoftIcon.ToSoftObjectPath(),
-			FStreamableDelegate::CreateUObject(this, &USLItemSlot::OnIconLoaded, SoftIcon.ToSoftObjectPath())
+			FStreamableDelegate::CreateUObject(this, &USLItemSlot::OnIconLoaded)
 		);
 	}
 }
 
-void USLItemSlot::OnIconLoaded(FSoftObjectPath SoftIconPath)
+// 로드가 완료된 후 텍스처 적용
+void USLItemSlot::OnIconLoaded()
 {
-	// 로드가 완료된 후 텍스처 적용
-	UTexture2D* LoadedTexture = Cast<UTexture2D>(SoftIconPath.ResolveObject());
-
-	if (LoadedTexture && Image_ItemIcon)
+	if (StreamingHandle.IsValid() && Image_ItemIcon)
 	{
-		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
+		UTexture2D* LoadedTexture = Cast<UTexture2D>(StreamingHandle->GetLoadedAsset());
+		if (LoadedTexture && ItemToolTipWidget)
+		{
+			Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
+			Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
+			ItemToolTipWidget->SetupDragVisualIcon(LoadedTexture);
+			SetToolTip(ItemToolTipWidget);
+		}
+		StreamingHandle.Reset();
+	}
+}
+// 동기식으로 이미지 설정
+void USLItemSlot::SetupDragVisualIcon(UTexture2D* LoadedTexture)
+{
+	if (Image_ItemIcon && LoadedTexture)
+	{
 		Image_ItemIcon->SetBrushFromTexture(LoadedTexture);
+		Image_ItemIcon->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -109,7 +131,6 @@ FReply USLItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
 	{
 		Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
-		
 	}
 
 	return Reply.NativeReply;
@@ -122,37 +143,35 @@ void USLItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 	if (OutOperation == nullptr)
 	{
 		// 드래그 슬롯을 생성
-		if (USLDragDropSlot* Operation = NewObject<USLDragDropSlot>())
-		{
-			OutOperation = Operation;
+		if (nullptr == Operation)
+			Operation = NewObject<USLDragDropSlot>();
 
-			// 슬롯 인덱스 지정
-			Operation->PrevSlotIndex = SlotIndex;
-			Operation->InventoryComponent = InventoryComponent;
-			// 드래그 슬롯의 드래그 위젯을 설정.
-			USLItemSlot* DragVisualWidget = CreateWidget<USLItemSlot>(GetOwningPlayer(), DragVisualClass);
-			if (DragVisualWidget)
-			{
-				USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
-				if (nullptr == ItemManager)
-					return;
-				DragVisualWidget->OnIconLoaded(ItemManager->GetItemData(ItemID)->ItemIcon.Get());
-				DragVisualWidget->SetTxtStackCount(StackCount);
-				Operation->DefaultDragVisual = DragVisualWidget;
-			}
-		}
+		OutOperation = Operation;
+
+		// 슬롯 인덱스 지정
+		Operation->PrevSlotIndex = SlotIndex;
+		Operation->InventoryComponent = InventoryComponent;
+
+		// 드래그 슬롯의 드래그 위젯을 설정.
+		if(nullptr == DragVisualWidget)
+			DragVisualWidget = CreateWidget<USLItemSlot>(this, DragVisualClass);
+		USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
+		if (nullptr == ItemManager)
+			return;
+		UTexture2D* IconTexture = ItemManager->GetItemData(ItemID)->ItemIcon.Get();
+		DragVisualWidget->SetupDragVisualIcon(IconTexture);
+		DragVisualWidget->SetTxtStackCount(StackCount);
+		Operation->DefaultDragVisual = DragVisualWidget;
 	}
 }
 
 bool USLItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-	UE_LOG(LogTemp, Warning, TEXT("out %d"), SlotIndex);
-	USLDragDropSlot* Operation = Cast<USLDragDropSlot>(InOperation);
+	Operation = Cast<USLDragDropSlot>(InOperation);
 
 	if (Operation)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%d %d"), SlotIndex, Operation->PrevSlotIndex);
 		Operation->InventoryComponent->RequestSwapItems(SlotIndex, Operation->PrevSlotIndex);
 
 		// 같은 타입의 슬롯인 경우
@@ -167,7 +186,6 @@ FReply  USLItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry,
 	// 어느 마우스 버튼이 더블클릭되었는지 확인할 수 있습니다.
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && InventoryComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Left Mouse Button Double Click!"));
 		// 아이템 사용/장착 로직 호출
 		InventoryComponent->UseItem(SlotIndex);
 	}
@@ -195,15 +213,13 @@ void USLItemSlot::SetToolTipWidget()
 	{
 		ItemToolTipWidget = CreateWidget<USLItemTooltip>(this, ItemToolTipClass);
 	}
-		
     
 	USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance());
 	if (nullptr == ItemManager)
 		return;
 	USLItemData* ItemData = ItemManager->GetItemData(ItemID);
 	if (nullptr == ItemData) return;
-	ItemToolTipWidget->OnIconLoaded(ItemData->ItemIcon.Get());
+
 	ItemToolTipWidget->Txt_ItemName->SetText(ItemData->ItemName);
 	ItemToolTipWidget->Txt_ItemDesc->SetText(ItemData->ItemDescription);
-	SetToolTip(ItemToolTipWidget);
 }
