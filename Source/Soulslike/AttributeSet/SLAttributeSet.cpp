@@ -38,8 +38,8 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                 }
                 else
                 {
-                    Player->Death();
                     SetHealth(0.f);
+                    Player->Death();
                 }
             }
         }
