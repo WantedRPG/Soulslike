@@ -120,13 +120,6 @@ void AMyPlayer::PossessedBy(AController* NewController)
 
 		// 입력 바인딩
 		SetupGASInputComponent();
-
-		// 디버그 모드
-		if (AMyPlayerController* PlayerController = CastChecked<AMyPlayerController>(NewController))
-		{
-			PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-		}
-		
 	}
 }
 

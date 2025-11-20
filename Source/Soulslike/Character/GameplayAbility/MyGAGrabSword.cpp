@@ -124,11 +124,6 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		}
 	}
 
-	if (!Sword)
-	{
-		return;
-	}
-
 	USkeletalMeshComponent* CharMesh = Character->GetMesh();
 	if ((!CharMesh) || (!CharMesh->DoesSocketExist(HandSocketName)))
 	{
