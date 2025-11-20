@@ -167,10 +167,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "State")
 	EPlayerState PlayerMode = EPlayerState::Peace;
-	//Todo : 아이템 픽업 예정
+
 	//인벤토리 컴포넌트
-private:
-	UPROPERTY(EditAnywhere, Category = "Inventory")
+protected:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Inventory")
 	TObjectPtr<class USLInventoryComponent> InventoryComponent;
 	UPROPERTY(EditAnywhere, Category = "Item")
 	TObjectPtr<class AActor> ItemActor;

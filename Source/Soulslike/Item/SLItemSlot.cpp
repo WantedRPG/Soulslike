@@ -132,6 +132,13 @@ FReply USLItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 	{
 		Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
 	}
+	else if(InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		if (InventoryComponent)
+		{
+			InventoryComponent->SetQuickSlotItem(SlotIndex);
+		}
+	}
 
 	return Reply.NativeReply;
 }

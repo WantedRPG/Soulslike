@@ -8,3 +8,4 @@ Item_006,TID_006,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/1
 Item_007,TID_007,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/CharaIcons3.CharaIcons3'
 Item_008,TID_008,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/pngegg.pngegg'
 Item_009,TID_009,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Energy_potion2.15_Energy_potion2'
+Item_010,TID_010,1,Equipment,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/Sword_Icon.Sword_Icon'

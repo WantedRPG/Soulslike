@@ -28,7 +28,7 @@ public:
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryUpdated, const FInventorySlotData&, ChangeInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAddInventorySlot, int32, LastSlotIndex, int32 , AddSlotCount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemAcquired, FName, ItemID);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnQuickItemUpdated, FName, ItemID,int32, StackCount, int32, SlotCount);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULSLIKE_API USLInventoryComponent : public UActorComponent
@@ -45,6 +45,8 @@ public:
 	FAddInventorySlot AddInventorySlot;
 	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
 	FOnItemAcquired OnItemAcquired;
+	UPROPERTY(BlueprintAssignable, Category = "Inventory Events")
+	FOnQuickItemUpdated OnQuickItemUpdated;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -61,7 +63,11 @@ public:
 	void RequestSwapItems(int32 FromIndex, int32 ToIndex);
 	void InitInventory(int32 InMaXSlotCount);
 	void AddItem();
+	UFUNCTION(BlueprintCallable)
 	void UseItem(int32 InSlotIndex);
+	void SetQuickSlotItem(int32 InSlotIndex);
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE int32 GetQuickSlotIndex() { return QuickItemSlotIndex; }
 private:
 	void UpdateItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
 	void AddItemAndBroadcast(int32 SlotIndex, int32 NewStackCount, const FName& ItemID);
@@ -78,7 +84,9 @@ private:
 	//현재 아이템 칸
 	UPROPERTY(VisibleAnywhere)
 	int32 CurrentItemCount = 0;
-
+	UPROPERTY(VisibleAnywhere)
+	int32 QuickItemSlotIndex = -1;
+	
 	//아이템 실제 데이터
 	UPROPERTY(VisibleAnywhere)
 	TArray<FInventorySlotData> Items;

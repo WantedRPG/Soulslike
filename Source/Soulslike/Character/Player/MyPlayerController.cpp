@@ -31,12 +31,18 @@ void AMyPlayerController::BeginPlay()
 			InventoryComponent->OnInventoryUpdated.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::UpdateItemSlot);
 			InventoryComponent->AddInventorySlot.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::AddItemSlot);
 			InventoryComponent->OnItemAcquired.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::ShowItemInfo);
+			InventoryComponent->OnQuickItemUpdated.AddDynamic(PlayerHUDInstance, &USLPlayerHUD::UpdateQuickItem);
+
 			if (PlayerHUDInstance)
 				PlayerHUDInstance->SetInventoryComponent(InventoryComponent);
 
 			InventoryComponent->InitInventory(100);
-			//Todo : 델리게이트 이용해서 할것 : 아이템슬롯생성
-			InventoryComponent->AddItem(FName(TEXT("Item_002")), 999);
+			for (int Index = 1; Index < 10; ++Index)
+			{
+				FString NumberString = FString::Printf(TEXT("%03d"), Index);
+				FName ItemID = FName(*("Item_" + NumberString));
+				InventoryComponent->AddItem(ItemID, 1);
+			}
 		}
 	}
 
@@ -69,6 +75,22 @@ void AMyPlayerController::ShowItemText()
 	if (PlayerHUDInstance) 
 	{
 		PlayerHUDInstance->ShowItemGetText();
+	}
+}
+
+void AMyPlayerController::EquipmentWeapon()
+{
+	if (PlayerHUDInstance)
+	{
+		PlayerHUDInstance->EquipWeapon();
+	}
+}
+
+void AMyPlayerController::UnequipmentWeapon()
+{
+	if (PlayerHUDInstance)
+	{
+		PlayerHUDInstance->UnequipWeapon();
 	}
 }
 

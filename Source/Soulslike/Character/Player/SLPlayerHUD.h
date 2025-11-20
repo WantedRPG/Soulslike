@@ -29,6 +29,10 @@ public:
 	bool ToggleInventory();
 
 	void SetInventoryComponent(USLInventoryComponent* InventoryComp);
+	void EquipWeapon();
+	void UnequipWeapon();
+	UFUNCTION()
+	void UpdateQuickItem(FName InItemID, int32 InStackCount, int32 InSlotCount);
 	void HiddeItemInfo();
 	UFUNCTION()
 	void ShowItemInfo(FName InItemID);
@@ -48,4 +52,10 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class USLItemInfo> WBP_ItemInfo;
 	FTimerHandle ItemInfoTimerHandle;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class USLItemSlot> QuickSlot_Consumable;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class USLItemSlot> QuickSlot_Weapon;
+
 };

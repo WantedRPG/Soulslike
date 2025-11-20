@@ -114,8 +114,6 @@ void USLItemManagerSubsystem::LoadAllItemData()
 					ItemActionDetail.AbilityToEffects.Add(*EffectRow);
 					FoundItemDataPtr->Get()->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
 				}
-
-				//Todo : GameplayEffectClass 구현 후 넣기
 			}
 		}
 	);
@@ -133,31 +131,6 @@ void USLItemManagerSubsystem::LoadAllItemData()
 			//TempItemToActionDataCache.Add(ItemID, Row);
 		}
 	);
-	/*
-	* 지울 예정
-	TMap<FName, TSoftClassPtr<UGameplayAbility>> TempActionDataCache;
-	ActionTable->ForeachRow<FActionTableRow>(TEXT("ActionTable"), [&](const FName& ActionID, const FActionTableRow& Row)
-		{
-			TempActionDataCache.Add(ActionID, Row.AbilityToActivate);
-		}
-	);
-	TMap<FName, FEffectTableRow> TempEffectDataCache;
-	EffectTable->ForeachRow<FEffectTableRow>(TEXT("EffectTable"), [&](const FName& EffectID, const FEffectTableRow& Row)
-		{
-			TempEffectDataCache.Add(EffectID, Row);
-		}
-	);
-	*/
-
-	/*
-	테스트 출력
-	for (auto& s : ItemDataCache)
-	{
-		FName ItemID = s.Key;
-		
-		UE_LOG(LogTemp, Log, TEXT("%s %s %s"), *ItemID.ToString(),*s.Value->ItemName.ToString(), *s.Value->ItemName.ToString());
-		
-	}*/
 
 	ItemTagTable->ForeachRow<FItemTagTableRow>(TEXT("FItemTagTable"), [&](const FName& TableNum, const FItemTagTableRow& Row)
 		{

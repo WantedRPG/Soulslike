@@ -8,6 +8,7 @@
 #include "Item/SLItemInfo.h"
 #include "Item/SLItemManagerSubsystem.h"
 #include "Item/SLItemData.h"
+#include "Item/SLItemSlot.h"
 
 USLPlayerHUD::USLPlayerHUD(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -17,6 +18,9 @@ USLPlayerHUD::USLPlayerHUD(const FObjectInitializer& ObjectInitializer) : Super(
 void USLPlayerHUD::NativeOnInitialized()
 {
     GetWorld()->GetTimerManager();
+    
+    //QuickSlot_Weapon->SetEmpty();
+    QuickSlot_Consumable->SetEmpty();
 }
 
 
@@ -113,3 +117,35 @@ void USLPlayerHUD::SetInventoryComponent(USLInventoryComponent* InventoryComp)
     }
 }
 
+void USLPlayerHUD::EquipWeapon()
+{
+    if (nullptr==QuickSlot_Weapon)
+        return;
+    if (USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance()))
+    {
+        if (USLItemData* ItemData = ItemManager->GetItemData(FName(TEXT("Item_010"))))
+        {
+            QuickSlot_Weapon->SetItemSlotData(ItemData,1,0);
+        }
+    }
+}
+
+void USLPlayerHUD::UnequipWeapon()
+{
+    if (nullptr == QuickSlot_Weapon)
+        return;
+    QuickSlot_Weapon->SetEmpty();
+}
+
+void USLPlayerHUD::UpdateQuickItem(FName InItemID,int32 InStackCount,int32 InSlotCount)
+{
+    if (nullptr == QuickSlot_Consumable)
+        return;
+    if (USLItemManagerSubsystem* ItemManager = UGameInstance::GetSubsystem<USLItemManagerSubsystem>(GetWorld()->GetGameInstance()))
+    {
+        if (USLItemData* ItemData = ItemManager->GetItemData(InItemID))
+        {
+            QuickSlot_Consumable->SetItemSlotData(ItemData, InStackCount, InSlotCount);
+        }
+    }
+}

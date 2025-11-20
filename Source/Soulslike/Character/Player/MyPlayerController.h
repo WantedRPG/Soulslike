@@ -20,7 +20,8 @@ public:
 	void ToggleInventory();
 	void HiddenItemText();
 	void ShowItemText();
-
+	void EquipmentWeapon();
+	void UnequipmentWeapon();
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;

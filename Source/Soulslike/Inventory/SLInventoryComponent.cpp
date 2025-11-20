@@ -10,6 +10,7 @@
 
 
 #include <AbilitySystemBlueprintLibrary.h>
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 USLInventoryComponent::USLInventoryComponent()
@@ -65,6 +66,13 @@ void USLInventoryComponent::UpdateItemAndBroadcast(int32 SlotIndex, int32 NewSta
 	if (OnInventoryUpdated.IsBound())
 	{
 		OnInventoryUpdated.Broadcast(Items[SlotIndex]);
+	}
+	if (QuickItemSlotIndex == SlotIndex)
+	{
+		if (OnQuickItemUpdated.IsBound())
+		{
+			OnQuickItemUpdated.Broadcast(Items[SlotIndex].ItemID, Items[SlotIndex].CurrentStack, SlotIndex);
+		}
 	}
 }
 
@@ -204,8 +212,12 @@ void USLInventoryComponent::DropItem(int32 InSlotIndex)
 {
 	if (ItemPickupActorClass)
 	{
-		ASLItemPickupActor* ItemPickupActor =GetWorld()->SpawnActor<ASLItemPickupActor>(ItemPickupActorClass, GetOwner()->GetTransform());
-		ItemPickupActor->SetItemData(Items[InSlotIndex].ItemID, Items[InSlotIndex].CurrentStack);
+		if (ASLItemPickupActor* ItemPickupActor = GetWorld()->SpawnActorDeferred<ASLItemPickupActor>(ItemPickupActorClass, GetOwner()->GetTransform()))
+		{
+			ItemPickupActor->SetItemData(Items[InSlotIndex].ItemID, Items[InSlotIndex].CurrentStack);
+			UGameplayStatics::FinishSpawningActor(ItemPickupActor, GetOwner()->GetTransform());
+		}
+		
 	}
 	--CurrentItemCount;
 	UpdateItemAndBroadcast(InSlotIndex, 0, NAME_None);
@@ -216,83 +228,33 @@ void USLInventoryComponent::UseItem(int32 InSlotIndex)
 	if (nullptr == ItemManager)
 		return;
 
-	//USLItemData* ItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
-	//if (nullptr == ItemData)
-	//	return;
-
 	AActor* OwnerActor = GetOwner();
 
-	// OwnerActor를 대상으로 이벤트를 보냅니다.
+	// OwnerActor를 대상으로 이벤트를 보냄
 	FGameplayEventData EventData;
 	EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Item.Event.Consumable"));
 	EventData.Instigator = OwnerActor;
 	EventData.Target = OwnerActor;
 	UItemDataObject* ItemDataObject = NewObject<UItemDataObject>();
 	ItemDataObject->ItemID = Items[InSlotIndex].ItemID;
+	Items[InSlotIndex].CurrentStack -= 1;
+	if (Items[InSlotIndex].CurrentStack == 0)
+	{
+		--CurrentItemCount;
+	}
 	EventData.OptionalObject = ItemDataObject;
 
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, EventData.EventTag, EventData);
-	/*
-	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerActor);
 
-	if (ASC)
+	UpdateItemAndBroadcast(InSlotIndex,Items[InSlotIndex].CurrentStack,Items[InSlotIndex].ItemID);
+}
+
+void USLInventoryComponent::SetQuickSlotItem(int32 InSlotIndex)
+{
+	if (OnQuickItemUpdated.IsBound())
 	{
-		
+		OnQuickItemUpdated.Broadcast(Items[InSlotIndex].ItemID, Items[InSlotIndex].CurrentStack,InSlotIndex);
+		QuickItemSlotIndex = InSlotIndex;
 	}
-	*/
-
-	//ItemData->ItemActionMap[EItemActionType::Primary].AbilityToEffects
-	/*
-	for (auto& GEInfo : ItemData->ItemActionMap[EItemActionType::Primary].DataDrivenModifierInfos)
-	{
-		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectDetail.GameplayEffectClass, 1.0f, AbilitySystemComponent->MakeEffectContext());
-		if (SpecHandle.IsValid())
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(GEInfo.ItemTag, GEInfo.Value);
-			if (EffectDetail.Duration > 0)
-			{
-				SpecHandle.Data->SetDuration(GEInfo.Duration, true);
-			}
-			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		}
-	}
-	*/
-
-	/*
-	// 1. 컴포넌트 소유 액터로부터 ASC 가져오기
-	UAbilitySystemComponent* ASC = nullptr;
-	if (AActor* Owner = GetOwner())
-	{
-		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Owner);
-		if (ASI)
-		{
-			ASC = ASI->GetAbilitySystemComponent();
-		}
-	}
-
-	if (!ASC || !HealingEffectClass || !ItemDataTable) return;
-
-	// 2. 데이터 테이블에서 회복량 가져오기
-	FItemData* ItemData = ItemDataTable->FindRow<FItemData>(ItemRowName, TEXT("UseItem Logic"));
-	if (!ItemData) return;
-
-	float HealingAmount = ItemData->HealingAmount;
-
-	// 3. Gameplay Effect Spec 생성
-	// GA 없이 직접 생성하므로, 레벨(1.0f)과 ContextHandle을 직접 제공합니다.
-	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
-	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(HealingEffectClass, 1.0f, EffectContext);
-
-	if (!SpecHandle.IsValid()) return;
-
-	// 4. SetByCaller를 사용하여 동적 값 주입
-	FGameplayTag HealingTag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("Data.HealingValue"));
-	SpecHandle.Data.Get()->SetSetByCallerMagnitude(HealingTag, HealingAmount);
-
-	// 5. GE 적용 (GA를 거치지 않고 바로 적용)
-	// 소유자에게 직접 Spec을 적용합니다.
-	FActiveGameplayEffectHandle ActiveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-
-	*/
 }
 

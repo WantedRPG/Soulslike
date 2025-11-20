@@ -23,6 +23,8 @@ public:
 	ASLBossMonster();
 
 public:
+    UFUNCTION(BlueprintCallable)
+    void DropItem();
     virtual void BeginPlay() override;
 
 protected:
@@ -49,4 +51,7 @@ protected:
     // BPGA_Grogy 블루프린트 클래스를 보관할 변수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<class UGameplayAbility> GrogyAbilityClass;
+    // 드롭 아이템 액터
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<class ASLItemPickupActor> ItemPickupActorClass;
 };

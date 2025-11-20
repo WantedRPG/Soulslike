@@ -126,7 +126,7 @@ void USLInventoryWidget::UpdateItemSlot(int32 InSlotIndex, FName InItemID, int32
 {
     if (USLItemSlot* ItemSlot = Cast<USLItemSlot>(Grid_Item->GetChildAt(InSlotIndex)))
     {
-        if (InItemID.IsNone())
+        if (InItemID.IsNone() || InStackCount==0)
         {
             ItemSlot->SetEmpty();
             return;

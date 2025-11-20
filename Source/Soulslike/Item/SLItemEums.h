@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,19 +7,20 @@
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
-	None UMETA(DisplayName = "¾øÀ½"),
-	Consumable UMETA(DisplayName = "¼Ò¸ğÅÛ"),
-	Throwable UMETA(DisplayName = "ÅõÃ´ÅÛ"),
-	Quest UMETA(DisplayName = "Àç·á"),
-	Material UMETA(DisplayName = "Äù½ºÆ®"),
+	None UMETA(DisplayName = "ì—†ìŒ"),
+	Consumable UMETA(DisplayName = "ì†Œëª¨í…œ"),
+	Throwable UMETA(DisplayName = "íˆ¬ì²™í…œ"),
+	Quest UMETA(DisplayName = "ì¬ë£Œ"),
+	Material UMETA(DisplayName = "í€˜ìŠ¤íŠ¸"),
+	Equipment UMETA(DisplayName = "ì¥ë¹„"),
 };
 
 UENUM(BlueprintType)
 enum class EItemActionType : uint8
 {
-	None UMETA(DisplayName = "¾øÀ½"),
-	Primary UMETA(DisplayName = "ÁÖ »ç¿ë"),
-	OnUnequip UMETA(DisplayName = "ÇØÁ¦ ½Ã"),
-	OnDrop UMETA(DisplayName = "¹ö¸± ½Ã"),
-	OnPickup UMETA(DisplayName = "È¹µæ ½Ã"),
+	None UMETA(DisplayName = "ì—†ìŒ"),
+	Primary UMETA(DisplayName = "ì£¼ ì‚¬ìš©"),
+	OnUnequip UMETA(DisplayName = "í•´ì œ ì‹œ"),
+	OnDrop UMETA(DisplayName = "ë²„ë¦´ ì‹œ"),
+	OnPickup UMETA(DisplayName = "íšë“ ì‹œ"),
 };

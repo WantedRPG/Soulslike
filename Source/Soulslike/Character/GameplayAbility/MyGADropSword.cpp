@@ -15,6 +15,7 @@
 
 #include "AbilitySystemComponent.h"  
 #include <Components/BoxComponent.h>
+#include <Character/Player/MyPlayerController.h>
 
 UMyGADropSword::UMyGADropSword()
 {
@@ -117,6 +118,12 @@ void UMyGADropSword::DoDropNow()
 	if (UBoxComponent* Collision = FoundSword->FindComponentByClass<UBoxComponent>())
 	{
 		Collision->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); //WorldDynamic
+	}
+
+	AMyPlayerController* Controller = Cast<AMyPlayerController>(Character->GetController());
+	if (Controller)
+	{
+		Controller->UnequipmentWeapon();
 	}
 
 	// 땅에 드랍
