@@ -32,7 +32,7 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                     return;
                 }
 
-                //if (Data.Target.HasMatchingGameplayTag(MyTAG_DamageState))
+                if (Data.Target.HasMatchingGameplayTag(MyTAG_DamageState))
                 {
                     if (GetHealth() > 0.f)
                     {
