@@ -161,6 +161,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UMyWidgetComponent> HpBar;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UMyWidgetComponent> StaminaBar;
+
 public:
 	UPROPERTY()
 	TObjectPtr<class USLAttributeSet> AttributeSet;

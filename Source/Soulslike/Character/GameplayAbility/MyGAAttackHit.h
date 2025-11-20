@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "MyGAAttackHit.generated.h"
 
 /**
@@ -27,11 +29,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
 	
-	// 공격별 Attack 값 지정
-	/*UPROPERTY(EditAnywhere, Category = "GAS | GE")
-	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> EffectByAttackTag;*/
-
 	float CurrentLevel;
 
-	//FGameplayTag AttackTag;
+protected:
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	UNiagaraSystem* HitNiagara;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	FName HitNiagaraSocketName = TEXT("hand_rSocket");
 };

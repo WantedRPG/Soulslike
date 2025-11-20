@@ -32,31 +32,36 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                     return;
                 }
 
-                if (GetHealth() > 0.f)
+                if (Data.Target.HasMatchingGameplayTag(MyTAG_DamageState))
                 {
-                    const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
-                    Player->KnockBack(Context, Data.EvaluatedData.Magnitude);
+                    if (GetHealth() > 0.f)
+                    {
+                        const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
+                        Player->KnockBack(Context, Data.EvaluatedData.Magnitude);
+                    }
+                    else if (GetHealth() <= 0.f)
+                    {
+                        SetHealth(0.f);
+                        Player->Death();
+                    }
                 }
-                else
-                {
-                    SetHealth(0.f);
-                    Player->Death();
-                }
+
+				SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
             }
         }
 
         if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
         {
-            if (GetStamina() > 0.f)
-            {
-                SetStamina(FMath::Clamp(GetStamina(), 1.f, 50.f));
-            }
-            else
+            if (GetStamina() <= 0.f)
             {
                 const FGameplayEffectContextHandle& Context = Data.EffectSpec.GetEffectContext();
                 Player->StopSprint(Context);
                 SetStamina(0.f);
             }
+            else if (GetStamina() > 50.f)
+            {
+                SetStamina(50.f);
+			}
         }
     }
     if (ASLMonsterbase* Monster = Cast<ASLMonsterbase>(TargetActor))
