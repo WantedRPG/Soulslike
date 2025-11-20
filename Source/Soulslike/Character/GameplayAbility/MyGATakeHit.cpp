@@ -28,7 +28,7 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	int32 KnockBackLevel = 1;
 	if (TriggerEventData->EventMagnitude)
 	{
-		KnockBackLevel = (FMath::Abs(TriggerEventData->EventMagnitude) <= 20.f) ? 1 : 2;
+		KnockBackLevel = (FMath::Abs(TriggerEventData->EventMagnitude) <= 15.f) ? 1 : 2;
 	}
 
 	FVector Dir = (MyPlayer->GetActorLocation() - TriggerEventData->Instigator->GetActorLocation());
