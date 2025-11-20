@@ -37,7 +37,31 @@ void UMyGATakeHit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	Dir *= TriggerEventData->EventMagnitude;
 	MyPlayer->LaunchCharacter(Dir, true, false);
 
-	FName SectionToPlay = (KnockBackLevel <= 1)? MontageSection1 : MontageSection2;
+#pragma region SectionToPlay
+	// 몬스터가 플레이어를 향한 방향
+	FVector Monster = (TriggerEventData->Instigator->GetActorLocation() - MyPlayer->GetActorLocation());
+	Monster.Z = 0.f;
+	Monster = Monster.GetSafeNormal();
+
+	// 플레이어가 보고 있는 방향
+	FVector PlayerFwd = MyPlayer->GetActorForwardVector();
+	PlayerFwd.Z = 0.f;
+	PlayerFwd = PlayerFwd.GetSafeNormal();
+
+	// 내적
+	float Dot = FVector::DotProduct(PlayerFwd, Monster);
+
+	FName SectionToPlay = MontageSection_Bwd_1;
+	if (Dot < 0.f)
+	{
+		SectionToPlay = (KnockBackLevel <= 1) ? MontageSection_Fwd_1 : MontageSection_Fwd_2;
+	}
+	else
+	{
+		SectionToPlay = (KnockBackLevel <= 1) ? MontageSection_Bwd_1 : MontageSection_Bwd_2;
+	}
+#pragma endregion
+
 	UAbilityTask_PlayMontageAndWait* PlayAttackTask = 
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), MyPlayer->GetSTakeHitMontage(), 1.0f, SectionToPlay);
 
