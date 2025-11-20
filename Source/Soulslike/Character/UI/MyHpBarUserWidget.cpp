@@ -59,6 +59,18 @@ void UMyHpBarUserWidget::OnInvinsibleTagChanged(const FGameplayTag CallbackTag, 
 	}
 }
 
+void UMyHpBarUserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (TxtHpStat)
+	{
+		FSlateFontInfo FontInfo = TxtHpStat->Font;
+		FontInfo.Size = 17;
+		TxtHpStat->SetFont(FontInfo);
+	}
+}
+
 void UMyHpBarUserWidget::UpdateHpBar()
 {
 	if (PbHpBar)

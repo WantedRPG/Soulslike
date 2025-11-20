@@ -5,36 +5,36 @@
 #include "CoreMinimal.h"
 #include "Character/UI/MyUserWidget.h"
 #include "GameplayEffectTypes.h"
-#include "MyHpBarUserWidget.generated.h"
+#include "MyStaminaBarUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SOULSLIKE_API UMyHpBarUserWidget : public UMyUserWidget
+class SOULSLIKE_API UMyStaminaBarUserWidget : public UMyUserWidget
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual void SetAbilitySystemComponent(AActor* InOwner) override;
 
-	virtual void OnHealthChanged(const FOnAttributeChangeData& ChangeData);
-	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
+	virtual void OnStaminaChanged(const FOnAttributeChangeData& ChangeData);
+	virtual void OnMaxStaminaChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void OnInvinsibleTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	virtual void NativeConstruct() override;
 
-	void UpdateHpBar();
+	void UpdateStaminaBar();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UProgressBar> PbHpBar;
+	TObjectPtr<class UProgressBar> PbStaminaBar;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> TxtHpStat;
+	TObjectPtr<class UTextBlock> TxtStaminaStat;
 
-	float CurrentHealth = 0.0f;
-	float CurrentMaxHealth = 0.1f;
+	float CurrentStamina = 0.0f;
+	float CurrentMaxStamina = 0.1f;
 
-	FLinearColor HealthColor = FLinearColor::Red;
+	FLinearColor StaminaColor = FLinearColor::Blue;
 	FLinearColor InvinsibleColor = FLinearColor::Blue;
 };

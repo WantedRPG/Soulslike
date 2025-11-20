@@ -30,8 +30,8 @@ AMyPlayer::AMyPlayer()
 
 	Level = 1;
 
-	//
-	HpBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("Widget"));
+	// 체력바
+	HpBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("HpBarWidget"));
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KMS/Asset/UI/WBP_PlayerHpBar.WBP_PlayerHpBar_C'"));
@@ -43,6 +43,20 @@ AMyPlayer::AMyPlayer()
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
+	// 스테미나바
+	StaminaBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("StaminaBarWidget"));
+	StaminaBar->SetupAttachment(GetMesh());
+	StaminaBar->SetRelativeLocation(FVector(0.0f, 0.0f, 170.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> StaminaBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KMS/Asset/UI/WBP_PlayerStaminaBar.WBP_PlayerStaminaBar_C'"));
+	if (StaminaBarWidgetRef.Class)
+	{
+		StaminaBar->SetWidgetClass(StaminaBarWidgetRef.Class);
+		StaminaBar->SetWidgetSpace(EWidgetSpace::Screen);
+		StaminaBar->SetDrawSize(FVector2D(150.0f, 15.f));
+		StaminaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// 아이템
 	static ConstructorHelpers::FClassFinder<UGameplayAbility> GAItemConsumableRef(TEXT("/Game/LSJ/GA/BPGA_ItemConsumable.BPGA_ItemConsumable_C"));
 	if (GAItemConsumableRef.Succeeded())
 	{
