@@ -32,7 +32,8 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
                     return;
                 }
 
-                if (Data.Target.HasMatchingGameplayTag(MyTAG_DamageState))
+                float ActualMagnitude = Data.EvaluatedData.Magnitude;
+                if (ActualMagnitude < 0.0f) 
                 {
                     if (GetHealth() > 0.f)
                     {
