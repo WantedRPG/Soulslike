@@ -82,27 +82,6 @@ FGameplayAbilityTargetDataHandle AMyTA_Target::MakeTargetData() const
 		DataHandle.Add(TargetData);
 	}
 
-	// 디버그 캡슐 표시
-#if ENABLE_DRAW_DEBUG
-	if (bShowDebug)
-	{
-		const FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-		const float  CapsuleHalfHeight = AttackRange * 0.5f;
-		const FColor DrawColor = bHit ? FColor::Green : FColor::Red;
-
-		DrawDebugCapsule(
-			GetWorld(),
-			CapsuleOrigin,
-			CapsuleHalfHeight,
-			AttackRadius,
-			FRotationMatrix::MakeFromZ(Forward).ToQuat(),
-			DrawColor,
-			false,        
-			5.0f          
-		);
-	}
-#endif
-
 	// 타겟 데이터 반환
 	return DataHandle;
 }

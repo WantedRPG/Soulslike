@@ -98,19 +98,6 @@ FGameplayAbilityTargetDataHandle AMyTA_Sword::MakeTargetData() const
 		Out.Add(new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult));
 	}
 
-#if ENABLE_DRAW_DEBUG
-	if (bShowDebug)
-	{
-		DrawDebugBox(Character->GetWorld(), BoxCenter, BoxHalfExtent, FQuat::Identity, bFound ? FColor::Green : FColor::Red, false, 3.f, 0, 1.f);
-
-		if (bFound)
-		{
-			const FVector P = OutHitResult.ImpactPoint.IsZero() ? OutHitResult.Location : OutHitResult.ImpactPoint;
-			DrawDebugLine(Character->GetWorld(), BoxOrigin, P, FColor::Green, false, 3.f, 0, 1.f);
-		}
-	}
-#endif
-
 	return Out;
 }
 
