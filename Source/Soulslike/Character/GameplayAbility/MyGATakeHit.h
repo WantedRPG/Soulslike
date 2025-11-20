@@ -30,9 +30,15 @@ protected:
 	FName GetNextSection();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Section", meta = (AllowPrivateAccess = "true"))
-	FName MontageSection1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Fwd Section", meta = (AllowPrivateAccess = "true"))
+	FName MontageSection_Fwd_1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Section", meta = (AllowPrivateAccess = "true"))
-	FName MontageSection2;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Fwd Section", meta = (AllowPrivateAccess = "true"))
+	FName MontageSection_Fwd_2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Bwd Section", meta = (AllowPrivateAccess = "true"))
+	FName MontageSection_Bwd_1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage | Bwd Section", meta = (AllowPrivateAccess = "true"))
+	FName MontageSection_Bwd_2;
 };
