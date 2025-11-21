@@ -88,9 +88,6 @@ void ASLBossMonster::BeginPlay()
         FGameplayAbilitySpec Spec(DeadAbilityClass, 1, 0, MontageDataPDA);
         ASC->GiveAbility(Spec);
         UE_LOG(LogTemp, Log, TEXT("%s: GA_Dead granted"), *GetName());
-
-  
-     
     }
     else
     {
@@ -106,6 +103,17 @@ void ASLBossMonster::BeginPlay()
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("%s: GrogyAbilityClass is null"), *GetName());
+    }
+    // Give Intro GA 
+    if (IntroAbilityClass)
+    {
+        FGameplayAbilitySpec Spec(IntroAbilityClass, 1, 0, MontageDataPDA);
+        ASC->GiveAbility(Spec);
+        UE_LOG(LogTemp, Log, TEXT("%s: GA_Intro granted"), *GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("%s: IntroAbilityClass is null"), *GetName());
     }
 
     // Give Normal Attack GA

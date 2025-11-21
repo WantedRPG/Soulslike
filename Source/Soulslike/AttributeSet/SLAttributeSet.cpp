@@ -25,10 +25,14 @@ void USLAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
         {
             if (Data.Target.AbilityActorInfo.IsValid())
             {
+                UE_LOG(LogTemp, Warning, TEXT("현재 체력 : %f"), GetHealth());
+
                 if (Data.Target.HasMatchingGameplayTag(MyTAG_Invincibility))
                 {
-                    SetAttackPower(0.0f);
+                    Data.EvaluatedData.Magnitude = 0.0f;
+                    // SetAttackPower(0.0f);
                     UE_LOG(LogTemp, Warning, TEXT("무적 상태 구르기. 데미지 없음."));
+					UE_LOG(LogTemp, Warning, TEXT("현재 체력 : %f"), GetHealth());
                     return;
                 }
 
