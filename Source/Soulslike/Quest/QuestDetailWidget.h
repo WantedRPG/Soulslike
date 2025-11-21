@@ -10,6 +10,7 @@ class UScrollBox;
 class UTextBlock;
 class UButton;
 class UQuest;
+struct FQuestSnapshot;
 
 /**
  * 
@@ -39,6 +40,9 @@ public:
 
 	// 위젯에 표시할 퀘스트를 설정합니다.
 	void InitializeFromQuest(UQuest* InQuest);
+
+	// 스냅샷으로부터 UI 초기화 (완료된 퀘스트 등 UQuest 인스턴스가 없을 때 사용)
+	void InitializeFromSnapshot(const struct FQuestSnapshot& InSnapshot);
 
 protected:
 	// NativeConstruct에서 버튼 바인딩을 수행합니다.
