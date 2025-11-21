@@ -274,13 +274,7 @@ void AMyPlayer::PickupItem(int32 InputId)
 	}
 	
 
-	//아이템방향으로 회전
-	FVector ItemLocation = ItemActor->GetActorLocation();
-	ItemLocation.Z = 0;
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation.Z = 0;
-	FVector Direction = ItemLocation - CurrentLocation;
-	SetActorRotation(FRotationMatrix::MakeFromX(Direction).Rotator());
+	
 	
 	//아이템 획득
 	if (InventoryComponent)
@@ -291,8 +285,17 @@ void AMyPlayer::PickupItem(int32 InputId)
 			if (InventoryComponent->OnItemAcquired.IsBound())
 				InventoryComponent->OnItemAcquired.Broadcast(NewItem->GetItemID());
 			NewItem->Destroy();
+			return;
 		}
 	}
+
+	//아이템방향으로 회전
+	FVector ItemLocation = ItemActor->GetActorLocation();
+	ItemLocation.Z = 0;
+	FVector CurrentLocation = GetActorLocation();
+	CurrentLocation.Z = 0;
+	FVector Direction = ItemLocation - CurrentLocation;
+	SetActorRotation(FRotationMatrix::MakeFromX(Direction).Rotator());
 
 	//무기 획득 및 줍기 애니메이션 동작
 	// GA가 비활성화 상태면 활성화 시도
