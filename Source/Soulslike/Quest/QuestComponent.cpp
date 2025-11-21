@@ -12,6 +12,7 @@
 #include "GameFramework/Actor.h"
 #include "Quest.h"
 #include "TimerManager.h"
+#include "Quest/QuestSnapshot.h"
 
 // Sets default values for this component's properties
 UQuestComponent::UQuestComponent()
@@ -167,7 +168,38 @@ void UQuestComponent::OnQuestCompleted(UQuest* CompletedQuest)
 	if (!CompletedQuest)
 		return;
 
-	// Quest 자신에게 Objective 정리 책임을 위임
+	// ID 존재 여부 확인 및 ID 기반 처리 전에 스냅샷을 먼저 생성하고 저장합니다.
+	// (Objective 액터 정리는 CleanupObjectives에서 파괴/비활성화를 수행하므로,
+	// 스냅샷은 정리 이전에 만들어야 Objective 상태가 보존됩니다.)
+	if (!CompletedQuest->ID.IsNone())
+	{
+		// ID 목록 업데이트: ActiveQuestsID에서 제거하고 FinishedQuests에 추가
+		for (int32 i = ActiveQuestsID.Num() - 1; i >= 0; --i)
+		{
+			if (ActiveQuestsID[i] == CompletedQuest->ID)
+			{
+				ActiveQuestsID.RemoveAt(i);
+				break;
+			}
+		}
+		FinishedQuests.AddUnique(CompletedQuest->ID);
+
+		// 스냅샷 생성 및 저장 (CleanupObjectives 이전)
+		QuestSnapshots.Add(CompletedQuest->CreateSnapshot());
+
+		// 완료된 퀘스트가 현재 표시 중인 퀘스트라면 CurrentQuest를 비운다.
+		if (CurrentQuest == CompletedQuest->ID)
+		{
+			CurrentQuest = NAME_None;
+		}
+	}
+	else
+	{
+		// ID가 없는 경우에도 안전하게 스냅샷을 생성할 수 있도록 처리할 수 있으나
+		// 현재는 ID 기반 저장 로직과 함께 동작하도록 유지합니다.
+	}
+
+	// Quest 자신에게 Objective 정리 책임을 위임 (스냅샷 저장 후에 실행)
 	CompletedQuest->CleanupObjectives();
 
 	// ActiveQuestsInstance에서 제거
@@ -180,28 +212,7 @@ void UQuestComponent::OnQuestCompleted(UQuest* CompletedQuest)
 		}
 	}
 
-	// ID 목록 업데이트: ActiveQuestsID에서 제거하고 FinishedQuests에 추가
-	if (!CompletedQuest->ID.IsNone())
-	{
-		for (int32 i = ActiveQuestsID.Num() - 1; i >= 0; --i)
-		{
-			if (ActiveQuestsID[i] == CompletedQuest->ID)
-			{
-				ActiveQuestsID.RemoveAt(i);
-				break;
-			}
-		}
-		FinishedQuests.AddUnique(CompletedQuest->ID);
-
-		// 완료된 퀘스트가 현재 표시 중인 퀘스트라면 CurrentQuest를 비운다.
-		if (CurrentQuest == CompletedQuest->ID)
-		{
-			CurrentQuest = NAME_None;
-		}
-	}
-
-	// UI 갱신: 즉시 갱신하지 않고 일정 시간(예: 3초) 대기한 뒤 갱신하여
-	// UCurrentQuestProgressionWidget이 완료 후에도 화면에 남아 있도록 한다.
+	// UI 갱신: 일정 시간 대기한 뒤 갱신하여 UCurrentQuestProgressionWidget이 완료 후에도 남도록 함.
 	const float DelayBeforeHidingCurrentQuestWidget = 2.0f;
 	if (UWorld* World = GetWorld())
 	{

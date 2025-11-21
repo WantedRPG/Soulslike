@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Quest.h"
+#include "QuestSnapshot.h"
 #include "QuestComponent.generated.h"
 
 class UQuest;
@@ -50,10 +51,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
 	TObjectPtr<class UQuestBriefWidget> QuestBriefWidget;
 
+public:
+	// Getter
+	const TArray<FQuestSnapshot>& GetQuestSnapshots() const { return QuestSnapshots; }
+
 private:
 	// 런타임에 생성된 UQuest 인스턴스들 (ActiveQuestsID -> UQuest 객체)
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UQuest>> ActiveQuestsInstance;
+
+	// 퀘스트의 스냅샷 저장소
+	TArray<FQuestSnapshot> QuestSnapshots;
 
 public:
 	// UQuest에서 완료 알림을 받을 콜백

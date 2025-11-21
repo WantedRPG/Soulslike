@@ -8,9 +8,19 @@
 
 class AQuestObjectiveActor;
 class UQuestDefinition;
+struct FQuestSnapshot;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnQuestProgressUpdated, UQuest*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnQuestCompletedDelegate, UQuest*);
+
+UENUM()
+enum class EQuestState : uint8
+{
+	NotActivated UMETA(DisplayName = "NotActivatedQuest"),
+	Active UMETA(DisplayName = "ActiveQuest"), // InProgress
+	Completed UMETA(DisplayName = "CompletedQuest"),
+	Failed UMETA(DisplayName = "FailedQuest")
+};
 
 /**
  * 
@@ -45,11 +55,20 @@ public:
 	FOnQuestCompletedDelegate OnQuestCompletedDelegate;
 
 private:
+	EQuestState State = EQuestState::NotActivated;
+
 	int32 CurrentObjectiveIndex = 0;
 
 public:
 	UFUNCTION()
+	void ActivateQuest();
+
+	UFUNCTION()
 	void ProgressQuest();
+
+	// 퀘스트 완료 처리: 소유 컴포넌트에 알리기 위해 호출
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void CompleteQuest();
 
 	UFUNCTION(Category = "Quest")
 	FORCEINLINE int32 GetCurrentObjectiveIndex() { return CurrentObjectiveIndex; }
@@ -63,11 +82,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Quest")
 	bool SpawnObjectiveActorsFromDefinition(UQuestDefinition* QuestDef, AActor* OwnerActor);
 
-	// 퀘스트 완료 처리: 소유 컴포넌트에 알리기 위해 호출
-	UFUNCTION(BlueprintCallable, Category = "Quest")
-	void CompleteQuest();
-
 	// Quest가 보유한 Objective 액터들을 정리(비활성화 + 지연 파괴)
 	UFUNCTION(BlueprintCallable, Category = "Quest")
 	void CleanupObjectives();
+
+	// 퀘스트 상태로부터 완료 스냅샷 생성
+	FQuestSnapshot CreateSnapshot() const;
 };

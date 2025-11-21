@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "QuestObjectiveDefinition.h" // moved enum here
 #include "QuestObjectiveActor.generated.h"
 
 class USceneComponent;
@@ -12,15 +13,7 @@ class UPrimitiveComponent;
 class UWidgetComponent;
 class UUserWidget;
 class UQuest;
-class UQuestObjectiveDefinition;
 struct FHitResult;
-
-UENUM()
-enum class EQuestObjectiveType : uint8
-{
-	GetItem UMETA(DisplayName = "GetItem"),
-	Arrival UMETA(DisplayName = "Arrival")
-};
 
 UCLASS()
 class SOULSLIKE_API AQuestObjectiveActor : public AActor
@@ -36,11 +29,15 @@ public:
 
 	// 초기화: QuestObjectiveDefinition으로부터 이름, 스폰 트랜스폼 등 멤버 설정
 	UFUNCTION(BlueprintCallable, Category = "Objective")
-	void InitializeFromDefinition(UQuestObjectiveDefinition* Definition);
+	void InitializeFromDefinition(class UQuestObjectiveDefinition* Definition);
+
+	UFUNCTION(BlueprintCallable, Category = "Objective")
+	bool IsCompleted() const;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION()
 	void FinishObjective();
@@ -57,6 +54,10 @@ protected:
 
 	UFUNCTION()
 	void OnTriggerEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	// EventManagerSubsystem에서 호출될 핸들러 (AddDynamic에 필요)
+	UFUNCTION()
+	void HandleOnItemUsed(FName ItemID);
 
 public:	
 	// Called every frame
@@ -82,6 +83,7 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Objective")
 	TObjectPtr<UQuest> OwningQuest;
 
+	// 이제 타입은 정의 에셋에서 가져오되, 액터에도 복사/개별 설정을 허용
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Objective")
 	EQuestObjectiveType ObjectiveType;
 
@@ -101,4 +103,17 @@ public:
 	// ObjectiveName getter
 	UFUNCTION(BlueprintCallable, Category = "Objective")
 	FText GetObjectiveName() const;
+
+	// Objective 완료 여부
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Objective")
+	bool bIsCompleted = false;
+
+	// GetItem 목표의 경우 요구되는 아이템 ID
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+	FName RequiredItemID;
+
+private:
+	// 구독한 Subsystem 포인터(EndPlay 시 안전한 제거용)
+	UPROPERTY()
+	TObjectPtr<class UEventManagerSubsystem> CachedEventSubsystem;
 };

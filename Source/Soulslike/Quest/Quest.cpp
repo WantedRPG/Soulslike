@@ -11,6 +11,8 @@
 #include "TimerManager.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Quest/QuestSnapshot.h"
+#include "Misc/DateTime.h"
 
 UQuest::UQuest()
 	: Super()
@@ -140,6 +142,12 @@ void UQuest::UpdateObjectiveActors()
 	OnQuestProgressUpdated.Broadcast(this);
 }
 
+void UQuest::ActivateQuest()
+{
+	State = EQuestState::Active;
+	UpdateObjectiveActors();
+}	
+
 void UQuest::ProgressQuest()
 {
 	// 다음 목표로 이동
@@ -162,6 +170,7 @@ void UQuest::ProgressQuest()
 void UQuest::CompleteQuest()
 {
 	// Broadcast 먼저 (UI가 반응하도록)
+	State = EQuestState::Completed;
 	OnQuestCompletedDelegate.Broadcast(this);
 
 	// Owner가 UQuestComponent인지 확인하고 알림
@@ -219,4 +228,31 @@ void UQuest::CleanupObjectives()
 
 	// 내부 배열 비우기
 	QuestObjectiveActors.Empty();
+}
+
+FQuestSnapshot UQuest::CreateSnapshot() const
+{
+	FQuestSnapshot Snapshot;
+	Snapshot.ID = ID;
+	// 제목으로 Summary를 사용 (필요 시 다른 필드로 변경)
+	Snapshot.Name = Summary;
+	Snapshot.Summary = Summary;
+	Snapshot.Description = Description;
+	Snapshot.CompletedAt = FDateTime::Now();
+	Snapshot.State = State;
+
+	// Objective 스냅샷들 수집 (이름 + 완료 여부)
+	Snapshot.Objectives.Empty();
+	for (const TObjectPtr<AQuestObjectiveActor>& ObjPtr : QuestObjectiveActors)
+	{
+		if (ObjPtr)
+		{
+			FQuestObjectiveSnapshot ObjSnap;
+			ObjSnap.Name = ObjPtr->GetObjectiveName();
+			ObjSnap.bCompleted = ObjPtr->IsCompleted();
+			Snapshot.Objectives.Add(ObjSnap);
+		}
+	}
+
+	return Snapshot;
 }

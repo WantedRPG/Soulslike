@@ -12,6 +12,7 @@
 #include "Engine/DataTable.h"
 #include "Quest.h"
 #include "QuestObjectiveActor.h"
+#include "Quest/QuestSnapshot.h"
 
 UQuestMenuWidget::UQuestMenuWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -198,34 +199,18 @@ void UQuestMenuWidget::ShowQuestDetail(FName QuestID)
 
 	// 상세 위젯 생성
 	UQuestDetailWidget* Detail = CreateWidget<UQuestDetailWidget>(GetWorld(), QuestDetailWidgetClass);
-	Detail->InitializeFromQuest(FoundQuest);
 	if (!Detail)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Failed to create QuestDetailWidget"));
 		return;
 	}
 
-	QuestDetailWidgetInstance = Detail;
-	if (QuestDetailMenuAnchor)
-	{
-		QuestDetailMenuAnchor->AddChild(Detail);
-	}
-	Detail->AddToViewport();
-
-	// 찾은 퀘스트 인스턴스로 상세 정보 설정
+	// FoundQuest가 있으면 UQuest 기반 초기화
 	if (FoundQuest)
 	{
-		if (Detail->QuestNameTextBlock)
-		{
-			Detail->QuestNameTextBlock->SetText(FoundQuest->Summary);
-		}
-		if (Detail->QuestDescTextBlock)
-		{
-			Detail->QuestDescTextBlock->SetText(FoundQuest->Description);
-		}
+		Detail->InitializeFromQuest(FoundQuest);
 
 		// QuestObjectiveScrollBox가 있고, QuestObjectiveActors가 있으면 간단히 목록을 추가할 수 있음.
-		// (구체적인 Objective 위젯이 없으므로 텍스트로만 추가하는 예시)
 		if (Detail->QuestObjectiveScrollBox)
 		{
 			Detail->QuestObjectiveScrollBox->ClearChildren();
@@ -247,8 +232,34 @@ void UQuestMenuWidget::ShowQuestDetail(FName QuestID)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Quest %s not found in ActiveQuestsInstance"), *QuestID.ToString());
+		// Active에서 못 찾으면 QuestSnapshots에서 찾아 스냅샷 기반 초기화 시도
+		const TArray<FQuestSnapshot>& Snapshots = QuestComp->GetQuestSnapshots();
+		const FQuestSnapshot* FoundSnapshot = nullptr;
+		for (const FQuestSnapshot& S : Snapshots)
+		{
+			if (S.ID == QuestID)
+			{
+				FoundSnapshot = &S;
+				break;
+			}
+		}
+
+		if (FoundSnapshot)
+		{
+			Detail->InitializeFromSnapshot(*FoundSnapshot);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UQuestMenuWidget::ShowQuestDetail - Quest %s not found in ActiveQuestsInstance or QuestSnapshots"), *QuestID.ToString());
+		}
 	}
+
+	QuestDetailWidgetInstance = Detail;
+	if (QuestDetailMenuAnchor)
+	{
+		QuestDetailMenuAnchor->AddChild(Detail);
+	}
+	Detail->AddToViewport();
 }
 
 void UQuestMenuWidget::RefreshCurrentQuestProgression()
