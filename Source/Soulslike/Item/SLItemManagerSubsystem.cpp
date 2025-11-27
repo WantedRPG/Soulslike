@@ -61,30 +61,7 @@ void USLItemManagerSubsystem::LoadAllItemData()
 			NewItemData->ItemDescription = TempTextKoDataCache[Row.TextID].ItemDesc;
 			NewItemData->MaxStack = Row.MaxStack;
 			NewItemData->ItemIcon = Row.ItemIcon;
-			
-			/*
-						FItemActionDetail ItemActionDetail;
-						ItemActionDetail.AbilityToActivate = TempActionDataCache[TempItemToActionDataCache[ItemID].ActionID];
-						for (auto& ItemToEffectData : TempItemToEffectDataCache)
-						{
-							if (ItemToEffectData.ItemID == ItemID)
-							{
 
-	
-									Todo : 해당 정보 활용해서 이펙트 효과 만들고
-									TempEffectDataCache[ItemToEffectData.EffectID].Duration;
-									TempEffectDataCache[ItemToEffectData.EffectID].ItemTag;
-									TempEffectDataCache[ItemToEffectData.EffectID].Value;
-									TempEffectDataCache[ItemToEffectData.EffectID].GameplayEffectClass;
-									//배열에 넣기
-									ItemActionDetail.GameplayEffectClass.Add(TempEffectDataCache[ItemToEffectData.EffectID].GameplayEffectClass);
-
-					}
-			}
-			//Todo : 복사 생성자-> 이동생성자로 , type에 맞춰서 넣어야함
-			//NewItemData->ItemActionMap.Add(,ItemActionDetail);
-			//NewItemData->ItemActionMap.Add(TempItemToActionDataCache[ItemID].ActionType,);
-			*/
 			
 			ItemDataCache.Add(ItemID, NewItemData);
 		}
@@ -94,6 +71,19 @@ void USLItemManagerSubsystem::LoadAllItemData()
 		UE_LOG(LogTemp, Error, TEXT("ItemDataCache가 비어있어서 실패했습니다."));
 		return;
 	}
+
+	ItemToActionTable->ForeachRow<FItemToActionTableRow>(TEXT("ItemToActionTable"), [&](const FName& TableNum, const FItemToActionTableRow& Row)
+		{
+			FActionTableRow* ActionRow = ActionTable->FindRow<FActionTableRow>(Row.ActionID, "FActionTableRow");
+			if (ActionRow)
+			{
+				FItemActionDetail ItemActionDetail;
+				ItemActionDetail.ActionTag = ActionRow->ActionTag;
+
+				ItemDataCache[Row.ItemID]->ItemActionMap.Add(Row.ActionType, MoveTemp(ItemActionDetail));
+			}
+		}
+	);
 		
 	ItemToEffectTable->ForeachRow<FItemToEffectTableRow>(TEXT("ItemToEffectTable"), [&](const FName& TableNum, const FItemToEffectTableRow& Row)
 		{
@@ -108,26 +98,7 @@ void USLItemManagerSubsystem::LoadAllItemData()
 				{
 					FoundItemDataPtr->Get()->ItemActionMap[Row.ActionType].AbilityToEffects.Add (*EffectRow);
 				}
-				else
-				{
-					FItemActionDetail ItemActionDetail;
-					ItemActionDetail.AbilityToEffects.Add(*EffectRow);
-					FoundItemDataPtr->Get()->ItemActionMap.Add(Row.ActionType, ItemActionDetail);
-				}
 			}
-		}
-	);
-
-	//TMap<FName, FItemToActionTableRow> TempItemToActionDataCache;
-	ItemToActionTable->ForeachRow<FItemToActionTableRow>(TEXT("ItemToActionTable"), [&](const FName& TableNum, const FItemToActionTableRow& Row)
-		{
-			FActionTableRow* ActionRow = ActionTable->FindRow<FActionTableRow>(Row.ActionID, "FActionTableRow");
-			if (ActionRow)
-			{
-				ItemDataCache[Row.ItemID]->ItemActionMap[Row.ActionType].ActionTag = ActionRow->ActionTag;
-				UE_LOG(LogTemp, Log, TEXT("ActionRow"));
-			}
-			//TempItemToActionDataCache.Add(ItemID, Row);
 		}
 	);
 
