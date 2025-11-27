@@ -189,8 +189,7 @@ void AMyPlayer::ScanItem()
 
 	//트레이스 시작점과 끝점 계산
 	FVector StartLocation = GetActorLocation();
-	UArrowComponent* MyArrow = GetArrowComponent();
-	StartLocation += MyArrow->GetForwardVector() * 100.0f;
+	StartLocation += GetMesh()->GetForwardVector() * 100.0f;
 
 	FHitResult HitResult;
 	FCollisionQueryParams Params;

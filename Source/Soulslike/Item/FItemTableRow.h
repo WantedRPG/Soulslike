@@ -70,7 +70,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ActionID;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Action")
-	TSoftClassPtr<UGameplayAbility> AbilityToActivate;
+	TSoftClassPtr<UGameplayAbility> GameplayAbilityPath;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Action")
+	FGameplayTag ActionTag;
 };
 
 USTRUCT(BlueprintType)
@@ -82,7 +84,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UGameplayEffect> GameplayEffectClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag ItemTag;
+	FGameplayTag EffectTag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Value;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -111,9 +113,9 @@ struct FItemActionDetail : public FTableRowBase
 {
 	GENERATED_BODY()
 public:
-	//아이템 사용 - 아이템 종류에 따라 사용
+	//아이템 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Action")
-	TSoftClassPtr<UGameplayAbility> AbilityToActivate;
+	FGameplayTag ActionTag;
 	//아이템 효과 - 여러 효과 적용 가능
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
 	TArray<FEffectTableRow> AbilityToEffects;

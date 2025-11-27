@@ -74,8 +74,7 @@ void UGAItemConsumable::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
             SpecHandle.Data->SetSetByCallerMagnitude(StaminaTag, 0.0f);
             SpecHandle.Data->SetSetByCallerMagnitude(MaxStaminaTag, 0.0f);
 
-            SpecHandle.Data->SetSetByCallerMagnitude(GEInfo.ItemTag, GEInfo.Value);
-            //SpecHandle.Data->SetSetByCallerMagnitude(GEInfo.DurationTag,GEInfo.Duration);
+            SpecHandle.Data->SetSetByCallerMagnitude(GEInfo.EffectTag, GEInfo.Value);
             FActiveGameplayEffectHandle ActiveGEHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
             

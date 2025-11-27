@@ -232,7 +232,8 @@ void USLInventoryComponent::UseItem(int32 InSlotIndex)
 
 	// OwnerActor를 대상으로 이벤트를 보냄
 	FGameplayEventData EventData;
-	EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Item.Event.Consumable"));
+	const USLItemData* InItemData = ItemManager->GetItemData(Items[InSlotIndex].ItemID);
+	EventData.EventTag = InItemData->ItemActionMap[EItemActionType::Primary].ActionTag;
 	EventData.Instigator = OwnerActor;
 	EventData.Target = OwnerActor;
 	UItemDataObject* ItemDataObject = NewObject<UItemDataObject>();

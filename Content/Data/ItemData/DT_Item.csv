@@ -1,7 +1,7 @@
 ﻿ItemID,TextID,MaxStack,ItemType,ItemIcon
-Item_001,TID_001,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Health_potion.15_Health_potion'
-Item_002,TID_002,10,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Energy_potion.15_Energy_potion',/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Energy_potion.15_Energy_potion'
-Item_003,TID_003,10,Throwable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/Ranger7.Ranger7'
+Item_001,TID_001,10,Consumable,/Game/LSJ/Item/Sprites/15_Health_potion.15_Health_potion
+Item_002,TID_002,10,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Energy_potion.15_Energy_potion',/Game/LSJ/Item/Sprites/15_Energy_potion.15_Energy_potion
+Item_003,TID_003,10,Throwable,/Game/LSJ/Item/Sprites/Ranger7.Ranger7
 Item_004,TID_004,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Superior_Health_potion.15_Superior_Health_potion'
 Item_005,TID_005,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Stamina_potion_nobg.15_Stamina_potion_nobg'
 Item_006,TID_006,10,Consumable,/Script/Engine.Texture2D'/Game/LSJ/Item/Sprites/15_Mana_potion.15_Mana_potion'

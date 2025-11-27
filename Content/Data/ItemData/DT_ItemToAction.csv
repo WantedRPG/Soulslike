@@ -1,2 +1,10 @@
 ﻿TableNum,ItemID,ActionType,ActionID
-1,Item_003,Primary,Action_Throwable_Default
+1,Item_001,Primary,Action_Consumable_Default
+2,Item_002,Primary,Action_Consumable_Default
+3,Item_003,Primary,Action_Throwable_Default
+4,Item_004,Primary,Action_Consumable_Default
+5,Item_005,Primary,Action_Consumable_Default
+6,Item_006,Primary,Action_Consumable_Default
+7,Item_007,Primary,Action_Consumable_Default
+8,Item_008,Primary,Action_Consumable_Default
+9,Item_009,Primary,Action_Consumable_Default

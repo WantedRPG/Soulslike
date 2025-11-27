@@ -1,2 +1,3 @@
-﻿ActionID,GameplayAbilityPath
-Action_Throwable_Default,
+﻿ActionID,GameplayAbilityPath,ActionTag
+Action_Throwable_Default,,Item.Event.Throwable
+Action_Consumable_Default,/Game/LSJ/GA/BPGA_ItemConsumable.BPGA_ItemConsumable,Item.Event.Consumable

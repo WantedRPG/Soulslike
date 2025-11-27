@@ -124,8 +124,7 @@ void USLItemManagerSubsystem::LoadAllItemData()
 			FActionTableRow* ActionRow = ActionTable->FindRow<FActionTableRow>(Row.ActionID, "FActionTableRow");
 			if (ActionRow)
 			{
-				//Todo : AbilityToActivate 구현 후 넣기
-				//ItemDataCache[Row.ItemID]->ItemActionMap[Row.ActionType].AbilityToActivate = ActionRow->AbilityToActivate.LoadSynchronous();
+				ItemDataCache[Row.ItemID]->ItemActionMap[Row.ActionType].ActionTag = ActionRow->ActionTag;
 				UE_LOG(LogTemp, Log, TEXT("ActionRow"));
 			}
 			//TempItemToActionDataCache.Add(ItemID, Row);
