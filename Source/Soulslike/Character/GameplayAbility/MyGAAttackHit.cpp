@@ -68,8 +68,6 @@ void UMyGAAttackHit::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
     }
 
     // 공격 스탯
-    const float AttackPower = SourceASC->GetNumericAttribute(USLAttributeSet::GetAttackPowerAttribute());
-
     FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
     Context.AddSourceObject(GetAvatarActorFromActorInfo());
 

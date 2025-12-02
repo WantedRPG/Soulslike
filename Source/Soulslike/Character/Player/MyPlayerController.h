@@ -22,6 +22,7 @@ public:
 	void ShowItemText();
 	void EquipmentWeapon();
 	void UnequipmentWeapon();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -29,7 +30,6 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> CurrentCharacterContext;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USLPlayerHUD> PlayerHUDClass;
 	UPROPERTY()

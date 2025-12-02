@@ -178,9 +178,6 @@ void AMyPlayer::SetupGASInputComponent()
 				EnhancedInputComponent->BindAction(InputAbility.IA, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, InputAbility.InputId);
 				EnhancedInputComponent->BindAction(InputAbility.IA, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, InputAbility.InputId);
 			}
-
-			// TODO. 이렇게 했을 때 RollAction이 동작하지 않음... 동작하다가 끝나나?
-			// EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
 		}
 	}
 }

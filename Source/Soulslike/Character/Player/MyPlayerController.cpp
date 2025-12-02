@@ -45,8 +45,6 @@ void AMyPlayerController::BeginPlay()
 			}
 		}
 	}
-
-
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -110,7 +108,7 @@ void AMyPlayerController::ToggleInventory()
 		}
 		else
 		{
-			//마우스 게임모드 및 감추기
+			// 마우스 게임 모드 및 감추기
 			SetInputMode(FInputModeGameOnly());
 			bShowMouseCursor = false;
 		}

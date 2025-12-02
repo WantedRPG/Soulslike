@@ -2,6 +2,7 @@
 
 
 #include "Character/GameplayAbility/MyGAJump.h"
+#include "Character/AbilityTask/MyATJumpAndWaitForLanding.h"
 #include "GameFramework/Character.h"
 
 UMyGAJump::UMyGAJump()
@@ -12,37 +13,24 @@ UMyGAJump::UMyGAJump()
 bool UMyGAJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool bResult = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
-
-	if (!bResult)
-	{
-		return false;
-	}
-
 	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-	return (Character && Character->CanJump());
+
+	return (bResult && Character && Character->CanJump());
 }
 
 void UMyGAJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// 블루프린트로 대체
-	/*
 	UMyATJumpAndWaitForLanding* JumpAndWaitingForLandingTask = UMyATJumpAndWaitForLanding::CreateTask(this);
 	JumpAndWaitingForLandingTask->OnComplete.AddDynamic(this, &UMyGAJump::OnLandedCallback); // GA가 종료 콜백 등록
-	JumpAndWaitingForLandingTask->ReadyForActivation() // AT 실행
-	;*/
+	JumpAndWaitingForLandingTask->ReadyForActivation(); // AT 실행
 }
 
 void UMyGAJump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
 	Character->StopJumping();
-}
-
-void UMyGAJump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
-{
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UMyGAJump::OnLandedCallback()

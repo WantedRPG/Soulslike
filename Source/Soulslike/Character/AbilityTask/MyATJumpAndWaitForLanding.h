@@ -17,7 +17,7 @@ class SOULSLIKE_API UMyATJumpAndWaitForLanding : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	UMyATJumpAndWaitForLanding();
+	UMyATJumpAndWaitForLanding() = default;
 
 public:
 	// AbilityTask 생성

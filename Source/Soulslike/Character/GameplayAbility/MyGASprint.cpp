@@ -94,7 +94,6 @@ void UMyGASprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const F
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
-
 void UMyGASprint::OnCompleteCallback()
 {
 	bool bReplicatedEndAbility = true;

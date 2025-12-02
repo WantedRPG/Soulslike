@@ -5,10 +5,6 @@
 #include "GameFramework/Character.h"
 #include "MyATSprint.h"
 
-UMyATJumpAndWaitForLanding::UMyATJumpAndWaitForLanding()
-{
-}
-
 UMyATJumpAndWaitForLanding* UMyATJumpAndWaitForLanding::CreateTask(UGameplayAbility* OwningAbility)
 {
 	UMyATJumpAndWaitForLanding* NewTask = NewAbilityTask<UMyATJumpAndWaitForLanding>(OwningAbility);
