@@ -111,56 +111,56 @@ void UMyGAGrabSword::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 	{
 		const FHitResult HR = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		Sword = HR.GetActor();
-	}
 
-	if (!Sword && TargetDataHandle.Data.Num() > 0)
-	{
-		if (const FGameplayAbilityTargetData* TD = TargetDataHandle.Data[0].Get())
+		if (!Sword && TargetDataHandle.Data.Num() > 0)
 		{
-			if (TD->GetActors().Num() > 0)
+			if (const FGameplayAbilityTargetData* TD = TargetDataHandle.Data[0].Get())
 			{
-				Sword = TD->GetActors()[0].Get();
+				if (TD->GetActors().Num() > 0)
+				{
+					Sword = TD->GetActors()[0].Get();
+				}
 			}
 		}
-	}
 
-	USkeletalMeshComponent* CharMesh = Character->GetMesh();
-	if ((!CharMesh) || (!CharMesh->DoesSocketExist(HandSocketName)))
-	{
-		return;
-	}
-
-	// 무기 장착 셋팅
-	if (USkeletalMeshComponent* WeaponSMC = Sword->FindComponentByClass<USkeletalMeshComponent>())
-	{
-		WeaponSMC->SetSimulatePhysics(false);
-		WeaponSMC->SetEnableGravity(false);
-		WeaponSMC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	Sword->SetOwner(Character);
-	Sword->SetInstigator(Character);
-	// 무기 장착
-	Sword->AttachToComponent(CharMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
-
-	// 무기 장착 태그
-	if (HasWeaponTag.IsValid())
-	{
-		if (UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked())
+		USkeletalMeshComponent* CharMesh = Character->GetMesh();
+		if ((!CharMesh) || (!CharMesh->DoesSocketExist(HandSocketName)))
 		{
-			SourceASC->AddLooseGameplayTag(HasWeaponTag);
+			return;
 		}
-	}
 
-	if (UBoxComponent* Collision = Sword->FindComponentByClass<UBoxComponent>())
-	{
-		Collision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	}
+		// 무기 장착 셋팅
+		if (USkeletalMeshComponent* WeaponSMC = Sword->FindComponentByClass<USkeletalMeshComponent>())
+		{
+			WeaponSMC->SetSimulatePhysics(false);
+			WeaponSMC->SetEnableGravity(false);
+			WeaponSMC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
 
-	AMyPlayerController* Controller = Cast<AMyPlayerController>(Character->GetController());
-	if (Controller)
-	{
-		Controller->EquipmentWeapon();
+		Sword->SetOwner(Character);
+		Sword->SetInstigator(Character);
+		// 무기 장착
+		Sword->AttachToComponent(CharMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
+
+		// 무기 장착 태그
+		if (HasWeaponTag.IsValid())
+		{
+			if (UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked())
+			{
+				SourceASC->AddLooseGameplayTag(HasWeaponTag);
+			}
+		}
+
+		if (UBoxComponent* Collision = Sword->FindComponentByClass<UBoxComponent>())
+		{
+			Collision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+		}
+
+		AMyPlayerController* Controller = Cast<AMyPlayerController>(Character->GetController());
+		if (Controller)
+		{
+			Controller->EquipmentWeapon();
+		}
 	}
 }
 

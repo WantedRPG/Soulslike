@@ -19,7 +19,7 @@ class SOULSLIKE_API AMyCharacter : public ACharacter
 public:
 	AMyCharacter();
 
-	FORCEINLINE USpringArmComponent* GetCameraBoom()   const { return CameraBoom; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 protected:
@@ -27,7 +27,7 @@ protected:
 	virtual void SetCharacterControlData(const class UMyCharacterControlData* CharacterControlData);
 
 protected:
-	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "PDA | Character Control Data")
 	TObjectPtr<UMyCharacterControlData> CharacterControlDataAsset;
 
 protected:

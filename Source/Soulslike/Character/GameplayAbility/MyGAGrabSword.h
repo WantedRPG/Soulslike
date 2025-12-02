@@ -11,6 +11,8 @@ class AMyTA_Sword;
 class UAbilityTask_WaitGameplayEvent;
 class UAnimMontage;
 
+// TODO. 무기를 선택해서 잡을 수 있도록 변경하기
+
 UCLASS()
 class SOULSLIKE_API UMyGAGrabSword : public UGameplayAbility
 {

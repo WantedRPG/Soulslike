@@ -65,7 +65,7 @@ void UMyHpBarUserWidget::NativeConstruct()
 
 	if (TxtHpStat)
 	{
-		FSlateFontInfo FontInfo = TxtHpStat->Font;
+		FSlateFontInfo FontInfo = TxtHpStat->GetFont();
 		FontInfo.Size = 17;
 		TxtHpStat->SetFont(FontInfo);
 	}

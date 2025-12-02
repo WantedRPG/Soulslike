@@ -65,7 +65,7 @@ void UMyStaminaBarUserWidget::NativeConstruct()
 
 	if (TxtStaminaStat)
 	{
-		FSlateFontInfo FontInfo = TxtStaminaStat->Font;
+		FSlateFontInfo FontInfo = TxtStaminaStat->GetFont();
 		FontInfo.Size = 15;         
 		TxtStaminaStat->SetFont(FontInfo);
 	}

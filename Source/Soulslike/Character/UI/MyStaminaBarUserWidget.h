@@ -7,9 +7,8 @@
 #include "GameplayEffectTypes.h"
 #include "MyStaminaBarUserWidget.generated.h"
 
-/**
- * 
- */
+// TODO. 스테미나 max인지 아닌지만 나오게 수정하자... 뭔가 유저 입장에서는 스테미나가 남아 있으면 사용 가능하다고 착각 가능
+
 UCLASS()
 class SOULSLIKE_API UMyStaminaBarUserWidget : public UMyUserWidget
 {

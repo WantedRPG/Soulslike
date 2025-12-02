@@ -73,14 +73,6 @@ void UMyGARoll::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGa
     }
 }
 
-void UMyGARoll::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
-{
-    SetCanBeCanceled(true);
-    bool bReplicatedEndAbility = true;
-    bool bWasCancelled = true;
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-}
-
 void UMyGARoll::OnCompleteCallback()
 {
     SetCanBeCanceled(true);

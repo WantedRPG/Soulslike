@@ -22,13 +22,12 @@
 
 AMyPlayer::AMyPlayer()
 {
-	// 빙의 시, PlayerState의 ASC와 중복 방지하기 위함.
-	//ASC = nullptr;
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<USLAttributeSet>(TEXT("Player_AttributeSet"));
-	InventoryComponent = CreateDefaultSubobject<USLInventoryComponent>(TEXT("InventoryComponent"));
-
 	Level = 1;
+
+	// 인벤토리
+	InventoryComponent = CreateDefaultSubobject<USLInventoryComponent>(TEXT("InventoryComponent"));
 
 	// 체력바
 	HpBar = CreateDefaultSubobject<UMyWidgetComponent>(TEXT("HpBarWidget"));
@@ -55,24 +54,54 @@ AMyPlayer::AMyPlayer()
 		StaminaBar->SetDrawSize(FVector2D(150.0f, 15.f));
 		StaminaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-
-	// 아이템
-	static ConstructorHelpers::FClassFinder<UGameplayAbility> GAItemConsumableRef(TEXT("/Game/LSJ/GA/BPGA_ItemConsumable.BPGA_ItemConsumable_C"));
-	if (GAItemConsumableRef.Succeeded())
-	{
-		StartAbilities.Add(GAItemConsumableRef.Class);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to find BPGA_ItemConsumable class!"));
-	}
 }
 
-void AMyPlayer::Tick(float DeltaSeconds)
+void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
 {
-	Super::Tick(DeltaSeconds);
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
 
-	ScanItem();
+	FGameplayTag StopSprintTag = FGameplayTag::RequestGameplayTag(FName("Character.State.StopSprint"));
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
+}
+
+void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, float InMagnitude)
+{
+	// 넉백 이벤트
+	FGameplayEventData EventData;
+	EventData.Target = this;
+	EventData.Instigator = Context.GetInstigator();
+	EventData.ContextHandle = Context;
+
+	EventData.EventMagnitude = InMagnitude;
+
+	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
+}
+
+void AMyPlayer::Death()
+{
+	if (IsDead())
+	{
+		return;
+	}
+
+	SetPlayerMode(EPlayerState::Dead);
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+		PC->SetIgnoreLookInput(true);
+		PC->SetIgnoreMoveInput(true);
+	}
+
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->DisableMovement();
+	}
 }
 
 UAbilitySystemComponent* AMyPlayer::GetAbilitySystemComponent() const
@@ -88,34 +117,34 @@ void AMyPlayer::PossessedBy(AController* NewController)
 
 	if (MyPS)
 	{
-		// ASC = MyPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(MyPS, this);
 
-		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-		EffectContextHandle.AddSourceObject(this);
-
-		for (const auto& StatEffect : StatEffects) 
-		{
-			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, EffectContextHandle);
-			if (EffectSpecHandle.IsValid())
-			{
-				// 본인에게 Setting하는 GE
-				ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
-			}
-		}
-
-		// GameplayAbiltySpec 등록
+		// 능력 부여
 		for (const auto& StartAbility : StartAbilities)
 		{
 			FGameplayAbilitySpec StartSpec(StartAbility);
 			ASC->GiveAbility(StartSpec);
 		}
 
-		for (const auto& StartInputAbility : StartInputAbilities)
+		for (const auto& InputAbility : InputAbilities)
 		{
-			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-			StartSpec.InputID = StartInputAbility.Key;
+			FGameplayAbilitySpec StartSpec(InputAbility.InputGA);
+			StartSpec.InputID = InputAbility.InputId;
 			ASC->GiveAbility(StartSpec);
+		}
+
+		// GE 적용
+		FGameplayEffectContextHandle GEContextHandle = ASC->MakeEffectContext();
+		GEContextHandle.AddSourceObject(this);
+
+		for (const auto& StatEffect : StatEffects)
+		{
+			FGameplayEffectSpecHandle GESpecHandle = ASC->MakeOutgoingSpec(StatEffect, Level, GEContextHandle);
+			if (GESpecHandle.IsValid())
+			{
+				// 본인에게 Setting하는 GE
+				ASC->BP_ApplyGameplayEffectSpecToSelf(GESpecHandle);
+			}
 		}
 
 		// 입력 바인딩
@@ -123,6 +152,7 @@ void AMyPlayer::PossessedBy(AController* NewController)
 	}
 }
 
+#pragma region 입력 바인딩
 void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -143,162 +173,16 @@ void AMyPlayer::SetupGASInputComponent()
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 		{
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 1);
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 1);
+			for (const auto& InputAbility : InputAbilities) 
+			{
+				EnhancedInputComponent->BindAction(InputAbility.IA, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, InputAbility.InputId);
+				EnhancedInputComponent->BindAction(InputAbility.IA, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, InputAbility.InputId);
+			}
 
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 2);
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 2);
-
-			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
-
-			// Equip Toggle
-			EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::PickupItem, 4);
-			// EnhancedInputComponent->BindAction(GrabWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 4);
-
-			EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 5);
-			// EnhancedInputComponent->BindAction(DropWeaponAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 5);
-
-			// Attack
-			// ComboAttack
-			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 6);
-			EnhancedInputComponent->BindAction(ComboAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 6);
-
-			// Acid
-			EnhancedInputComponent->BindAction(AcidAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 7);
-			EnhancedInputComponent->BindAction(AcidAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 7);
-
-			// Flame
-			EnhancedInputComponent->BindAction(FireAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 8);
-			EnhancedInputComponent->BindAction(FireAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 8);
-
-			// Electricity
-			EnhancedInputComponent->BindAction(ElectricityAttackAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 9);
-			EnhancedInputComponent->BindAction(ElectricityAttackAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 9);
-
-			// Impact
-			EnhancedInputComponent->BindAction(ImpactAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 10);
-			EnhancedInputComponent->BindAction(ImpactAction, ETriggerEvent::Completed, this, &AMyPlayer::GASInputReleased, 10);
+			// TODO. 이렇게 했을 때 RollAction이 동작하지 않음... 동작하다가 끝나나?
+			// EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMyPlayer::GASInputPressed, 3);
 		}
 	}
-}
-
-void AMyPlayer::ScanItem()
-{
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	//트레이스 시작점과 끝점 계산
-	FVector StartLocation = GetActorLocation();
-	StartLocation += GetMesh()->GetForwardVector() * 100.0f;
-
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
-	
-	FVector BoxHalfSize = FVector(70.f, 70.f, 100.f);
-
-	bool bHit = World->SweepSingleByObjectType(
-		HitResult,        // 결과 저장
-		GetActorLocation(),   // 시작 위치
-		GetActorLocation(),     // 끝 위치
-		FQuat::Identity, // 박스의 회전 (FQuat::Identity는 회전 없음)
-		ObjectTypes,    // 트레이스 채널
-		FCollisionShape::MakeBox(BoxHalfSize), // 박스 모양과 크기 지정
-		Params  // 충돌 파라미터
-	);
-	/*
-	bool bHit = World->LineTraceSingleByObjectType(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ObjectTypes, 
-		Params
-	);
-
-	FColor LineColor = FColor::Red;
-	float DrawDuration = 2.0f;
-	*/
-	
-	
-	// 5. 결과 처리
-	if (bHit)
-	{
-		//LineColor = FColor::Green;
-		ItemActor = HitResult.GetActor();
-
-		if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
-		{
-			PC->ShowItemText();
-		}
-	}
-	else
-	{
-		ItemActor = nullptr;
-
-		if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
-		{
-			PC->HiddenItemText();
-		}
-	}
-	/*
-	DrawDebugLine(
-		World,
-		StartLocation,
-		EndLocation,
-		LineColor,
-		false,              
-		DrawDuration 
-	);
-	*/
-}
-
-void AMyPlayer::PickupItem(int32 InputId)
-{
-	if (nullptr == ItemActor || IsDead())
-	{
-		return;
-	}
-
-	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
-	if (nullptr == Spec) return;
-	Spec->InputPressed = true;
-	if (Spec->IsActive())
-	{
-		// GA가 활성화 상태면 입력 신호 전달
-		ASC->AbilitySpecInputPressed(*Spec);
-		return;
-	}
-	
-
-	
-	
-	//아이템 획득
-	if (InventoryComponent)
-	{
-		if (ASLItemPickupActor* NewItem = Cast<ASLItemPickupActor>(ItemActor))
-		{
-			InventoryComponent->AddItem(NewItem->GetItemID(), NewItem->GetStackCount());
-			if (InventoryComponent->OnItemAcquired.IsBound())
-				InventoryComponent->OnItemAcquired.Broadcast(NewItem->GetItemID());
-			NewItem->Destroy();
-			return;
-		}
-	}
-
-	//아이템방향으로 회전
-	FVector ItemLocation = ItemActor->GetActorLocation();
-	ItemLocation.Z = 0;
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation.Z = 0;
-	FVector Direction = ItemLocation - CurrentLocation;
-	SetActorRotation(FRotationMatrix::MakeFromX(Direction).Rotator());
-
-	//무기 획득 및 줍기 애니메이션 동작
-	// GA가 비활성화 상태면 활성화 시도
-	ASC->TryActivateAbility(Spec->Handle);
 }
 
 void AMyPlayer::GASInputPressed(int32 InputId)
@@ -314,7 +198,7 @@ void AMyPlayer::GASInputPressed(int32 InputId)
 	{
 		Spec->InputPressed = true;
 
-		
+
 		if (Spec->IsActive())
 		{
 			// GA가 활성화 상태면 입력 신호 전달
@@ -348,6 +232,7 @@ void AMyPlayer::GASInputReleased(int32 InputId)
 		}
 	}
 }
+#pragma endregion
 
 void AMyPlayer::Move(const FInputActionValue& Value)
 {
@@ -390,51 +275,5 @@ void AMyPlayer::ToggleInventory()
 	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetController()))
 	{
 		PC->ToggleInventory();
-	}
-}
-
-void AMyPlayer::StopSprint(const FGameplayEffectContextHandle& Context)
-{
-	FGameplayEventData EventData;
-	EventData.Target = this;
-	EventData.Instigator = Context.GetInstigator();
-	EventData.ContextHandle = Context;
-	FGameplayTag StopSprintTag = FGameplayTag::RequestGameplayTag(FName("Character.State.StopSprint"));
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, StopSprintTag, EventData);
-}
-
-void AMyPlayer::KnockBack(const FGameplayEffectContextHandle& Context, float InMagnitude)
-{
-	// 넉백 이벤트
-	FGameplayEventData EventData;
-	EventData.Target = this;
-	EventData.Instigator = Context.GetInstigator();
-	EventData.ContextHandle = Context;
-
-	EventData.EventMagnitude = InMagnitude;
-
-	FGameplayTag HitTag = FGameplayTag::RequestGameplayTag(FName("Character.KnockBack"));
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitTag, EventData);
-}
-
-void AMyPlayer::Death()
-{
-	if (IsDead())
-	{
-		return;
-	}
-
-	SetPlayerMode(EPlayerState::Dead);
-
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		DisableInput(PC);
-		PC->SetIgnoreLookInput(true);
-		PC->SetIgnoreMoveInput(true);
-	}
-
-	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-	{
-		MoveComp->DisableMovement();
 	}
 }
